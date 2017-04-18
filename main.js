@@ -96,11 +96,17 @@ MonsterCoin.Type = {
 };
 
 var MonsterCoinDirector = function(){
+    this.coins = {};
 };
 MonsterCoinDirector.prototype = new GameObject();
 
 MonsterCoinDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this, arguments);
+    Object.keys(MonsterCoin.Type).forEach(function(value, index, array){
+	var coin = new MonsterCoin(value);
+	this.coins[value] = coin;
+	coin.Start();
+    }, this);
 };
 
 MonsterCoinDirector.prototype.Update = function(){
@@ -115,4 +121,5 @@ MonsterCoinDirector.prototype.Update = function(){
     ]);
     engine.Start();
     engine.Loop();
+    console.log(engine);
 })();
