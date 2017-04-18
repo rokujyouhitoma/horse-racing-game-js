@@ -161,7 +161,6 @@ DebugUIDirector.prototype.Start = function(){
 DebugUIDirector.prototype.Update = function(){
     GameObject.prototype.Update.call(this, arguments);
     if(1000 <= this.engine.lastUpdate - this.baseTime){
-	console.log(this.engine);
 	this.currentFPS = ((this.engine.count - this.baseCount) * 1000) / (this.engine.lastUpdate - this.baseTime);
 	this.baseTime = this.engine.lastUpdate;
 	this.baseCount = this.engine.count;
