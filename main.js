@@ -4,11 +4,7 @@ var Engine = function(objects){
     this.objects = objects;
     this.count = 0;
     this.FPS = 1000 / 60;
-    var now = Date.now();
-    this.lastUpdate = now;
-    this.baseTime = now;
-    this.baseCount = 0;
-    this.currentFPS = 0;
+    this.lastUpdate = Date.now();
 };
 
 Engine.prototype.Loop = function(){
@@ -20,13 +16,8 @@ Engine.prototype.Loop = function(){
 	    self.count++;
 	}
 	now = Date.now();
-	if(1000 <= now - self.baseTime){
-	    self.currentFPS = ((self.count - self.baseCount) * 1000) / (now - self.baseTime);
-	    self.baseTime = now;
-	    self.baseCount = self.count;
-	}
-	self.lastUpdate = now;
 	var dt = now - self.lastUpdate;
+	self.lastUpdate = now;
 	self.Update(dt);
     };
     loop();
@@ -150,6 +141,9 @@ MonsterFigure.prototype.Update = function(){
 var DebugUIDirector = function(engine){
     this.engine = engine;
     this.dom;
+    this.baseTime = engine.lastUpdate;
+    this.baseCount = 0;
+    this.currentFPS = 0;
 };
 DebugUIDirector.prototype = new GameObject();
 
@@ -166,7 +160,13 @@ DebugUIDirector.prototype.Start = function(){
 
 DebugUIDirector.prototype.Update = function(){
     GameObject.prototype.Update.call(this, arguments);
-    this.dom.innerText = this.engine.currentFPS;
+    if(1000 <= this.engine.lastUpdate - this.baseTime){
+	console.log(this.engine);
+	this.currentFPS = ((this.engine.count - this.baseCount) * 1000) / (this.engine.lastUpdate - this.baseTime);
+	this.baseTime = this.engine.lastUpdate;
+	this.baseCount = this.engine.count;
+    }
+    this.dom.innerText = this.currentFPS;
 };
 
 // main
