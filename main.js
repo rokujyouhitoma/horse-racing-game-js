@@ -45,6 +45,14 @@ GameObject.prototype.Update = function(deltaTime){};
 var GameBoard = function(){};
 GameBoard.prototype = new GameObject();
 
+GameBoard.prototype.Start = function(){
+    GameObject.prototype.Start.call(this, arguments);
+};
+
+GameBoard.prototype.Update = function(){
+    GameObject.prototype.Update.call(this, arguments);
+};
+
 var SlimeFigure = function(type){
     this.type = type;
     this.color = SlimeFigure.Color[type];
