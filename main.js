@@ -165,7 +165,7 @@ DebugUIDirector.prototype.Update = function(){
 	this.baseTime = this.engine.lastUpdate;
 	this.baseCount = this.engine.count;
     }
-    this.dom.innerText = this.currentFPS;
+    this.dom.innerText = Math.floor(this.currentFPS * 100) / 100;
 };
 
 // main
