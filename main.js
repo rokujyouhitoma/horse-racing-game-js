@@ -4,9 +4,9 @@ var Engine = function(objects){
     this.objects = objects;
     this.count = 0;
     this.FPS = 1000 / 60;
-    this.now = Date.now();
-    this.lastUpdate = this.now;
-    this.baseTime = this.now;
+    var now = Date.now();
+    this.lastUpdate = now;
+    this.baseTime = now;
     this.baseCount = 0;
     this.currentFPS = 0;
 };
@@ -26,7 +26,6 @@ Engine.prototype.Loop = function(){
 	    self.baseCount = self.count;
 	}
 	self.lastUpdate = now;
-	self.now = now;
 	var dt = now - self.lastUpdate;
 	self.Update(dt);
     };
