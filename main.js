@@ -14,13 +14,13 @@ var Engine = function(objects){
 Engine.prototype.Loop = function(){
     console.log("Loop");
     var self = this;
-    var loop = function() {
-	if(0 <= self.count) {
+    var loop = function(){
+	if(0 <= self.count){
 	    setTimeout(loop, self.FPS);
 	    self.count++;
 	}
 	now = Date.now();
-	if(1000 <= now - self.baseTime) {
+	if(1000 <= now - self.baseTime){
 	    self.currentFPS = ((self.count - self.baseCount) * 1000) / (now - self.baseTime);
 	    self.baseTime = now;
 	    self.baseCount = self.count;
