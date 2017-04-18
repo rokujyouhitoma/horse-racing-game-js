@@ -26,14 +26,14 @@ SlimeFigure.Color = {
     "Purple": "800080"
 };
 
-var BaseDirector = function(){};
-BaseDirector.prototype.Start = function(){};
-BaseDirector.prototype.Update = function(deltaTime){};
+var GameObject = function(){};
+GameObject.prototype.Start = function(){};
+GameObject.prototype.Update = function(deltaTime){};
 
 var SlimeFigureDirector = function(){
     this.slimes = {};
 };
-SlimeFigureDirector.prototype = new BaseDirector();
+SlimeFigureDirector.prototype = new GameObject();
 SlimeFigureDirector.prototype.Start = function(){
     Object.keys(SlimeFigure.Type).forEach(function(value, index, array){
 	this.slimes[value] = new SlimeFigure(value);
