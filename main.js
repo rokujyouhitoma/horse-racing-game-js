@@ -32,7 +32,6 @@ Engine.prototype.Start = function(){
 };
 
 Engine.prototype.Update = function(deltaTime){
-    console.log("Update");
     this.objects.forEach(function(value, index, array){
 	//TODO: 呼び出しをeventモデルにしたほうがよい
 	value.Update(deltaTime);
@@ -43,15 +42,11 @@ var GameObject = function(){};
 GameObject.prototype.Start = function(){};
 GameObject.prototype.Update = function(deltaTime){};
 
-var BaseFigure = function(){
-    this.color;
-};
-
 var SlimeFigure = function(type){
     this.type = type;
     this.color = SlimeFigure.Color[type];
 };
-SlimeFigure.prototype = new BaseFigure();
+SlimeFigure.prototype = new GameObject();
 
 SlimeFigure.Type = {
     "Red": "Red",
@@ -73,16 +68,50 @@ var SlimeFigureDirector = function(){
     this.slimes = {};
 };
 SlimeFigureDirector.prototype = new GameObject();
+
 SlimeFigureDirector.prototype.Start = function(){
+    GameObject.prototype.Start.call(this, arguments);
     Object.keys(SlimeFigure.Type).forEach(function(value, index, array){
-	this.slimes[value] = new SlimeFigure(value);
+	var slime = new SlimeFigure(value);
+	this.slimes[value] = slime;
+	slime.Start();
     }, this);
+};
+
+SlimeFigureDirector.prototype.Update = function(){
+    GameObject.prototype.Update.call(this, arguments);
+};
+
+var MonsterCoin = function(type){
+    this.type = type;
+};
+MonsterCoin.prototype = new GameObject();
+
+MonsterCoin.Type = {
+    "Dragon": "Dragon",
+    "Daemon": "Daemon",
+    "Drakee": "Drakee",
+    "Golem": "Golem",
+    "Ghost": "Ghost",
+};
+
+var MonsterCoinDirector = function(){
+};
+MonsterCoinDirector.prototype = new GameObject();
+
+MonsterCoinDirector.prototype.Start = function(){
+    GameObject.prototype.Start.call(this, arguments);
+};
+
+MonsterCoinDirector.prototype.Update = function(){
+    GameObject.prototype.Update.call(this, arguments);
 };
 
 // main
 (function(){
     var engine = new Engine([
         new SlimeFigureDirector(),
+	new MonsterCoinDirector(),
     ]);
     engine.Start();
     engine.Loop();
