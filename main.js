@@ -3,21 +3,31 @@ console.log("main.js");
 var Engine = function(objects){
     this.objects = objects;
     this.count = 0;
-    this.fps = 1000 / 60;
-    this.lastUpdate = Date.now();
+    this.FPS = 1000 / 60;
+    this.now = Date.now();
+    this.lastUpdate = this.now;
+    this.baseTime = this.now;
+    this.baseCount = 0;
+    this.currentFPS = 0;
 };
 
 Engine.prototype.Loop = function(){
     console.log("Loop");
     var self = this;
     var loop = function() {
-	if(self.count >= 0) {
-	    setTimeout(loop, self.fps);
+	if(0 <= self.count) {
+	    setTimeout(loop, self.FPS);
 	    self.count++;
 	}
-	var now = Date.now();
-	var dt = now - self.lastUpdate;
+	now = Date.now();
+	if(1000 <= now - self.baseTime) {
+	    self.currentFPS = ((self.count - self.baseCount) * 1000) / (now - self.baseTime);
+	    self.baseTime = now;
+	    self.baseCount = self.count;
+	}
 	self.lastUpdate = now;
+	self.now = now;
+	var dt = now - self.lastUpdate;
 	self.Update(dt);
     };
     loop();
@@ -41,6 +51,9 @@ Engine.prototype.Update = function(deltaTime){
 var GameObject = function(){};
 GameObject.prototype.Start = function(){};
 GameObject.prototype.Update = function(deltaTime){};
+
+var GameBoard = function(){};
+GameBoard.prototype = new GameObject();
 
 var SlimeFigure = function(type){
     this.type = type;
@@ -134,13 +147,39 @@ MonsterFigure.prototype.Update = function(){
     GameObject.prototype.Update.call(this, arguments);
 };
 
+// For debug.
+var DebugUIDirector = function(engine){
+    this.engine = engine;
+    this.dom;
+};
+DebugUIDirector.prototype = new GameObject();
+
+DebugUIDirector.prototype.Start = function(){
+    GameObject.prototype.Start.call(this, arguments);
+    var elements = document.getElementsByTagName("body");
+    if(elements.length > 0){
+	var body = elements[0];
+	var dom = document.createElement("h1");
+	body.appendChild(dom);
+	this.dom = dom;
+    }
+};
+
+DebugUIDirector.prototype.Update = function(){
+    GameObject.prototype.Update.call(this, arguments);
+    this.dom.innerText = this.engine.currentFPS;
+};
+
 // main
-(function(){
+(window.onload = function(){
     var engine = new Engine([
         new SlimeFigureDirector(),
 	new MonsterCoinDirector(),
     ]);
+    // For debug.
+    engine.objects.push(new DebugUIDirector(engine));
+
     engine.Start();
     engine.Loop();
     console.log(engine);
-})();
+});
