@@ -113,6 +113,27 @@ MonsterCoinDirector.prototype.Update = function(){
     GameObject.prototype.Update.call(this, arguments);
 };
 
+var MonsterFigure = function(type){
+    this.type = type;
+};
+MonsterFigure.prototype = new GameObject();
+
+MonsterFigure.Type = {
+    "Dragon": "Dragon",
+    "Daemon": "Daemon",
+    "Drakee": "Drakee",
+    "Golem": "Golem",
+    "Ghost": "Ghost",
+};
+
+MonsterFigure.prototype.Start = function(){
+    GameObject.prototype.Start.call(this, arguments);
+};
+
+MonsterFigure.prototype.Update = function(){
+    GameObject.prototype.Update.call(this, arguments);
+};
+
 // main
 (function(){
     var engine = new Engine([
