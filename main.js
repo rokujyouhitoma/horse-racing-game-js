@@ -38,6 +38,53 @@ Engine.prototype.Update = function(deltaTime){
     }, this);
 };
 
+var ServiceLocator = function(){
+	this.container = {};
+};
+
+ServiceLocator.prototype.Create = function(object){
+	if(!(object in this.container)){
+		this.container[object] = new object();
+	}
+	return this.container[object];
+}
+
+//TODO: ここでnewは...
+ServiceLocator.instance = new ServiceLocator();
+
+var MasterData = function(){
+	this.stub = {
+		"SlimeFigure": [
+			// type, color
+			["Red", "FF0000"],
+			["Orange", "FFA500"],
+			["Green", "008000"],
+			["Blue", "0000FF"],
+			["Purple", "800080"],
+		],
+		"MonsterCoin": [
+			// type
+			["Dragon"],
+			["Daemon"],
+			["Drakee"],
+			["Golem"],
+			["Ghost"],
+		],
+		"MonsterFigure": [
+			// type
+			["Dragon"],
+			["Daemon"],
+			["Drakee"],
+			["Golem"],
+			["Ghost"],
+		]
+	};
+};
+
+MasterData.prototype.Get = function(key){
+	return this.stub[key];
+}
+
 var GameObject = function(){};
 GameObject.prototype.Start = function(){};
 GameObject.prototype.Update = function(deltaTime){};
@@ -53,27 +100,11 @@ GameBoard.prototype.Update = function(deltaTime){
     GameObject.prototype.Update.call(this, arguments);
 };
 
-var SlimeFigure = function(type){
-    this.type = type;
-    this.color = SlimeFigure.Color[type];
+var SlimeFigure = function(row){
+    this.type = row[0];
+    this.color = row[1];
 };
 SlimeFigure.prototype = new GameObject();
-
-SlimeFigure.Type = {
-    "Red": "Red",
-    "Orange": "Orange",
-    "Green": "Green",
-    "Blue": "Blue",
-    "Purple": "Purple",
-};
-
-SlimeFigure.Color = {
-    "Red": "FF0000",
-    "Orange": "FFA500",
-    "Green": "008000",
-    "Blue": "0000FF",
-    "Purple": "800080"
-};
 
 var SlimeFigureDirector = function(){
     this.slimes = {};
@@ -82,7 +113,7 @@ SlimeFigureDirector.prototype = new GameObject();
 
 SlimeFigureDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this, arguments);
-    Object.keys(SlimeFigure.Type).forEach(function(value, index, array){
+    ServiceLocator.instance.Create(MasterData).Get("SlimeFigure").forEach(function(value, index, array){
 		var slime = new SlimeFigure(value);
 		this.slimes[value] = slime;
 		slime.Start();
@@ -93,18 +124,10 @@ SlimeFigureDirector.prototype.Update = function(deltaTime){
     GameObject.prototype.Update.call(this, arguments);
 };
 
-var MonsterCoin = function(type){
-    this.type = type;
+var MonsterCoin = function(row){
+    this.type = row[0];
 };
 MonsterCoin.prototype = new GameObject();
-
-MonsterCoin.Type = {
-    "Dragon": "Dragon",
-    "Daemon": "Daemon",
-    "Drakee": "Drakee",
-    "Golem": "Golem",
-    "Ghost": "Ghost",
-};
 
 var MonsterCoinDirector = function(){
     this.coins = {};
@@ -113,7 +136,7 @@ MonsterCoinDirector.prototype = new GameObject();
 
 MonsterCoinDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this, arguments);
-    Object.keys(MonsterCoin.Type).forEach(function(value, index, array){
+	ServiceLocator.instance.Create(MasterData).Get("MonsterCoin").forEach(function(value, index, array){
 		var coin = new MonsterCoin(value);
 		this.coins[value] = coin;
 		coin.Start();
@@ -124,18 +147,10 @@ MonsterCoinDirector.prototype.Update = function(deltaTime){
     GameObject.prototype.Update.call(this, arguments);
 };
 
-var MonsterFigure = function(type){
-    this.type = type;
+var MonsterFigure = function(row){
+    this.type = row[0];
 };
 MonsterFigure.prototype = new GameObject();
-
-MonsterFigure.Type = {
-    "Dragon": "Dragon",
-    "Daemon": "Daemon",
-    "Drakee": "Drakee",
-    "Golem": "Golem",
-    "Ghost": "Ghost",
-};
 
 MonsterFigure.prototype.Start = function(){
     GameObject.prototype.Start.call(this, arguments);
