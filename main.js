@@ -38,8 +38,12 @@ Engine.prototype.Update = function(deltaTime){
     }, this);
 };
 
-var ServiceLocator = function(){
-	this.container = {};
+var GameObject = function(){};
+GameObject.prototype.Start = function(){};
+GameObject.prototype.Update = function(deltaTime){};
+
+var ServiceLocator = function(container){
+	this.container = container;
 };
 
 ServiceLocator.prototype.Create = function(object){
@@ -49,8 +53,11 @@ ServiceLocator.prototype.Create = function(object){
 	return this.container[object];
 }
 
-//TODO: ここでnewは...
-ServiceLocator.instance = new ServiceLocator();
+//TODO: bindはちょっと...
+ServiceLocator.instance = new ServiceLocator({});
+
+var Game = function(){};
+Game.prototype = new GameObject();
 
 var MasterData = function(){
 	this.stub = {
@@ -84,10 +91,6 @@ var MasterData = function(){
 MasterData.prototype.Get = function(key){
 	return this.stub[key];
 }
-
-var GameObject = function(){};
-GameObject.prototype.Start = function(){};
-GameObject.prototype.Update = function(deltaTime){};
 
 var GameBoard = function(){};
 GameBoard.prototype = new GameObject();
