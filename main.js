@@ -41,6 +41,7 @@ Engine.prototype.Update = function(deltaTime){
 var GameObject = function(){};
 GameObject.prototype.Start = function(){};
 GameObject.prototype.Update = function(deltaTime){};
+GameObject.prototype.Destroy = function(){};
 
 var ServiceLocator = function(container){
 	this.container = container;
@@ -73,6 +74,13 @@ Game.prototype.Update = function(deltaTime){
 		value.Update(deltaTime);
     }, this);
     GameObject.prototype.Update.call(this, arguments);
+};
+
+Game.prototype.Reset = function(){
+    this.objects.forEach(function(value, index, array){
+		value.Destroy();
+    }, this);
+    this.Start();
 };
 
 Game.ServiceLocatorContainer = {};
@@ -146,6 +154,10 @@ SlimeFigureDirector.prototype.Update = function(deltaTime){
     GameObject.prototype.Update.call(this, arguments);
 };
 
+SlimeFigureDirector.prototype.Destroy = function(){
+	this.slime = {};
+};
+
 var MonsterCoin = function(row){
     this.type = row[0];
 };
@@ -167,6 +179,10 @@ MonsterCoinDirector.prototype.Start = function(){
 
 MonsterCoinDirector.prototype.Update = function(deltaTime){
     GameObject.prototype.Update.call(this, arguments);
+};
+
+MonsterCoinDirector.prototype.Destroy = function(){
+	this.coins = {};
 };
 
 var MonsterFigure = function(row){
