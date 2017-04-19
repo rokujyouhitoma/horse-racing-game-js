@@ -75,7 +75,8 @@ Game.prototype.Update = function(deltaTime){
     GameObject.prototype.Update.call(this, arguments);
 };
 
-Game.ServiceLocator = new ServiceLocator({});
+Game.ServiceLocatorContainer = {};
+Game.ServiceLocator = new ServiceLocator(Game.ServiceLocatorContainer);
 
 var MasterData = function(){
 	this.stub = {
@@ -214,7 +215,7 @@ DebugUIDirector.prototype.Update = function(deltaTime){
 
 // main
 (window.onload = function(){
-    var engine = new Engine([new Game()]);
+    var engine = new Engine([Game.ServiceLocator.Create(Game)]);
     // For debug.
     engine.objects.push(new DebugUIDirector(engine));
 
