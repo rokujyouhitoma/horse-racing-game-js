@@ -55,8 +55,8 @@ ServiceLocator.prototype.Create = function(object){
 
 var Game = function(){
 	this.objects = [
-		new SlimeFigureDirector(),
-		new MonsterCoinDirector(),
+		Game.ServiceLocator.Create(SlimeFigureDirector),
+		Game.ServiceLocator.Create(MonsterCoinDirector),
 	];
 };
 Game.prototype = new GameObject();
