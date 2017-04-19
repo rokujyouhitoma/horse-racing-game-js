@@ -53,11 +53,29 @@ ServiceLocator.prototype.Create = function(object){
 	return this.container[object];
 }
 
-//TODO: bindはちょっと...
-ServiceLocator.instance = new ServiceLocator({});
-
-var Game = function(){};
+var Game = function(){
+	this.objects = [
+		new SlimeFigureDirector(),
+		new MonsterCoinDirector(),
+	];
+};
 Game.prototype = new GameObject();
+
+Game.prototype.Start = function(){
+    this.objects.forEach(function(value, index, array){
+		value.Start();
+    }, this);
+    GameObject.prototype.Start.call(this, arguments);
+};
+
+Game.prototype.Update = function(deltaTime){
+    this.objects.forEach(function(value, index, array){
+		value.Update(deltaTime);
+    }, this);
+    GameObject.prototype.Update.call(this, arguments);
+};
+
+Game.ServiceLocator = new ServiceLocator({});
 
 var MasterData = function(){
 	this.stub = {
@@ -116,7 +134,7 @@ SlimeFigureDirector.prototype = new GameObject();
 
 SlimeFigureDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this, arguments);
-    ServiceLocator.instance.Create(MasterData).Get("SlimeFigure").forEach(function(value, index, array){
+    Game.ServiceLocator.Create(MasterData).Get("SlimeFigure").forEach(function(value, index, array){
 		var slime = new SlimeFigure(value);
 		this.slimes[value] = slime;
 		slime.Start();
@@ -139,7 +157,7 @@ MonsterCoinDirector.prototype = new GameObject();
 
 MonsterCoinDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this, arguments);
-	ServiceLocator.instance.Create(MasterData).Get("MonsterCoin").forEach(function(value, index, array){
+	Game.ServiceLocator.Create(MasterData).Get("MonsterCoin").forEach(function(value, index, array){
 		var coin = new MonsterCoin(value);
 		this.coins[value] = coin;
 		coin.Start();
@@ -196,10 +214,7 @@ DebugUIDirector.prototype.Update = function(deltaTime){
 
 // main
 (window.onload = function(){
-    var engine = new Engine([
-        new SlimeFigureDirector(),
-        new MonsterCoinDirector(),
-    ]);
+    var engine = new Engine([new Game()]);
     // For debug.
     engine.objects.push(new DebugUIDirector(engine));
 
