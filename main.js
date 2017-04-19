@@ -58,6 +58,7 @@ var Game = function(){
 	this.objects = [
 		Game.ServiceLocator.Create(SlimeFigureDirector),
 		Game.ServiceLocator.Create(MonsterCoinDirector),
+		Game.ServiceLocator.Create(MonsterFigureDirector),
 	];
 };
 Game.prototype = new GameObject();
@@ -196,6 +197,28 @@ MonsterFigure.prototype.Start = function(){
 
 MonsterFigure.prototype.Update = function(deltaTime){
     GameObject.prototype.Update.call(this, arguments);
+};
+
+var MonsterFigureDirector = function(){
+    this.figures = {};
+};
+MonsterFigureDirector.prototype = new GameObject();
+
+MonsterFigureDirector.prototype.Start = function(){
+    GameObject.prototype.Start.call(this, arguments);
+	Game.ServiceLocator.Create(MasterData).Get("MonsterCoin").forEach(function(value, index, array){
+		var figure = new MonsterFigure(value);
+		this.figures[value] = figure;
+			figure.Start();
+    }, this);
+};
+
+MonsterFigureDirector.prototype.Update = function(deltaTime){
+    GameObject.prototype.Update.call(this, arguments);
+};
+
+MonsterFigureDirector.prototype.Destroy = function(){
+	this.figures = {};
 };
 
 // For debug.
