@@ -16,9 +16,9 @@ Engine.prototype.Loop = function(){
 	    self.count++;
 	}
 	now = Date.now();
-	var dt = now - self.lastUpdate;
+	var deltaTime = (now - self.lastUpdate) / 1000;
 	self.lastUpdate = now;
-	self.Update(dt);
+	self.Update(deltaTime);
     };
     loop();
 }
@@ -49,7 +49,7 @@ GameBoard.prototype.Start = function(){
     GameObject.prototype.Start.call(this, arguments);
 };
 
-GameBoard.prototype.Update = function(){
+GameBoard.prototype.Update = function(deltaTime){
     GameObject.prototype.Update.call(this, arguments);
 };
 
@@ -89,7 +89,7 @@ SlimeFigureDirector.prototype.Start = function(){
     }, this);
 };
 
-SlimeFigureDirector.prototype.Update = function(){
+SlimeFigureDirector.prototype.Update = function(deltaTime){
     GameObject.prototype.Update.call(this, arguments);
 };
 
@@ -120,7 +120,7 @@ MonsterCoinDirector.prototype.Start = function(){
     }, this);
 };
 
-MonsterCoinDirector.prototype.Update = function(){
+MonsterCoinDirector.prototype.Update = function(deltaTime){
     GameObject.prototype.Update.call(this, arguments);
 };
 
@@ -141,7 +141,7 @@ MonsterFigure.prototype.Start = function(){
     GameObject.prototype.Start.call(this, arguments);
 };
 
-MonsterFigure.prototype.Update = function(){
+MonsterFigure.prototype.Update = function(deltaTime){
     GameObject.prototype.Update.call(this, arguments);
 };
 
@@ -166,7 +166,7 @@ DebugUIDirector.prototype.Start = function(){
     }
 };
 
-DebugUIDirector.prototype.Update = function(){
+DebugUIDirector.prototype.Update = function(deltaTime){
     GameObject.prototype.Update.call(this, arguments);
     if(1000 <= this.engine.lastUpdate - this.baseTime){
 	this.currentFPS = ((this.engine.count - this.baseCount) * 1000) / (this.engine.lastUpdate - this.baseTime);
