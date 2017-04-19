@@ -11,14 +11,14 @@ Engine.prototype.Loop = function(){
     console.log("Loop");
     var self = this;
     var loop = function(){
-	if(0 <= self.count){
-	    setTimeout(loop, self.FPS);
-	    self.count++;
-	}
-	now = Date.now();
-	var deltaTime = (now - self.lastUpdate) / 1000;
-	self.lastUpdate = now;
-	self.Update(deltaTime);
+		if(0 <= self.count){
+			setTimeout(loop, self.FPS);
+			self.count++;
+		}
+		now = Date.now();
+		var deltaTime = (now - self.lastUpdate) / 1000;
+		self.lastUpdate = now;
+		self.Update(deltaTime);
     };
     loop();
 }
@@ -26,15 +26,15 @@ Engine.prototype.Loop = function(){
 Engine.prototype.Start = function(){
     console.log("Start");
     this.objects.forEach(function(value, index, array){
-	//TODO: 呼び出しをeventモデルにしたほうがよい
-	value.Start();
+		//TODO: 呼び出しをeventモデルにしたほうがよい
+		value.Start();
     }, this);
 };
 
 Engine.prototype.Update = function(deltaTime){
     this.objects.forEach(function(value, index, array){
-	//TODO: 呼び出しをeventモデルにしたほうがよい
-	value.Update(deltaTime);
+		//TODO: 呼び出しをeventモデルにしたほうがよい
+		value.Update(deltaTime);
     }, this);
 };
 
@@ -83,9 +83,9 @@ SlimeFigureDirector.prototype = new GameObject();
 SlimeFigureDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this, arguments);
     Object.keys(SlimeFigure.Type).forEach(function(value, index, array){
-	var slime = new SlimeFigure(value);
-	this.slimes[value] = slime;
-	slime.Start();
+		var slime = new SlimeFigure(value);
+		this.slimes[value] = slime;
+		slime.Start();
     }, this);
 };
 
@@ -114,9 +114,9 @@ MonsterCoinDirector.prototype = new GameObject();
 MonsterCoinDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this, arguments);
     Object.keys(MonsterCoin.Type).forEach(function(value, index, array){
-	var coin = new MonsterCoin(value);
-	this.coins[value] = coin;
-	coin.Start();
+		var coin = new MonsterCoin(value);
+		this.coins[value] = coin;
+		coin.Start();
     }, this);
 };
 
@@ -159,19 +159,19 @@ DebugUIDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this, arguments);
     var elements = document.getElementsByTagName("body");
     if(elements.length > 0){
-	var body = elements[0];
-	var dom = document.createElement("h1");
-	body.appendChild(dom);
-	this.dom = dom;
+		var body = elements[0];
+		var dom = document.createElement("h1");
+		body.appendChild(dom);
+		this.dom = dom;
     }
 };
 
 DebugUIDirector.prototype.Update = function(deltaTime){
     GameObject.prototype.Update.call(this, arguments);
     if(1000 <= this.engine.lastUpdate - this.baseTime){
-	this.currentFPS = ((this.engine.count - this.baseCount) * 1000) / (this.engine.lastUpdate - this.baseTime);
-	this.baseTime = this.engine.lastUpdate;
-	this.baseCount = this.engine.count;
+		this.currentFPS = ((this.engine.count - this.baseCount) * 1000) / (this.engine.lastUpdate - this.baseTime);
+		this.baseTime = this.engine.lastUpdate;
+		this.baseCount = this.engine.count;
     }
     this.dom.innerText = Math.floor(this.currentFPS * 100) / 100;
 };
@@ -180,7 +180,7 @@ DebugUIDirector.prototype.Update = function(deltaTime){
 (window.onload = function(){
     var engine = new Engine([
         new SlimeFigureDirector(),
-	new MonsterCoinDirector(),
+        new MonsterCoinDirector(),
     ]);
     // For debug.
     engine.objects.push(new DebugUIDirector(engine));
