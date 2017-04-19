@@ -46,11 +46,11 @@ var ServiceLocator = function(container){
 	this.container = container;
 };
 
-ServiceLocator.prototype.Create = function(object){
-	if(!(object in this.container)){
-		this.container[object] = new object();
-	}
-	return this.container[object];
+ServiceLocator.prototype.Create = function(obj){
+    if(!(obj in this.container)){
+        this.container[obj] = new obj();
+    }
+    return this.container[obj];
 }
 
 var Game = function(){
