@@ -120,6 +120,17 @@ MasterData.prototype.Get = function(key){
 	return this.stub[key];
 }
 
+var Course = function(){};
+Course.prototype = new GameObject();
+
+Course.prototype.Start = function(){
+    GameObject.prototype.Start.call(this, arguments);
+};
+
+Course.prototype.Update = function(deltaTime){
+    GameObject.prototype.Update.call(this, arguments);
+};
+
 var GameBoard = function(){};
 GameBoard.prototype = new GameObject();
 
