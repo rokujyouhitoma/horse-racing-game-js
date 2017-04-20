@@ -119,22 +119,32 @@ MasterData.prototype.Get = function(key){
 	return this.stub[key];
 }
 
+var Lane = function(length){
+	this.length = length;
+	this.squares = [];
+};
+Lane.prototype = new GameObject();
+
+Lane.prototype.Start = function(){
+    GameObject.prototype.Start.call(this, arguments);
+	for(var l = 0; l < this.length; l++){
+		this.squares[l] = Lane.Enable;
+	}
+};
+
+Lane.Enable = 1;
+
 var Course = function(){
 	this.number = Game.ServiceLocator.Create(MasterData).Get("SlimeFigure").length;
-	this.length = 70;
-	this.lanes = [];
+	this.length = 70; //TODO: xxx
 };
 Course.prototype = new GameObject();
 
 Course.prototype.Start = function(){
-    GameObject.prototype.Start.call(this, arguments);
 	for(var n = 0; n < this.number; n++){
-		var lane = [];
-		for(var l = 0; l < this.length; l++){
-			lane[l] = 0;
-		}
-		this.lanes[n] = lane;
+		this.objects[n] = new Lane(this.length);
 	}
+    GameObject.prototype.Start.call(this, arguments);
 };
 
 var GameBoard = function(){
