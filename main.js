@@ -38,10 +38,24 @@ Engine.prototype.Update = function(deltaTime){
     }, this);
 };
 
-var GameObject = function(){};
-GameObject.prototype.Start = function(){};
-GameObject.prototype.Update = function(deltaTime){};
-GameObject.prototype.Destroy = function(){};
+var GameObject = function(){
+	this.objects = [];
+};
+GameObject.prototype.Start = function(){
+    this.objects.forEach(function(value, index, array){
+		value.Start();
+    }, this);
+};
+GameObject.prototype.Update = function(deltaTime){
+    this.objects.forEach(function(value, index, array){
+		value.Update(deltaTime);
+    }, this);
+};
+GameObject.prototype.Destroy = function(){
+    this.objects.forEach(function(value, index, array){
+		value.Destroy();
+    }, this);
+};
 
 var ServiceLocator = function(container){
 	this.container = container;
@@ -56,6 +70,7 @@ ServiceLocator.prototype.Create = function(obj){
 
 var Game = function(){
 	this.objects = [
+		Game.ServiceLocator.Create(GameBoard),
 		Game.ServiceLocator.Create(SlimeFigureDirector),
 		Game.ServiceLocator.Create(MonsterCoinDirector),
 		Game.ServiceLocator.Create(MonsterFigureDirector),
@@ -63,24 +78,8 @@ var Game = function(){
 };
 Game.prototype = new GameObject();
 
-Game.prototype.Start = function(){
-    GameObject.prototype.Start.call(this, arguments);
-    this.objects.forEach(function(value, index, array){
-		value.Start();
-    }, this);
-};
-
-Game.prototype.Update = function(deltaTime){
-    GameObject.prototype.Update.call(this, arguments);
-    this.objects.forEach(function(value, index, array){
-		value.Update(deltaTime);
-    }, this);
-};
-
 Game.prototype.Reset = function(){
-    this.objects.forEach(function(value, index, array){
-		value.Destroy();
-    }, this);
+	this.Destroy();
     this.Start();
 };
 
@@ -120,27 +119,30 @@ MasterData.prototype.Get = function(key){
 	return this.stub[key];
 }
 
-var Course = function(){};
+var Course = function(){
+	this.number = Game.ServiceLocator.Create(MasterData).Get("SlimeFigure").length;
+	this.length = 70;
+	this.lanes = [];
+};
 Course.prototype = new GameObject();
 
 Course.prototype.Start = function(){
     GameObject.prototype.Start.call(this, arguments);
+	for(var n = 0; n < this.number; n++){
+		var lane = [];
+		for(var l = 0; l < this.length; l++){
+			lane[l] = 0;
+		}
+		this.lanes[n] = lane;
+	}
 };
 
-Course.prototype.Update = function(deltaTime){
-    GameObject.prototype.Update.call(this, arguments);
+var GameBoard = function(){
+	this.objects = [
+		new Course(),
+	];
 };
-
-var GameBoard = function(){};
 GameBoard.prototype = new GameObject();
-
-GameBoard.prototype.Start = function(){
-    GameObject.prototype.Start.call(this, arguments);
-};
-
-GameBoard.prototype.Update = function(deltaTime){
-    GameObject.prototype.Update.call(this, arguments);
-};
 
 var SlimeFigure = function(row){
     this.type = row[0];
