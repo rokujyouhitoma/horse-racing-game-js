@@ -9,17 +9,16 @@ var Engine = function(objects){
 
 Engine.prototype.Loop = function(){
     console.log("Loop");
-    var self = this;
     var loop = function(){
-        if(0 <= self.count){
-            setTimeout(loop, self.FPS);
-            self.count++;
+        if(0 <= this.count){
+            setTimeout(loop, this.FPS);
+            this.count++;
         }
         now = Date.now();
-        var deltaTime = (now - self.lastUpdate) / 1000;
-        self.lastUpdate = now;
-        self.Update(deltaTime);
-    };
+        var deltaTime = (now - this.lastUpdate) / 1000;
+        this.lastUpdate = now;
+        this.Update(deltaTime);
+    }.bind(this);
     loop();
 }
 
@@ -213,17 +212,17 @@ Lane.prototype.OnStart = function(){
 
 Lane.Enable = 1; //TODO: xxx
 
-var Course = function(number, length){
-    this.number = number;
+var Course = function(fullField, length){
+    this.fullField = fullField;
     this.length = length;
 };
 Course.prototype = new GameObject();
 
 Course.prototype.OnStart = function(){
     //TODO: Is it necessity process? Im not sure.
-    for(var n = 0; n < this.number; n++){
-        this.objects[n] = new Lane(this.length);
-    }
+    this.fullField.forEach(function(value, index, array){
+        this.objects.push(new Lane(this.length));
+    }.bind(this));
     GameObject.prototype.OnStart.call(this, arguments);
 };
 
@@ -232,7 +231,7 @@ GameBoard.prototype = new GameObject();
 
 GameBoard.prototype.OnStart = function(){
     var master = Game.ServiceLocator.Create(MasterData);
-    var number = master.Get("SlimeFigure").length;
+    var slimes = master.Get("SlimeFigure");
     // TODO: find系のクエリの仕組みないと辛い
     var length =  master.Get("Race").filter(function(element, index, array){
         // TODO: 素のデータrowを扱うのは、限界。エンティティオブジェクトとして扱わないと辛い
@@ -243,7 +242,7 @@ GameBoard.prototype.OnStart = function(){
         }
         return true;
     })[0][1];
-    this.course = new Course(number, length);
+    this.course = new Course(slimes, length);
     this.objects = [
         this.course,
     ];
