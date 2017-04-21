@@ -197,7 +197,8 @@ MonsterFigureDirector.prototype.OnDestroy = function(){
     this.figures = {};
 };
 
-var Lane = function(length){
+var Lane = function(runner, length){
+    this.runner = runner;
     this.length = length;
     this.squares = [];
 };
@@ -221,7 +222,7 @@ Course.prototype = new GameObject();
 Course.prototype.OnStart = function(){
     //TODO: Is it necessity process? Im not sure.
     this.fullField.forEach(function(value, index, array){
-        this.objects.push(new Lane(this.length));
+        this.objects.push(new Lane(value, this.length));
     }.bind(this));
     GameObject.prototype.OnStart.call(this, arguments);
 };

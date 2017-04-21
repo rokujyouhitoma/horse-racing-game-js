@@ -57,6 +57,7 @@
 
 ## 2017.4.21
 
+ - レーン(Lane)には走者(Runner)がいる
  - GameObject.DestroyをOnDestroyにリネーム
  - GameObject.UpdateをOnUpdateにリネーム
  - GameObject.StartをOnStartにリネーム
