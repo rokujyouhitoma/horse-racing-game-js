@@ -197,21 +197,15 @@ MonsterFigureDirector.prototype.OnDestroy = function(){
     this.figures = {};
 };
 
-var Lane = function(runner, length){
+var Lane = function(number, runner, length){
+    this.number = number;
     this.runner = runner;
     this.length = length;
-    this.squares = [];
+    this.position = Lane.GatePosition;
 };
 Lane.prototype = new GameObject();
 
-Lane.prototype.OnStart = function(){
-    GameObject.prototype.OnStart.call(this, arguments);
-    for(var l = 0; l < this.length; l++){
-        this.squares[l] = Lane.Enable;
-    }
-};
-
-Lane.Enable = 1; //TODO: xxx
+Lane.GatePosition = -1;
 
 var Course = function(fullField, length){
     this.fullField = fullField;
@@ -221,9 +215,14 @@ Course.prototype = new GameObject();
 
 Course.prototype.OnStart = function(){
     this.fullField.forEach(function(value, index, array){
-        this.objects.push(new Lane(value, this.length));
+        var lane = new Lane(index, value, this.length);
+        this.objects.push(lane);
     }.bind(this));
     GameObject.prototype.OnStart.call(this, arguments);
+};
+
+Course.prototype.Positions = function(){
+    console.log(this.objects);
 };
 
 var GameBoard = function(){};

@@ -95,3 +95,5 @@
 
  - スライム番(slime number)。馬番(horse number)相当、ゼッケン
  - フルフィールド(full field)。フルフィールド、全頭、全出走馬
+ - ゲート(gate)。...省略...
+ - 走者(runner)。レーンの走者
