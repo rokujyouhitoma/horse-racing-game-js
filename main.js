@@ -93,6 +93,10 @@ var MasterData = function(){
             ["Drakee"],
             ["Golem"],
             ["Ghost"],
+        ],
+        "Race": [
+            // id, length
+            ["1", "70"]
         ]
     };
 };
@@ -194,9 +198,6 @@ MonsterFigureDirector.prototype.Destroy = function(){
     this.figures = {};
 };
 
-var Race = function(){};
-Race.prototype = new GameObject();
-
 var Lane = function(length){
     this.length = length;
     this.squares = [];
@@ -230,22 +231,48 @@ var GameBoard = function(){};
 GameBoard.prototype = new GameObject();
 
 GameBoard.prototype.Start = function(){
-    this.course = new Course(Game.ServiceLocator.Create(MasterData).Get("SlimeFigure").length, 70);
+    var master = Game.ServiceLocator.Create(MasterData);
+    this.course = new Course(master.Get("SlimeFigure").length,
+                             master.Get("Race").filter(function(element, index, array){
+                                 // TODO: 素のデータrowを扱うのは、限界。エンティティオブジェクトとして扱わないと辛い
+                                 // id=1の際にその要素のlengthを返す
+                                 var length = (element[0] == 1) ? element[1] : -1;
+                                 if (0 > length){
+                                     console.error("xxx");
+                                 }
+                                 return length;
+                             }));
     this.objects = [
         this.course,
     ];
     GameObject.prototype.Start.call(this, arguments);
 };
 
-var Game = function(){
+var Race = function(){};
+Race.prototype = new GameObject();
+
+Race.prototype.Start = function(){
     this.objects = [
-        Game.ServiceLocator.Create(GameBoard),
+        new GameBoard(),
+    ];
+    GameObject.prototype.Start.call(this, arguments);
+};
+
+var Game = function(){
+    this.race = null;
+    this.objects = [
         Game.ServiceLocator.Create(SlimeFigureDirector),
         Game.ServiceLocator.Create(MonsterCoinDirector),
         Game.ServiceLocator.Create(MonsterFigureDirector),
     ];
 };
 Game.prototype = new GameObject();
+
+Game.prototype.Start = function(){
+    GameObject.prototype.Start.call(this, arguments);
+    this.race = new Race();
+    this.race.Start();
+};
 
 Game.prototype.Reset = function(){
     this.Destroy();
@@ -291,7 +318,6 @@ DebugUIDirector.prototype.Update = function(deltaTime){
     var engine = new Engine([Game.ServiceLocator.Create(Game)]);
     // For debug.
     engine.objects.push(new DebugUIDirector(engine));
-
     engine.Start();
     engine.Loop();
     console.log(engine);
