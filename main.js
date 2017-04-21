@@ -232,16 +232,18 @@ GameBoard.prototype = new GameObject();
 
 GameBoard.prototype.Start = function(){
     var master = Game.ServiceLocator.Create(MasterData);
-    this.course = new Course(master.Get("SlimeFigure").length,
-                             master.Get("Race").filter(function(element, index, array){
-                                 // TODO: 素のデータrowを扱うのは、限界。エンティティオブジェクトとして扱わないと辛い
-                                 // id=1の際にその要素のlengthを返す
-                                 var length = (element[0] == 1) ? element[1] : -1;
-                                 if (0 > length){
-                                     console.error("xxx");
-                                 }
-                                 return length;
-                             }));
+    var number = master.Get("SlimeFigure").length;
+    // TODO: find系のクエリの仕組みないと辛い
+    var length =  master.Get("Race").filter(function(element, index, array){
+        // TODO: 素のデータrowを扱うのは、限界。エンティティオブジェクトとして扱わないと辛い
+        // id=1の際にその要素に決定
+        var length = (element[0] == 1) ? element[1] : -1;
+        if (length < 0){
+            console.error("xxx");
+        }
+        return true;
+    })[0][1];
+    this.course = new Course(number, length);
     this.objects = [
         this.course,
     ];
@@ -270,6 +272,10 @@ Game.prototype = new GameObject();
 
 Game.prototype.Start = function(){
     GameObject.prototype.Start.call(this, arguments);
+    this.StartRace();
+};
+
+Game.prototype.StartRace = function(){
     this.race = new Race();
     this.race.Start();
 };
