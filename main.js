@@ -27,33 +27,33 @@ Engine.prototype.Start = function(){
     console.log("Start");
     this.objects.forEach(function(value, index, array){
         //TODO: 呼び出しをeventモデルにしたほうがよい
-        value.Start();
+        value.OnStart();
     }, this);
 };
 
 Engine.prototype.Update = function(deltaTime){
     this.objects.forEach(function(value, index, array){
         //TODO: 呼び出しをeventモデルにしたほうがよい
-        value.Update(deltaTime);
+        value.OnUpdate(deltaTime);
     }, this);
 };
 
 var GameObject = function(){
     this.objects = [];
 };
-GameObject.prototype.Start = function(){
+GameObject.prototype.OnStart = function(){
     this.objects.forEach(function(value, index, array){
-        value.Start();
+        value.OnStart();
     }, this);
 };
-GameObject.prototype.Update = function(deltaTime){
+GameObject.prototype.OnUpdate = function(deltaTime){
     this.objects.forEach(function(value, index, array){
-        value.Update(deltaTime);
+        value.OnUpdate(deltaTime);
     }, this);
 };
-GameObject.prototype.Destroy = function(){
+GameObject.prototype.OnDestroy = function(){
     this.objects.forEach(function(value, index, array){
-        value.Destroy();
+        value.OnDestroy();
     }, this);
 };
 
@@ -116,21 +116,21 @@ var SlimeFigureDirector = function(){
 };
 SlimeFigureDirector.prototype = new GameObject();
 
-SlimeFigureDirector.prototype.Start = function(){
-    GameObject.prototype.Start.call(this, arguments);
+SlimeFigureDirector.prototype.OnStart = function(){
+    GameObject.prototype.OnStart.call(this, arguments);
     Game.ServiceLocator.Create(MasterData).Get("SlimeFigure").forEach(function(value, index, array){
         var slime = new SlimeFigure(value);
         this.slimes[value] = slime;
-        slime.Start();
+        slime.OnStart();
     }, this);
 };
 
-SlimeFigureDirector.prototype.Update = function(deltaTime){
-    GameObject.prototype.Update.call(this, arguments);
+SlimeFigureDirector.prototype.OnUpdate = function(deltaTime){
+    GameObject.prototype.OnUpdate.call(this, arguments);
 };
 
-SlimeFigureDirector.prototype.Destroy = function(){
-    GameObject.prototype.Destroy.call(this, arguments);
+SlimeFigureDirector.prototype.OnDestroy = function(){
+    GameObject.prototype.OnDestroy.call(this, arguments);
     this.slime = {};
 };
 
@@ -144,21 +144,21 @@ var MonsterCoinDirector = function(){
 };
 MonsterCoinDirector.prototype = new GameObject();
 
-MonsterCoinDirector.prototype.Start = function(){
-    GameObject.prototype.Start.call(this, arguments);
+MonsterCoinDirector.prototype.OnStart = function(){
+    GameObject.prototype.OnStart.call(this, arguments);
     Game.ServiceLocator.Create(MasterData).Get("MonsterCoin").forEach(function(value, index, array){
         var coin = new MonsterCoin(value);
         this.coins[value] = coin;
-        coin.Start();
+        coin.OnStart();
     }, this);
 };
 
-MonsterCoinDirector.prototype.Update = function(deltaTime){
-    GameObject.prototype.Update.call(this, arguments);
+MonsterCoinDirector.prototype.OnUpdate = function(deltaTime){
+    GameObject.prototype.OnUpdate.call(this, arguments);
 };
 
-MonsterCoinDirector.prototype.Destroy = function(){
-    GameObject.prototype.Destroy.call(this, arguments);
+MonsterCoinDirector.prototype.OnDestroy = function(){
+    GameObject.prototype.OnDestroy.call(this, arguments);
     this.coins = {};
 };
 
@@ -167,12 +167,12 @@ var MonsterFigure = function(row){
 };
 MonsterFigure.prototype = new GameObject();
 
-MonsterFigure.prototype.Start = function(){
-    GameObject.prototype.Start.call(this, arguments);
+MonsterFigure.prototype.OnStart = function(){
+    GameObject.prototype.OnStart.call(this, arguments);
 };
 
-MonsterFigure.prototype.Update = function(deltaTime){
-    GameObject.prototype.Update.call(this, arguments);
+MonsterFigure.prototype.OnUpdate = function(deltaTime){
+    GameObject.prototype.OnUpdate.call(this, arguments);
 };
 
 var MonsterFigureDirector = function(){
@@ -180,21 +180,21 @@ var MonsterFigureDirector = function(){
 };
 MonsterFigureDirector.prototype = new GameObject();
 
-MonsterFigureDirector.prototype.Start = function(){
-    GameObject.prototype.Start.call(this, arguments);
+MonsterFigureDirector.prototype.OnStart = function(){
+    GameObject.prototype.OnStart.call(this, arguments);
     Game.ServiceLocator.Create(MasterData).Get("MonsterCoin").forEach(function(value, index, array){
         var figure = new MonsterFigure(value);
         this.figures[value] = figure;
-        figure.Start();
+        figure.OnStart();
     }, this);
 };
 
-MonsterFigureDirector.prototype.Update = function(deltaTime){
-    GameObject.prototype.Update.call(this, arguments);
+MonsterFigureDirector.prototype.OnUpdate = function(deltaTime){
+    GameObject.prototype.OnUpdate.call(this, arguments);
 };
 
-MonsterFigureDirector.prototype.Destroy = function(){
-    GameObject.prototype.Destroy.call(this, arguments);
+MonsterFigureDirector.prototype.OnDestroy = function(){
+    GameObject.prototype.OnDestroy.call(this, arguments);
     this.figures = {};
 };
 
@@ -204,8 +204,8 @@ var Lane = function(length){
 };
 Lane.prototype = new GameObject();
 
-Lane.prototype.Start = function(){
-    GameObject.prototype.Start.call(this, arguments);
+Lane.prototype.OnStart = function(){
+    GameObject.prototype.OnStart.call(this, arguments);
     for(var l = 0; l < this.length; l++){
         this.squares[l] = Lane.Enable;
     }
@@ -219,18 +219,18 @@ var Course = function(number, length){
 };
 Course.prototype = new GameObject();
 
-Course.prototype.Start = function(){
+Course.prototype.OnStart = function(){
     //TODO: Is it necessity process? Im not sure.
     for(var n = 0; n < this.number; n++){
         this.objects[n] = new Lane(this.length);
     }
-    GameObject.prototype.Start.call(this, arguments);
+    GameObject.prototype.OnStart.call(this, arguments);
 };
 
 var GameBoard = function(){};
 GameBoard.prototype = new GameObject();
 
-GameBoard.prototype.Start = function(){
+GameBoard.prototype.OnStart = function(){
     var master = Game.ServiceLocator.Create(MasterData);
     var number = master.Get("SlimeFigure").length;
     // TODO: find系のクエリの仕組みないと辛い
@@ -247,17 +247,17 @@ GameBoard.prototype.Start = function(){
     this.objects = [
         this.course,
     ];
-    GameObject.prototype.Start.call(this, arguments);
+    GameObject.prototype.OnStart.call(this, arguments);
 };
 
 var Race = function(){};
 Race.prototype = new GameObject();
 
-Race.prototype.Start = function(){
+Race.prototype.OnStart = function(){
     this.objects = [
         new GameBoard(),
     ];
-    GameObject.prototype.Start.call(this, arguments);
+    GameObject.prototype.OnStart.call(this, arguments);
 };
 
 var Game = function(){
@@ -270,19 +270,19 @@ var Game = function(){
 };
 Game.prototype = new GameObject();
 
-Game.prototype.Start = function(){
-    GameObject.prototype.Start.call(this, arguments);
+Game.prototype.OnStart = function(){
+    GameObject.prototype.OnStart.call(this, arguments);
     this.StartRace();
 };
 
 Game.prototype.StartRace = function(){
     this.race = new Race();
-    this.race.Start();
+    this.race.OnStart();
 };
 
 Game.prototype.Reset = function(){
-    this.Destroy();
-    this.Start();
+    this.OnDestroy();
+    this.OnStart();
 };
 
 Game.ServiceLocatorContainer = {};
@@ -298,8 +298,8 @@ var DebugUIDirector = function(engine){
 };
 DebugUIDirector.prototype = new GameObject();
 
-DebugUIDirector.prototype.Start = function(){
-    GameObject.prototype.Start.call(this, arguments);
+DebugUIDirector.prototype.OnStart = function(){
+    GameObject.prototype.OnStart.call(this, arguments);
     var elements = document.getElementsByTagName("body");
     if(elements.length > 0){
         var body = elements[0];
@@ -309,8 +309,8 @@ DebugUIDirector.prototype.Start = function(){
     }
 };
 
-DebugUIDirector.prototype.Update = function(deltaTime){
-    GameObject.prototype.Update.call(this, arguments);
+DebugUIDirector.prototype.OnUpdate = function(deltaTime){
+    GameObject.prototype.OnUpdate.call(this, arguments);
     if(1000 <= this.engine.lastUpdate - this.baseTime){
         this.currentFPS = ((this.engine.count - this.baseCount) * 1000) / (this.engine.lastUpdate - this.baseTime);
         this.baseTime = this.engine.lastUpdate;

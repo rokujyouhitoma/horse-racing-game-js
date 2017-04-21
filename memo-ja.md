@@ -57,6 +57,9 @@
 
 ## 2017.4.21
 
+ - GameObject.DestroyをOnDestroyにリネーム
+ - GameObject.UpdateをOnUpdateにリネーム
+ - GameObject.StartをOnStartにリネーム
  - レースオブジェクトの原形を追加
  - レーンオブジェクトの原形を追加
  - ゲームオブジェクトはStart/Update/Destrory時に子のthis.objectsの同じメソッドを呼び出す
