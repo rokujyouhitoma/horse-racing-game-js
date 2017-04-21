@@ -70,28 +70,28 @@ ServiceLocator.prototype.Create = function(obj){
 var MasterData = function(){
     this.stub = {
         "SlimeFigure": [
-            // type, color
-            ["Red", "FF0000"],
-            ["Orange", "FFA500"],
-            ["Green", "008000"],
-            ["Blue", "0000FF"],
-            ["Purple", "800080"],
+            // id, type, color
+            ["1", "Red", "FF0000"],
+            ["2", "Orange", "FFA500"],
+            ["3", "Green", "008000"],
+            ["4", "Blue", "0000FF"],
+            ["5", "Purple", "800080"],
         ],
         "MonsterCoin": [
-            // type
-            ["Dragon"],
-            ["Daemon"],
-            ["Drakee"],
-            ["Golem"],
-            ["Ghost"],
+            // id, type
+            ["1", "Dragon"],
+            ["2", "Daemon"],
+            ["3", "Drakee"],
+            ["4", "Golem"],
+            ["5", "Ghost"],
         ],
         "MonsterFigure": [
-            // type
-            ["Dragon"],
-            ["Daemon"],
-            ["Drakee"],
-            ["Golem"],
-            ["Ghost"],
+            // id, type
+            ["1", "Dragon"],
+            ["2", "Daemon"],
+            ["3", "Drakee"],
+            ["4", "Golem"],
+            ["5", "Ghost"],
         ],
         "Race": [
             // id, length
@@ -105,8 +105,9 @@ MasterData.prototype.Get = function(key){
 }
 
 var SlimeFigure = function(row){
-    this.type = row[0];
-    this.color = row[1];
+    this.id = row[0];
+    this.type = row[1]; //TODO: xxx
+    this.color = row[2]; //TODO: xxx
 };
 SlimeFigure.prototype = new GameObject();
 
@@ -134,7 +135,8 @@ SlimeFigureDirector.prototype.OnDestroy = function(){
 };
 
 var MonsterCoin = function(row){
-    this.type = row[0];
+    this.id = row[0];
+    this.type = row[1];
 };
 MonsterCoin.prototype = new GameObject();
 
@@ -162,7 +164,8 @@ MonsterCoinDirector.prototype.OnDestroy = function(){
 };
 
 var MonsterFigure = function(row){
-    this.type = row[0];
+    this.id = row[0];
+    this.type = row[1];
 };
 MonsterFigure.prototype = new GameObject();
 
