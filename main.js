@@ -132,7 +132,7 @@ Lane.prototype.Start = function(){
 	}
 };
 
-Lane.Enable = 1;
+Lane.Enable = 1; //TODO: xxx
 
 var Course = function(){
 	this.number = Game.ServiceLocator.Create(MasterData).Get("SlimeFigure").length;
