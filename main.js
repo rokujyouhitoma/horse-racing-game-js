@@ -263,22 +263,13 @@ Race.prototype.OnStart = function(){
 var Game = function(){
     this.race = null;
     this.objects = [
+        new Race(),
         Game.ServiceLocator.Create(SlimeFigureDirector),
         Game.ServiceLocator.Create(MonsterCoinDirector),
         Game.ServiceLocator.Create(MonsterFigureDirector),
     ];
 };
 Game.prototype = new GameObject();
-
-Game.prototype.OnStart = function(){
-    GameObject.prototype.OnStart.call(this, arguments);
-    this.StartRace();
-};
-
-Game.prototype.StartRace = function(){
-    this.race = new Race();
-    this.race.OnStart();
-};
 
 Game.prototype.Reset = function(){
     this.OnDestroy();
