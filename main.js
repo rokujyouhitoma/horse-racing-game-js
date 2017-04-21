@@ -220,7 +220,6 @@ var Course = function(fullField, length){
 Course.prototype = new GameObject();
 
 Course.prototype.OnStart = function(){
-    //TODO: Is it necessity process? Im not sure.
     this.fullField.forEach(function(value, index, array){
         this.objects.push(new Lane(value, this.length));
     }.bind(this));
