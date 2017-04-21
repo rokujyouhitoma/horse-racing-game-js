@@ -68,24 +68,6 @@ ServiceLocator.prototype.Create = function(obj){
     return this.container[obj];
 }
 
-var Game = function(){
-    this.objects = [
-        Game.ServiceLocator.Create(GameBoard),
-        Game.ServiceLocator.Create(SlimeFigureDirector),
-        Game.ServiceLocator.Create(MonsterCoinDirector),
-        Game.ServiceLocator.Create(MonsterFigureDirector),
-    ];
-};
-Game.prototype = new GameObject();
-
-Game.prototype.Reset = function(){
-    this.Destroy();
-    this.Start();
-};
-
-Game.ServiceLocatorContainer = {};
-Game.ServiceLocator = new ServiceLocator(Game.ServiceLocatorContainer);
-
 var MasterData = function(){
     this.stub = {
         "SlimeFigure": [
@@ -118,46 +100,6 @@ var MasterData = function(){
 MasterData.prototype.Get = function(key){
     return this.stub[key];
 }
-
-var Lane = function(length){
-    this.length = length;
-    this.squares = [];
-};
-Lane.prototype = new GameObject();
-
-Lane.prototype.Start = function(){
-    GameObject.prototype.Start.call(this, arguments);
-    for(var l = 0; l < this.length; l++){
-        this.squares[l] = Lane.Enable;
-    }
-};
-
-Lane.Enable = 1; //TODO: xxx
-
-var Course = function(number, length){
-    this.number = number;
-    this.length = length;
-};
-Course.prototype = new GameObject();
-
-Course.prototype.Start = function(){
-    //TODO: Is it necessity process? Im not sure.
-    for(var n = 0; n < this.number; n++){
-        this.objects[n] = new Lane(this.length);
-    }
-    GameObject.prototype.Start.call(this, arguments);
-};
-
-var GameBoard = function(){};
-GameBoard.prototype = new GameObject();
-
-GameBoard.prototype.Start = function(){
-    this.course = new Course(Game.ServiceLocator.Create(MasterData).Get("SlimeFigure").length, 70);
-    this.objects = [
-        this.course,
-    ];
-    GameObject.prototype.Start.call(this, arguments);
-};
 
 var SlimeFigure = function(row){
     this.type = row[0];
@@ -251,6 +193,67 @@ MonsterFigureDirector.prototype.Destroy = function(){
     GameObject.prototype.Destroy.call(this, arguments);
     this.figures = {};
 };
+
+var Race = function(){};
+Race.prototype = new GameObject();
+
+var Lane = function(length){
+    this.length = length;
+    this.squares = [];
+};
+Lane.prototype = new GameObject();
+
+Lane.prototype.Start = function(){
+    GameObject.prototype.Start.call(this, arguments);
+    for(var l = 0; l < this.length; l++){
+        this.squares[l] = Lane.Enable;
+    }
+};
+
+Lane.Enable = 1; //TODO: xxx
+
+var Course = function(number, length){
+    this.number = number;
+    this.length = length;
+};
+Course.prototype = new GameObject();
+
+Course.prototype.Start = function(){
+    //TODO: Is it necessity process? Im not sure.
+    for(var n = 0; n < this.number; n++){
+        this.objects[n] = new Lane(this.length);
+    }
+    GameObject.prototype.Start.call(this, arguments);
+};
+
+var GameBoard = function(){};
+GameBoard.prototype = new GameObject();
+
+GameBoard.prototype.Start = function(){
+    this.course = new Course(Game.ServiceLocator.Create(MasterData).Get("SlimeFigure").length, 70);
+    this.objects = [
+        this.course,
+    ];
+    GameObject.prototype.Start.call(this, arguments);
+};
+
+var Game = function(){
+    this.objects = [
+        Game.ServiceLocator.Create(GameBoard),
+        Game.ServiceLocator.Create(SlimeFigureDirector),
+        Game.ServiceLocator.Create(MonsterCoinDirector),
+        Game.ServiceLocator.Create(MonsterFigureDirector),
+    ];
+};
+Game.prototype = new GameObject();
+
+Game.prototype.Reset = function(){
+    this.Destroy();
+    this.Start();
+};
+
+Game.ServiceLocatorContainer = {};
+Game.ServiceLocator = new ServiceLocator(Game.ServiceLocatorContainer);
 
 // For debug.
 var DebugUIDirector = function(engine){
