@@ -67,6 +67,19 @@ ServiceLocator.prototype.Create = function(obj){
     return this.container[obj];
 }
 
+var Model = function(definitions, row){
+    for(var i=0; i < definitions.length; i++){
+        Object.defineProperty(this, definitions[i], (function(){
+            var index = i;
+            return {
+                get: function(){
+                    return row[index];
+                }
+            }
+        }()));
+    }
+};
+
 var MasterData = function(){
     this.stub = {
         "SlimeFigure": [
@@ -105,9 +118,7 @@ MasterData.prototype.Get = function(key){
 }
 
 var SlimeFigure = function(row){
-    this.id = row[0];
-    this.type = row[1]; //TODO: xxx
-    this.color = row[2]; //TODO: xxx
+    this.model = new Model(["id","type","color"], row);
 };
 SlimeFigure.prototype = new GameObject();
 
@@ -135,8 +146,7 @@ SlimeFigureDirector.prototype.OnDestroy = function(){
 };
 
 var MonsterCoin = function(row){
-    this.id = row[0];
-    this.type = row[1];
+    this.model = new Model(["id","type"], row);
 };
 MonsterCoin.prototype = new GameObject();
 
@@ -164,8 +174,7 @@ MonsterCoinDirector.prototype.OnDestroy = function(){
 };
 
 var MonsterFigure = function(row){
-    this.id = row[0];
-    this.type = row[1];
+    this.model = new Model(["id","type"], row);
 };
 MonsterFigure.prototype = new GameObject();
 
@@ -228,43 +237,39 @@ Course.prototype.Positions = function(){
     console.log(this.objects);
 };
 
-var GameBoard = function(){};
+var GameBoard = function(race){
+    this.race = race;
+};
 GameBoard.prototype = new GameObject();
 
 GameBoard.prototype.OnStart = function(){
     var master = Game.ServiceLocator.Create(MasterData);
     var slimes = master.Get("SlimeFigure");
-    // TODO: find系のクエリの仕組みないと辛い
-    var length =  master.Get("Race").filter(function(element, index, array){
-        // TODO: 素のデータrowを扱うのは、限界。エンティティオブジェクトとして扱わないと辛い
-        // id=1の際にその要素に決定
-        var length = (element[0] == 1) ? element[1] : -1;
-        if (length < 0){
-            console.error("xxx");
-        }
-        return true;
-    })[0][1];
-    this.course = new Course(slimes, length);
+    this.course = new Course(slimes, this.race.model.length);
     this.objects = [
         this.course,
     ];
     GameObject.prototype.OnStart.call(this, arguments);
 };
 
-var Race = function(){};
+var Race = function(row){
+    this.model = new Model(["id","length"], row);
+};
 Race.prototype = new GameObject();
 
 Race.prototype.OnStart = function(){
     this.objects = [
-        new GameBoard(),
+        new GameBoard(this),
     ];
     GameObject.prototype.OnStart.call(this, arguments);
 };
 
 var Game = function(){
     this.race = null;
+    // TODO: find系のクエリの仕組みないと辛い
+    var row = Game.ServiceLocator.Create(MasterData).Get("Race")[0];
     this.objects = [
-        new Race(),
+        new Race(row),
         Game.ServiceLocator.Create(SlimeFigureDirector),
         Game.ServiceLocator.Create(MonsterCoinDirector),
         Game.ServiceLocator.Create(MonsterFigureDirector),
