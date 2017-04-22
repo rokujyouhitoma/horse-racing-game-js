@@ -70,10 +70,10 @@ ServiceLocator.prototype.Create = function(obj){
 var Model = function(definitions, row){
     for(var i=0; i < definitions.length; i++){
         Object.defineProperty(this, definitions[i], (function(){
-            var index = i;
+            var value = row[i];
             return {
                 get: function(){
-                    return row[index];
+                    return value;
                 }
             }
         }()));
