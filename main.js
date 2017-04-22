@@ -219,17 +219,19 @@ Lane.prototype = new GameObject();
 
 Lane.GatePosition = -1;
 
-var Course = function(fullField, length){
-    this.fullField = fullField;
+var Course = function(runners, length){
+    this.runners = runners;
     this.length = length;
+    this.lanes = [];
 };
 Course.prototype = new GameObject();
 
 Course.prototype.OnStart = function(){
-    this.fullField.forEach(function(value, index, array){
-        var lane = new Lane(index, value, this.length);
-        this.objects.push(lane);
+    this.lanes = this.runners.map(function(value, index, array){
+        var number = index + 1;
+        return new Lane(number, value, this.length);
     }.bind(this));
+    this.objects.concat(this.lanes);
     GameObject.prototype.OnStart.call(this, arguments);
 };
 
@@ -239,13 +241,16 @@ Course.prototype.Positions = function(){
 
 var GameBoard = function(race){
     this.race = race;
+    this.course;
 };
 GameBoard.prototype = new GameObject();
 
 GameBoard.prototype.OnStart = function(){
     var master = Game.ServiceLocator.Create(MasterData);
     var slimes = master.Get("SlimeFigure");
-    this.course = new Course(slimes, this.race.model.length);
+    this.course = new Course(slimes.map(function(x){
+        return new SlimeFigure(x);
+    }), this.race.model.length);
     this.objects = [
         this.course,
     ];
@@ -254,22 +259,23 @@ GameBoard.prototype.OnStart = function(){
 
 var Race = function(row){
     this.model = new Model(["id","length"], row);
+    this.gameBoard = new GameBoard(this);
 };
 Race.prototype = new GameObject();
 
 Race.prototype.OnStart = function(){
     this.objects = [
-        new GameBoard(this),
+        this.gameBoard,
     ];
     GameObject.prototype.OnStart.call(this, arguments);
 };
 
 var Game = function(){
-    this.race = null;
     // TODO: find系のクエリの仕組みないと辛い
     var row = Game.ServiceLocator.Create(MasterData).Get("Race")[0];
+    this.race = new Race(row);
     this.objects = [
-        new Race(row),
+        this.race,
         Game.ServiceLocator.Create(SlimeFigureDirector),
         Game.ServiceLocator.Create(MonsterCoinDirector),
         Game.ServiceLocator.Create(MonsterFigureDirector),
@@ -304,6 +310,8 @@ DebugUIDirector.prototype.OnStart = function(){
         body.appendChild(dom);
         this.dom = dom;
     }
+    var game = Game.ServiceLocator.Create(Game);
+    console.log(game.race.gameBoard.course);
 };
 
 DebugUIDirector.prototype.OnUpdate = function(deltaTime){
