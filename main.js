@@ -349,7 +349,7 @@ FPSRenderer.prototype.CreateDOM = function(){
     var elements = document.getElementsByTagName("body");
     if(elements.length > 0){
         var body = elements[0];
-        var h1 = document.createElement("h2");
+        var h1 = document.createElement("h1");
         h1.innerText = "FPS";
         body.appendChild(h1);
         var dom = document.createElement("p");
