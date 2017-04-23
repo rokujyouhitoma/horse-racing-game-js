@@ -380,8 +380,8 @@ LaneRenderer.prototype.ToArray = function(lane){
     return array;
 };
 
-LaneRenderer.CurrentPosition = 1;
-LaneRenderer.EmptyPosition = 0;
+LaneRenderer.CurrentPosition = "\uD83C\uDFC7"; //Unicode Character 'HORSE RACING' (U+1F3C7)
+LaneRenderer.EmptyPosition = "\uD83C\uDF35"; //Unicode Character 'CACTUS' (U+1F335)
 
 var RacetrackRenderer = function(){
     this.dom;
