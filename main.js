@@ -88,31 +88,35 @@ var MasterData = function(){
     this.stub = {
         "SlimeFigure": [
             // id, type, color
-            ["1", "Red", "FF0000"],
-            ["2", "Orange", "FFA500"],
-            ["3", "Green", "008000"],
-            ["4", "Blue", "0000FF"],
-            ["5", "Purple", "800080"],
+            // int, string, string
+            [1, "Red", "FF0000"],
+            [2, "Orange", "FFA500"],
+            [3, "Green", "008000"],
+            [4, "Blue", "0000FF"],
+            [5, "Purple", "800080"],
         ],
         "MonsterCoin": [
             // id, type
-            ["1", "Dragon"],
-            ["2", "Daemon"],
-            ["3", "Drakee"],
-            ["4", "Golem"],
-            ["5", "Ghost"],
+            // int, string
+            [1, "Dragon"],
+            [2, "Daemon"],
+            [3, "Drakee"],
+            [4, "Golem"],
+            [5, "Ghost"],
         ],
         "MonsterFigure": [
             // id, type
-            ["1", "Dragon"],
-            ["2", "Daemon"],
-            ["3", "Drakee"],
-            ["4", "Golem"],
-            ["5", "Ghost"],
+            // int, string
+            [1, "Dragon"],
+            [2, "Daemon"],
+            [3, "Drakee"],
+            [4, "Golem"],
+            [5, "Ghost"],
         ],
         "Race": [
-            // id, length
-            ["1", "70"]
+            // id, len
+            // int, int
+            [1, 70],
         ]
     };
 };
@@ -213,19 +217,19 @@ MonsterFigureDirector.prototype.OnDestroy = function(){
     this.figures = {};
 };
 
-var Lane = function(number, runner, length){
+var Lane = function(number, runner, len){
     this.number = number;
     this.runner = runner;
-    this.length = length;
+    this.len = len;
     this.position = Lane.GatePosition;
 };
 Lane.prototype = new GameObject();
 
 Lane.GatePosition = -1;
 
-var Course = function(runners, length){
+var Course = function(runners, len){
     this.runners = runners;
-    this.length = length;
+    this.len = len;
     this.lanes = [];
 };
 Course.prototype = new GameObject();
@@ -233,7 +237,7 @@ Course.prototype = new GameObject();
 Course.prototype.OnStart = function(){
     this.lanes = this.runners.map(function(value, index, array){
         var number = index + 1;
-        return new Lane(number, value, this.length);
+        return new Lane(number, value, this.len);
     }.bind(this));
     this.objects.concat(this.lanes);
     GameObject.prototype.OnStart.call(this, arguments);
@@ -254,7 +258,7 @@ GameBoard.prototype.OnStart = function(){
     var slimes = master.Get("SlimeFigure");
     this.course = new Course(slimes.map(function(x){
         return new SlimeFigure(x);
-    }), this.race.model.length);
+    }), this.race.model.len);
     this.objects = [
         this.course,
     ];
@@ -262,7 +266,7 @@ GameBoard.prototype.OnStart = function(){
 };
 
 var Race = function(row){
-    this.model = new Model(["id","length"], row);
+    this.model = new Model(["id","len"], row);
     this.gameBoard = new GameBoard(this);
 };
 Race.prototype = new GameObject();
@@ -347,21 +351,58 @@ FPSRenderer.prototype.Render = function(dictionary){
     this.dom.innerText = dictionary["fps"];
 };
 
-var RaceRenderer = function(){};
+var CourseRenderer = function(){
+    this.dom;
+};
+CourseRenderer.prototype = new Renderer();
+
+CourseRenderer.prototype.OnStart = function(){
+    GameObject.prototype.OnStart.call(this, arguments);
+    this.CreateDOM();
+    var game = Game.ServiceLocator.Create(Game);
+    this.Render({
+        "lanes": game.race.gameBoard.course.lanes,
+    });
+};
+
+CourseRenderer.prototype.OnUpdate = function(deltaTime){
+    GameObject.prototype.OnUpdate.call(this, arguments);
+    var game = Game.ServiceLocator.Create(Game);
+    //console.log(game.race.gameBoard.course);
+};
+
+CourseRenderer.prototype.CreateDOM = function(){
+    var elements = document.getElementsByTagName("body");
+    if(elements.length > 0){
+        var body = elements[0];
+        var dom = document.createElement("p");
+        body.appendChild(dom);
+        this.dom = dom;
+    }
+}
+
+CourseRenderer.prototype.Render = function(dictionary){
+    var lanes = dictionary["lanes"];
+    console.log(lanes);
+    var text = lanes.map(function(value, index, array){
+        return value.len;
+    }).reduce(function(a, b, index){
+        if(index == 1){
+            return "=".repeat(a) + "\n" + "=".repeat(b);
+        }
+        return a + "\n" + "=".repeat(b);
+    });
+    this.dom.innerText = text;
+}
 
 // For debug.
 var DebugUIDirector = function(){
     this.objects = [
         new FPSRenderer(),
+        new CourseRenderer(),
     ];
 };
 DebugUIDirector.prototype = new GameObject();
-
-DebugUIDirector.prototype.OnStart = function(){
-    GameObject.prototype.OnStart.call(this, arguments);
-    var game = Game.ServiceLocator.Create(Game);
-    console.log(game.race.gameBoard.course);
-};
 
 // main
 (window.onload = function(){

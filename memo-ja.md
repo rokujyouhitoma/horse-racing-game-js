@@ -60,6 +60,7 @@
 
 ## 2017.4.23
 
+ - CourseRendererを仮実装
  - Rendererオブジェクトを実装
  - FPSを表示するオブジェクト(FPSRenderer)を整理
 
