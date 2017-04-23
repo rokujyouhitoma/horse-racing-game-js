@@ -80,6 +80,10 @@ var Model = function(definitions, row){
     }
 };
 
+var Renderer = function(){};
+Renderer.prototype = new GameObject();
+Renderer.prototype.Render = function(dictionary){};
+
 var MasterData = function(){
     this.stub = {
         "SlimeFigure": [
@@ -312,14 +316,10 @@ FPS.prototype.Current = function()
     return Math.floor(this.currentFPS * 100) / 100;
 }
 
-var BaseRenderer = function(){};
-BaseRenderer.prototype = new GameObject();
-BaseRenderer.prototype.Render = function(dictionary){};
-
 var FPSRenderer = function(){
     this.dom;
 };
-FPSRenderer.prototype = new BaseRenderer();
+FPSRenderer.prototype = new Renderer();
 
 FPSRenderer.prototype.OnStart = function(){
     GameObject.prototype.OnStart.call(this, arguments);
