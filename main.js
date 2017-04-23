@@ -292,16 +292,16 @@ Game.ServiceLocatorContainer = {};
 Game.ServiceLocator = new ServiceLocator(Game.ServiceLocatorContainer);
 
 // For debug.
-var DebugUIDirector = function(engine){
-    this.engine = engine;
+var FPSRenderer = function(){
     this.dom;
+    var engine = Game.ServiceLocator.Create(Engine);
     this.baseTime = engine.lastUpdate;
     this.baseCount = 0;
     this.currentFPS = 0;
 };
-DebugUIDirector.prototype = new GameObject();
+FPSRenderer.prototype = new GameObject();
 
-DebugUIDirector.prototype.OnStart = function(){
+FPSRenderer.prototype.OnStart = function(){
     GameObject.prototype.OnStart.call(this, arguments);
     var elements = document.getElementsByTagName("body");
     if(elements.length > 0){
@@ -310,25 +310,36 @@ DebugUIDirector.prototype.OnStart = function(){
         body.appendChild(dom);
         this.dom = dom;
     }
+};
+
+FPSRenderer.prototype.OnUpdate = function(deltaTime){
+    var engine = Game.ServiceLocator.Create(Engine);
+    if(1000 <= engine.lastUpdate - this.baseTime){
+        this.currentFPS = ((engine.count - this.baseCount) * 1000) / (engine.lastUpdate - this.baseTime);
+        this.baseTime = engine.lastUpdate;
+        this.baseCount = engine.count;
+    }
+    this.dom.innerText = Math.floor(this.currentFPS * 100) / 100;
+}
+
+var DebugUIDirector = function(){
+    this.objects = [new FPSRenderer()];
+};
+DebugUIDirector.prototype = new GameObject();
+
+DebugUIDirector.prototype.OnStart = function(){
+    GameObject.prototype.OnStart.call(this, arguments);
     var game = Game.ServiceLocator.Create(Game);
     console.log(game.race.gameBoard.course);
 };
 
-DebugUIDirector.prototype.OnUpdate = function(deltaTime){
-    GameObject.prototype.OnUpdate.call(this, arguments);
-    if(1000 <= this.engine.lastUpdate - this.baseTime){
-        this.currentFPS = ((this.engine.count - this.baseCount) * 1000) / (this.engine.lastUpdate - this.baseTime);
-        this.baseTime = this.engine.lastUpdate;
-        this.baseCount = this.engine.count;
-    }
-    this.dom.innerText = Math.floor(this.currentFPS * 100) / 100;
-};
-
 // main
 (window.onload = function(){
-    var engine = new Engine([Game.ServiceLocator.Create(Game)]);
-    // For debug.
-    engine.objects.push(new DebugUIDirector(engine));
+    var engine = Game.ServiceLocator.Create(Engine);
+    engine.objects = [
+        Game.ServiceLocator.Create(Game),
+        new DebugUIDirector(), //For debug.
+    ];
     engine.Start();
     engine.Loop();
     console.log(engine);
