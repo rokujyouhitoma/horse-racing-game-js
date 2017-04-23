@@ -225,16 +225,24 @@ var Lane = function(number, runner, len){
 };
 Lane.prototype = new GameObject();
 
-Lane.GatePosition = -1;
+Lane.prototype.IsGatePosition = function(){
+    return this.position === Lane.GatePosition
+};
 
-var Course = function(runners, len){
+Lane.prototype.IsGolePosition = function(){
+    return this.len < this.position;
+};
+
+Lane.GatePosition = 0;
+
+var Racetrack = function(runners, len){
     this.runners = runners;
     this.len = len;
     this.lanes = [];
 };
-Course.prototype = new GameObject();
+Racetrack.prototype = new GameObject();
 
-Course.prototype.OnStart = function(){
+Racetrack.prototype.OnStart = function(){
     this.lanes = this.runners.map(function(value, index, array){
         var number = index + 1;
         return new Lane(number, value, this.len);
@@ -243,24 +251,24 @@ Course.prototype.OnStart = function(){
     GameObject.prototype.OnStart.call(this, arguments);
 };
 
-Course.prototype.Positions = function(){
+Racetrack.prototype.Positions = function(){
     console.log(this.objects);
 };
 
 var GameBoard = function(race){
     this.race = race;
-    this.course;
+    this.racetrack;
 };
 GameBoard.prototype = new GameObject();
 
 GameBoard.prototype.OnStart = function(){
     var master = Game.ServiceLocator.Create(MasterData);
     var slimes = master.Get("SlimeFigure");
-    this.course = new Course(slimes.map(function(x){
+    this.racetrack = new Racetrack(slimes.map(function(x){
         return new SlimeFigure(x);
     }), this.race.model.len);
     this.objects = [
-        this.course,
+        this.racetrack,
     ];
     GameObject.prototype.OnStart.call(this, arguments);
 };
@@ -326,12 +334,12 @@ var FPSRenderer = function(){
 FPSRenderer.prototype = new Renderer();
 
 FPSRenderer.prototype.OnStart = function(){
-    GameObject.prototype.OnStart.call(this, arguments);
+    Renderer.prototype.OnStart.call(this, arguments);
     this.CreateDOM();
 };
 
 FPSRenderer.prototype.OnUpdate = function(deltaTime){
-    GameObject.prototype.OnUpdate.call(this, arguments);
+    Renderer.prototype.OnUpdate.call(this, arguments);
     this.Render({
         "fps": Game.ServiceLocator.Create(Game).fps.Current()
     });
@@ -341,65 +349,91 @@ FPSRenderer.prototype.CreateDOM = function(){
     var elements = document.getElementsByTagName("body");
     if(elements.length > 0){
         var body = elements[0];
-        var dom = document.createElement("h1");
-        body.appendChild(dom);
-        this.dom = dom;
-    }
-}
-
-FPSRenderer.prototype.Render = function(dictionary){
-    this.dom.innerText = dictionary["fps"];
-};
-
-var CourseRenderer = function(){
-    this.dom;
-};
-CourseRenderer.prototype = new Renderer();
-
-CourseRenderer.prototype.OnStart = function(){
-    GameObject.prototype.OnStart.call(this, arguments);
-    this.CreateDOM();
-    var game = Game.ServiceLocator.Create(Game);
-    this.Render({
-        "lanes": game.race.gameBoard.course.lanes,
-    });
-};
-
-CourseRenderer.prototype.OnUpdate = function(deltaTime){
-    GameObject.prototype.OnUpdate.call(this, arguments);
-    var game = Game.ServiceLocator.Create(Game);
-    //console.log(game.race.gameBoard.course);
-};
-
-CourseRenderer.prototype.CreateDOM = function(){
-    var elements = document.getElementsByTagName("body");
-    if(elements.length > 0){
-        var body = elements[0];
+        var h1 = document.createElement("h2");
+        h1.innerText = "FPS";
+        body.appendChild(h1);
         var dom = document.createElement("p");
         body.appendChild(dom);
         this.dom = dom;
     }
 }
 
-CourseRenderer.prototype.Render = function(dictionary){
-    var lanes = dictionary["lanes"];
-    console.log(lanes);
-    var text = lanes.map(function(value, index, array){
-        return value.len;
-    }).reduce(function(a, b, index){
-        if(index == 1){
-            return "=".repeat(a) + "\n" + "=".repeat(b);
-        }
-        return a + "\n" + "=".repeat(b);
+FPSRenderer.prototype.Render = function(dictionary){
+    Renderer.prototype.Render.call(this, arguments);
+    this.dom.innerText = dictionary["fps"];
+};
+
+var LaneRenderer = function(){};
+LaneRenderer.prototype = new Renderer();
+
+LaneRenderer.prototype.Render = function(dictionary){
+    Renderer.prototype.Render.call(this, arguments);
+    var lane = dictionary["lane"];
+    return [lane.number, this.ToArray(lane).join("")].join("|");
+};
+
+LaneRenderer.prototype.ToArray = function(lane){
+    var array = new Array(lane.len + 1);
+    for(var i=0; i < lane.len + 1; i++){
+        array[i] = (lane.position === i) ? LaneRenderer.CurrentPosition : LaneRenderer.EmptyPosition;
+    }
+    return array;
+};
+
+LaneRenderer.CurrentPosition = 1;
+LaneRenderer.EmptyPosition = 0;
+
+var RacetrackRenderer = function(){
+    this.dom;
+};
+RacetrackRenderer.prototype = new Renderer();
+
+RacetrackRenderer.prototype.OnStart = function(){
+    Renderer.prototype.OnStart.call(this, arguments);
+    this.CreateDOM();
+};
+
+RacetrackRenderer.prototype.OnUpdate = function(deltaTime){
+    Renderer.prototype.OnUpdate.call(this, arguments);
+    var game = Game.ServiceLocator.Create(Game);
+    this.dom.innerText = this.Render({
+        "lanes": game.race.gameBoard.racetrack.lanes,
     });
-    this.dom.innerText = text;
+};
+
+RacetrackRenderer.prototype.CreateDOM = function(){
+    var elements = document.getElementsByTagName("body");
+    if(elements.length > 0){
+        var body = elements[0];
+        var h1 = document.createElement("h1");
+        h1.innerText = "Racetrack";
+        body.appendChild(h1);
+        var dom = document.createElement("p");
+        body.appendChild(dom);
+        this.dom = dom;
+    }
+}
+
+RacetrackRenderer.prototype.Render = function(dictionary){
+    Renderer.prototype.Render.call(this, arguments);
+    var laneRenderer = new LaneRenderer();
+    var lanes = dictionary["lanes"];
+    var text = lanes.reduce(function(a, b, index){
+        if(index == 1){
+            return [a, b].map(function(lane){
+                return laneRenderer.Render({"lane": lane});
+            }).join("\n");
+        }
+        return [a, laneRenderer.Render({"lane": b})].join("\n");
+    });
+    return text;
 }
 
 // For debug.
 var DebugUIDirector = function(){
     this.objects = [
         new FPSRenderer(),
-        new CourseRenderer(),
+        new RacetrackRenderer(),
     ];
 };
 DebugUIDirector.prototype = new GameObject();
