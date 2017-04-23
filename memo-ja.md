@@ -61,8 +61,8 @@
 ## 2017.4.23
 
  - レーストラックをデバッグ用途でレンダリング
- - CourseRendererオブジェクトを仮実装
- - LaneRendererオブジェクトを仮実装
+ - CourseRendererオブジェクトのドラフトを実装
+ - LaneRendererオブジェクトのドラフトを仮実装
  - Rendererオブジェクトを実装
  - FPSを表示するオブジェクト(FPSRenderer)を整理
 
