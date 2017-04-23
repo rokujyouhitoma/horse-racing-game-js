@@ -316,14 +316,10 @@ var BaseRenderer = function(){};
 BaseRenderer.prototype = new GameObject();
 BaseRenderer.prototype.Render = function(dictionary){};
 
-var DOMRenderer = function(){
-};
-DOMRenderer.prototype = new BaseRenderer();
-
 var FPSRenderer = function(){
     this.dom;
 };
-FPSRenderer.prototype = new DOMRenderer();
+FPSRenderer.prototype = new BaseRenderer();
 
 FPSRenderer.prototype.OnStart = function(){
     GameObject.prototype.OnStart.call(this, arguments);
