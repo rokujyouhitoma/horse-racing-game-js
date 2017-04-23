@@ -273,8 +273,10 @@ Race.prototype.OnStart = function(){
 var Game = function(){
     // TODO: find系のクエリの仕組みないと辛い
     var row = Game.ServiceLocator.Create(MasterData).Get("Race")[0];
+    this.fps = new FPS();
     this.race = new Race(row);
     this.objects = [
+        this.fps,
         this.race,
         Game.ServiceLocator.Create(SlimeFigureDirector),
         Game.ServiceLocator.Create(MonsterCoinDirector),
@@ -291,18 +293,51 @@ Game.prototype.Reset = function(){
 Game.ServiceLocatorContainer = {};
 Game.ServiceLocator = new ServiceLocator(Game.ServiceLocatorContainer);
 
-// For debug.
-var FPSRenderer = function(){
-    this.dom;
+var FPS = function(){
     var engine = Game.ServiceLocator.Create(Engine);
     this.baseTime = engine.lastUpdate;
     this.baseCount = 0;
     this.currentFPS = 0;
 };
-FPSRenderer.prototype = new GameObject();
+FPS.prototype = new GameObject();
+
+FPS.prototype.Current = function()
+{
+    var engine = Game.ServiceLocator.Create(Engine);
+    if(1000 <= engine.lastUpdate - this.baseTime){
+        this.currentFPS = ((engine.count - this.baseCount) * 1000) / (engine.lastUpdate - this.baseTime);
+        this.baseTime = engine.lastUpdate;
+        this.baseCount = engine.count;
+    }
+    return Math.floor(this.currentFPS * 100) / 100;
+}
+
+var BaseRenderer = function(){};
+BaseRenderer.prototype = new GameObject();
+BaseRenderer.prototype.Render = function(dictionary){};
+
+var DOMRenderer = function(){
+};
+DOMRenderer.prototype = new BaseRenderer();
+
+var FPSRenderer = function(){
+    this.dom;
+};
+FPSRenderer.prototype = new DOMRenderer();
 
 FPSRenderer.prototype.OnStart = function(){
     GameObject.prototype.OnStart.call(this, arguments);
+    this.CreateDOM();
+};
+
+FPSRenderer.prototype.OnUpdate = function(deltaTime){
+    GameObject.prototype.OnUpdate.call(this, arguments);
+    this.Render({
+        "fps": Game.ServiceLocator.Create(Game).fps.Current()
+    });
+};
+
+FPSRenderer.prototype.CreateDOM = function(){
     var elements = document.getElementsByTagName("body");
     if(elements.length > 0){
         var body = elements[0];
@@ -310,20 +345,19 @@ FPSRenderer.prototype.OnStart = function(){
         body.appendChild(dom);
         this.dom = dom;
     }
-};
-
-FPSRenderer.prototype.OnUpdate = function(deltaTime){
-    var engine = Game.ServiceLocator.Create(Engine);
-    if(1000 <= engine.lastUpdate - this.baseTime){
-        this.currentFPS = ((engine.count - this.baseCount) * 1000) / (engine.lastUpdate - this.baseTime);
-        this.baseTime = engine.lastUpdate;
-        this.baseCount = engine.count;
-    }
-    this.dom.innerText = Math.floor(this.currentFPS * 100) / 100;
 }
 
+FPSRenderer.prototype.Render = function(dictionary){
+    this.dom.innerText = dictionary["fps"];
+};
+
+var RaceRenderer = function(){};
+
+// For debug.
 var DebugUIDirector = function(){
-    this.objects = [new FPSRenderer()];
+    this.objects = [
+        new FPSRenderer(),
+    ];
 };
 DebugUIDirector.prototype = new GameObject();
 
