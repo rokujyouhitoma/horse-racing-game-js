@@ -88,7 +88,7 @@ Renderer.prototype.Render = function(dictionary){};
 
 var MasterData = function(){
     this.stub = {
-        "SlimeFigure": [
+        "Figure": [
             // id, type, color
             // int, string, string
             [1, "Red", "FF0000"],
@@ -127,30 +127,30 @@ MasterData.prototype.Get = function(key){
     return this.stub[key];
 }
 
-var SlimeFigure = function(row){
+var Figure = function(row){
     this.model = new Model(["id","type","color"], row);
 };
-SlimeFigure.prototype = new GameObject();
+Figure.prototype = new GameObject();
 
-var SlimeFigureDirector = function(){
+var FigureDirector = function(){
     this.slimes = {};
 };
-SlimeFigureDirector.prototype = new GameObject();
+FigureDirector.prototype = new GameObject();
 
-SlimeFigureDirector.prototype.OnStart = function(){
+FigureDirector.prototype.OnStart = function(){
     GameObject.prototype.OnStart.call(this, arguments);
-    Game.ServiceLocator.Create(MasterData).Get("SlimeFigure").forEach(function(value, index, array){
-        var slime = new SlimeFigure(value);
+    Game.ServiceLocator.Create(MasterData).Get("Figure").forEach(function(value, index, array){
+        var slime = new Figure(value);
         this.slimes[value] = slime;
         slime.OnStart();
     }, this);
 };
 
-SlimeFigureDirector.prototype.OnUpdate = function(deltaTime){
+FigureDirector.prototype.OnUpdate = function(deltaTime){
     GameObject.prototype.OnUpdate.call(this, arguments);
 };
 
-SlimeFigureDirector.prototype.OnDestroy = function(){
+FigureDirector.prototype.OnDestroy = function(){
     GameObject.prototype.OnDestroy.call(this, arguments);
     this.slime = {};
 };
@@ -265,9 +265,9 @@ GameBoard.prototype = new GameObject();
 
 GameBoard.prototype.OnStart = function(){
     var master = Game.ServiceLocator.Create(MasterData);
-    var slimes = master.Get("SlimeFigure");
+    var slimes = master.Get("Figure");
     this.racetrack = new Racetrack(slimes.map(function(x){
-        return new SlimeFigure(x);
+        return new Figure(x);
     }), this.race.model.len);
     this.objects = [
         this.racetrack,
@@ -296,7 +296,7 @@ var Game = function(){
     this.objects = [
         this.fps,
         this.race,
-        Game.ServiceLocator.Create(SlimeFigureDirector),
+        Game.ServiceLocator.Create(FigureDirector),
         Game.ServiceLocator.Create(MonsterCoinDirector),
         Game.ServiceLocator.Create(MonsterFigureDirector),
     ];
