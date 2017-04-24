@@ -1,3 +1,5 @@
+"use strict";
+
 console.log("main.js");
 
 var Engine = function(objects){
@@ -14,7 +16,7 @@ Engine.prototype.Loop = function(){
             setTimeout(loop, this.FPS);
             this.count++;
         }
-        now = Date.now();
+        var now = Date.now();
         var deltaTime = (now - this.lastUpdate) / 1000;
         this.lastUpdate = now;
         this.Update(deltaTime);
