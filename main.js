@@ -371,7 +371,12 @@ LaneRenderer.prototype = new Renderer();
 LaneRenderer.prototype.Render = function(dictionary){
     Renderer.prototype.Render.call(this, arguments);
     var lane = dictionary["lane"];
-    return [lane.number, this.ToArray(lane).join("")].join("|");
+    var color = lane.runner.model.color;
+    return [
+        this.ToArray(lane).reverse().join(""),
+        ["<span style='background-color:#", color, ";'>", lane.number, "</span>"].join(""),
+        lane.position,
+    ].join("|");
 };
 
 LaneRenderer.prototype.ToArray = function(lane){
@@ -383,7 +388,7 @@ LaneRenderer.prototype.ToArray = function(lane){
 };
 
 LaneRenderer.CurrentPosition = "\uD83C\uDFC7"; //Unicode Character 'HORSE RACING' (U+1F3C7)
-LaneRenderer.EmptyPosition = "\uD83C\uDF35"; //Unicode Character 'CACTUS' (U+1F335)
+LaneRenderer.EmptyPosition = "_";
 
 var RacetrackRenderer = function(){
     this.dom;
@@ -398,7 +403,7 @@ RacetrackRenderer.prototype.OnStart = function(){
 RacetrackRenderer.prototype.OnUpdate = function(deltaTime){
     Renderer.prototype.OnUpdate.call(this, arguments);
     var game = Game.ServiceLocator.Create(Game);
-    this.dom.innerText = this.Render({
+    this.dom.innerHTML = this.Render({
         "lanes": game.race.gameBoard.racetrack.lanes,
     });
 };
@@ -424,9 +429,9 @@ RacetrackRenderer.prototype.Render = function(dictionary){
         if(index == 1){
             return [a, b].map(function(lane){
                 return laneRenderer.Render({"lane": lane});
-            }).join("\n");
+            }).join("<br />");
         }
-        return [a, laneRenderer.Render({"lane": b})].join("\n");
+        return [a, laneRenderer.Render({"lane": b})].join("<br />");
     });
     return text;
 }
