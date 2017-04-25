@@ -307,11 +307,11 @@ RaceDirector.prototype.OnUpdate = function(){
     var goalLanes = lanes.filter(function(lane){
         return !(-1 < this.orderOfFinish.indexOf(lane.runner)) && lane.IsGolePosition();
     }.bind(this));
-    var goalRunners = goalLanes.map(function(lane){
+    var runners = goalLanes.map(function(lane){
         return lane.runner;
     });
-    if(0 < goalRunners.length){
-        this.orderOfFinish.push(goalRunners[0]);
+    if(0 < runners.length){
+        this.orderOfFinish.push(runners[0]);
     }
 };
 
@@ -541,7 +541,8 @@ DebugMenu.prototype.Render = function(dictionary){
 
 DebugMenu.prototype.Random = function(len){
     var index = Math.floor(Math.random() * len);
-    Game.ServiceLocator.Create(Game).race.gameBoard.racetrack.lanes[index].position += 80;
+    var step = 1;
+    Game.ServiceLocator.Create(Game).race.gameBoard.racetrack.lanes[index].position += step;
 };
 
 DebugMenu.prototype.Reset = function(){
