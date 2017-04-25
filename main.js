@@ -474,9 +474,8 @@ DebugMenu.prototype.Render = function(dictionary){
         [
             "<button onClick='",
             "(function(){Game.ServiceLocator.Create(DebugMenu).Random(", lanes.length ,")})()'>",
-            "random",
+            "Random",
             "</button>",
-            "<br />",
         ].join(""),
         lanes.map(function(lane){
             var text = "+1";
@@ -488,13 +487,23 @@ DebugMenu.prototype.Render = function(dictionary){
                 "<span style='background-color:#", color, ";'>", text, "</span>",
                 "</button>",
             ].join("");
-        }).join("")
-    ].join("");
+        }).join(""),
+        [
+            "<button onClick='",
+            "(function(){Game.ServiceLocator.Create(DebugMenu).Reset()})()'>",
+            "Reset Game",
+            "</button>",
+        ].join(""),
+    ].join("<br />");
 };
 
 DebugMenu.prototype.Random = function(len){
     var index = Math.floor(Math.random() * len);
     Game.ServiceLocator.Create(Game).race.gameBoard.racetrack.lanes[index].position += 10;
+};
+
+DebugMenu.prototype.Reset = function(){
+    Game.ServiceLocator.Create(Game).Reset();
 };
 
 // For debug.
