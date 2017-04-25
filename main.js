@@ -323,15 +323,13 @@ var FPS = function(){
 };
 FPS.prototype = new GameObject();
 
-FPS.prototype.Current = function()
-{
+FPS.prototype.OnUpdate = function(deltaTime){
     var engine = Game.ServiceLocator.Create(Engine);
     if(1000 <= engine.lastUpdate - this.baseTime){
         this.currentFPS = ((engine.count - this.baseCount) * 1000) / (engine.lastUpdate - this.baseTime);
         this.baseTime = engine.lastUpdate;
         this.baseCount = engine.count;
     }
-    return Math.floor(this.currentFPS * 100) / 100;
 }
 
 var FPSRenderer = function(){
@@ -346,8 +344,9 @@ FPSRenderer.prototype.OnStart = function(){
 
 FPSRenderer.prototype.OnUpdate = function(deltaTime){
     Renderer.prototype.OnUpdate.call(this, arguments);
+    var fps = Math.floor(Game.ServiceLocator.Create(Game).fps.currentFPS * 100) / 100;
     this.Render({
-        "fps": Game.ServiceLocator.Create(Game).fps.Current()
+        "fps": fps,
     });
 };
 
