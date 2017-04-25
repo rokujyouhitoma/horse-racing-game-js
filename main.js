@@ -42,16 +42,19 @@ Engine.prototype.Update = function(deltaTime){
 var GameObject = function(){
     this.objects = [];
 };
+
 GameObject.prototype.OnStart = function(){
     this.objects.forEach(function(value, index, array){
         value.OnStart();
     }, this);
 };
+
 GameObject.prototype.OnUpdate = function(deltaTime){
     this.objects.forEach(function(value, index, array){
         value.OnUpdate(deltaTime);
     }, this);
 };
+
 GameObject.prototype.OnDestroy = function(){
     this.objects.forEach(function(value, index, array){
         value.OnDestroy();
