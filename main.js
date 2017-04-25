@@ -407,6 +407,7 @@ RacetrackRenderer.prototype.OnStart = function(){
 RacetrackRenderer.prototype.OnUpdate = function(deltaTime){
     Renderer.prototype.OnUpdate.call(this, arguments);
     var game = Game.ServiceLocator.Create(Game);
+    // TODO: innerHTMLは手抜き。createElementによるDOM操作が望ましい
     this.dom.innerHTML = this.Render({
         "racetrack": game.race.gameBoard.racetrack,
     });
@@ -452,6 +453,7 @@ DebugMenu.prototype.OnStart = function(){
     Renderer.prototype.OnStart.call(this, arguments);
     this.CreateDOM();
     var game = Game.ServiceLocator.Create(Game);
+    // TODO: innerHTMLは手抜き。createElementによるDOM操作が望ましい
     this.dom.innerHTML = this.Render({
         "racetrack": game.race.gameBoard.racetrack,
     });
