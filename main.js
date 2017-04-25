@@ -74,14 +74,15 @@ ServiceLocator.prototype.Create = function(obj){
 
 var Model = function(definitions, row){
     for(var i=0; i < definitions.length; i++){
-        Object.defineProperty(this, definitions[i], (function(){
-            var value = row[i];
-            return {
-                get: function(){
-                    return value;
-                }
-            }
-        }()));
+        this[definitions[i]] = row[i];
+        // Object.defineProperty(this, definitions[i], (function(){
+        //     var value = row[i];
+        //     return {
+        //         get: function(){
+        //             return value;
+        //         }
+        //     }
+        // }()));
     }
 };
 
@@ -136,16 +137,16 @@ var Figure = function(row){
 Figure.prototype = new GameObject();
 
 var FigureDirector = function(){
-    this.slimes = {};
+    this.figures = {};
 };
 FigureDirector.prototype = new GameObject();
 
 FigureDirector.prototype.OnStart = function(){
     GameObject.prototype.OnStart.call(this, arguments);
     Game.ServiceLocator.Create(MasterData).Get("Figure").forEach(function(value, index, array){
-        var slime = new Figure(value);
-        this.slimes[value] = slime;
-        slime.OnStart();
+        var figure = new Figure(value);
+        this.figures[value] = figure;
+        figure.OnStart();
     }, this);
 };
 
@@ -155,7 +156,7 @@ FigureDirector.prototype.OnUpdate = function(deltaTime){
 
 FigureDirector.prototype.OnDestroy = function(){
     GameObject.prototype.OnDestroy.call(this, arguments);
-    this.slime = {};
+    this.figure = {};
 };
 
 var MonsterCoin = function(row){
@@ -249,16 +250,12 @@ var Racetrack = function(runners, len){
 Racetrack.prototype = new GameObject();
 
 Racetrack.prototype.OnStart = function(){
-    this.lanes = this.runners.map(function(value, index, array){
+    this.lanes = this.runners.map(function(runner, index, array){
         var number = index + 1;
-        return new Lane(index, number, value, this.len);
+        return new Lane(index, number, runner, this.len);
     }.bind(this));
     this.objects.concat(this.lanes);
     GameObject.prototype.OnStart.call(this, arguments);
-};
-
-Racetrack.prototype.Positions = function(){
-    console.log(this.objects);
 };
 
 var GameBoard = function(race){
@@ -269,8 +266,8 @@ GameBoard.prototype = new GameObject();
 
 GameBoard.prototype.OnStart = function(){
     var master = Game.ServiceLocator.Create(MasterData);
-    var slimes = master.Get("Figure");
-    this.racetrack = new Racetrack(slimes.map(function(x){
+    var figures = master.Get("Figure");
+    this.racetrack = new Racetrack(figures.map(function(x){
         return new Figure(x);
     }), this.race.model.len);
     this.objects = [
@@ -292,6 +289,40 @@ Race.prototype.OnStart = function(){
     GameObject.prototype.OnStart.call(this, arguments);
 };
 
+var RaceDirector = function(){
+    this.orderOfFinish = [];
+    this.IsFinish = false;
+};
+RaceDirector.prototype = new GameObject();
+
+RaceDirector.prototype.OnUpdate = function(){
+    if(2 <= this.orderOfFinish.length){
+        if(!this.IsFinish){
+            this.Finish();
+            this.IsFinish = true;
+        }
+    }
+    var game = Game.ServiceLocator.Create(Game);
+    var lanes = game.race.gameBoard.racetrack.lanes;
+    var goalLanes = lanes.filter(function(lane){
+        return !(-1 < this.orderOfFinish.indexOf(lane.runner)) && lane.IsGolePosition();
+    }.bind(this));
+    var goalRunners = goalLanes.map(function(lane){
+        return lane.runner;
+    });
+    if(0 < goalRunners.length){
+        this.orderOfFinish.push(goalRunners[0]);
+    }
+};
+
+RaceDirector.prototype.Finish = function(){
+    console.log(this.orderOfFinish.slice(0, 2).map(function(figure){return figure.model.type;}));
+};
+
+RaceDirector.prototype.OnDestroy = function(){
+    this.orderOfFinish = [];
+};
+
 var Game = function(){
     // TODO: find系のクエリの仕組みないと辛い
     var row = Game.ServiceLocator.Create(MasterData).Get("Race")[0];
@@ -300,6 +331,7 @@ var Game = function(){
     this.objects = [
         this.fps,
         this.race,
+        Game.ServiceLocator.Create(RaceDirector),
         Game.ServiceLocator.Create(FigureDirector),
         Game.ServiceLocator.Create(MonsterCoinDirector),
         Game.ServiceLocator.Create(MonsterFigureDirector),
@@ -494,6 +526,12 @@ DebugMenu.prototype.Render = function(dictionary){
         }).join(""),
         [
             "<button onClick='",
+            "(function(){Game.ServiceLocator.Create(DebugMenu).Winners()})()'>",
+            "Winners",
+            "</button>",
+        ].join(""),
+        [
+            "<button onClick='",
             "(function(){Game.ServiceLocator.Create(DebugMenu).Reset()})()'>",
             "Reset Game",
             "</button>",
@@ -503,11 +541,15 @@ DebugMenu.prototype.Render = function(dictionary){
 
 DebugMenu.prototype.Random = function(len){
     var index = Math.floor(Math.random() * len);
-    Game.ServiceLocator.Create(Game).race.gameBoard.racetrack.lanes[index].position += 10;
+    Game.ServiceLocator.Create(Game).race.gameBoard.racetrack.lanes[index].position += 80;
 };
 
 DebugMenu.prototype.Reset = function(){
     Game.ServiceLocator.Create(Game).Reset();
+};
+
+DebugMenu.prototype.Winners = function(){
+    console.log(Game.ServiceLocator.Create(RaceDirector).orderOfFinish.map(function(figure){return figure.model.type;}));
 };
 
 // For debug.
