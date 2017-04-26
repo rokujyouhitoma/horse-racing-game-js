@@ -390,6 +390,22 @@ RaceDirector.prototype.OnDestroy = function(){
     this.orderOfFinish = [];
 };
 
+var Publisher = function(){
+    this.target = new EventTarget();
+};
+
+Publisher.prototype.subscribe = function(message, callback){
+    this.target.listen(message, callback);
+};
+
+Publisher.prototype.unsubscribe = function(message, callback){
+    this.target.unlisten(message, callback);
+};
+
+Publisher.prototype.publish = function(message){
+    this.target.dispatch(message);
+};
+
 var Game = function(){
     // TODO: find系のクエリの仕組みないと辛い
     var row = Game.ServiceLocator.create(MasterData).Get("Race")[0];
@@ -413,6 +429,8 @@ Game.prototype.Reset = function(){
 
 Game.ServiceLocatorContainer = {};
 Game.ServiceLocator = new ServiceLocator(Game.ServiceLocatorContainer);
+
+Game.Publisher = Game.ServiceLocator.create(Publisher);
 
 var FPS = function(){
     var engine = Game.ServiceLocator.create(Engine);
