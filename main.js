@@ -2,9 +2,11 @@
 
 console.log("main.js");
 
-var Event = function(type, target){
+var Event = function(type, target, sender, payload){
     this.type = type;
     this.target = target;
+    this.sender = sender;
+    this.payload = payload;
 };
 
 var EventTarget = function(){
@@ -43,7 +45,7 @@ EventTarget.prototype.unlisten = function(type, listener){
     }
 };
 
-EventTarget.prototype.dispatch = function(type){
+EventTarget.prototype.dispatch = function(type, sender, payload){
     var eventListeners = this.eventListeners;
     var counter = 0;
     while(counter < eventListeners.length){
@@ -52,9 +54,11 @@ EventTarget.prototype.dispatch = function(type){
             eventListener.type == type){
             if(type instanceof Event){
                 type.target = this;
+                type.sender = sender;
+                type.payload = payload;
                 eventListener.wrapper(type);
             } else {
-                eventListener.wrapper(new Event(type, this));
+                eventListener.wrapper(new Event(type, this, sender, payload));
             }
         }
         ++counter;
@@ -384,16 +388,16 @@ var Publisher = function(){
     this.target = new EventTarget();
 };
 
-Publisher.prototype.subscribe = function(message, callback){
-    this.target.listen(message, callback);
+Publisher.prototype.subscribe = function(type, listener){
+    this.target.listen(type, listener);
 };
 
-Publisher.prototype.unsubscribe = function(message, callback){
-    this.target.unlisten(message, callback);
+Publisher.prototype.unsubscribe = function(type, listener){
+    this.target.unlisten(type, listener);
 };
 
-Publisher.prototype.publish = function(message){
-    this.target.dispatch(message);
+Publisher.prototype.publish = function(type, publisher, payload){
+    this.target.dispatch(type, publisher, payload);
 };
 
 var Game = function(){
@@ -552,6 +556,7 @@ RacetrackRenderer.prototype.Render = function(dictionary){
 
 var DebugMenu = function(){
     this.dom;
+    Game.Publisher.subscribe("OnReset", this.OnReset);
 };
 DebugMenu.prototype = new Renderer();
 
@@ -607,7 +612,7 @@ DebugMenu.prototype.Render = function(dictionary){
         ].join(""),
         [
             "<button onClick='",
-            "(function(){Game.ServiceLocator.create(DebugMenu).Reset()})()'>",
+            "(function(){Game.Publisher.publish(\"OnReset\", this)})()'>",
             "Reset Game",
             "</button>",
         ].join(""),
@@ -620,7 +625,7 @@ DebugMenu.prototype.Random = function(len){
     Game.ServiceLocator.create(Game).race.gameBoard.racetrack.lanes[index].position += step;
 };
 
-DebugMenu.prototype.Reset = function(){
+DebugMenu.prototype.OnReset = function(){
     Game.ServiceLocator.create(Game).Reset();
 };
 
