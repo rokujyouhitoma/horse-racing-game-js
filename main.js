@@ -61,6 +61,72 @@ GameObject.prototype.OnDestroy = function(){
     }, this);
 };
 
+var Event = function(type, target){
+    this.type = type;
+    this.target = target;
+};
+
+var EventTarget = function(){
+    this.eventListeners = [];
+};
+
+EventTarget.prototype.listen = function(type, listener){
+    var wrapper = function(e) {
+        if (typeof listener.handleEvent != 'undefined') {
+            listener.handleEvent(e);
+        } else {
+            listener.call(self, e);
+        }
+    };
+    this.eventListeners.push({
+        object: this,
+        type: type,
+        listener: listener,
+        wrapper: wrapper
+    });
+};
+
+EventTarget.prototype.unlisten = function(type, listener){
+    var eventListeners = this.eventListeners;
+    var counter = 0;
+    while(counter < eventListeners.length){
+        var eventListener = eventListeners[counter];
+        if (eventListener.object == this &&
+            eventListener.type == type &&
+            eventListener.listener == listener){
+            eventListeners.splice(counter, 1);
+            break;
+        }
+        ++counter;
+    }
+};
+
+EventTarget.prototype.dispatch = function(type){
+    var eventListeners = this.eventListeners;
+    var counter = 0;
+    while(counter < eventListeners.length){
+        var eventListener = eventListeners[counter];
+        if (eventListener.object == this &&
+            eventListener.type == type){
+            if(type instanceof Event){
+                type.target = this;
+                eventListener.wrapper(type);
+            } else {
+                eventListener.wrapper(new Event(type, this));
+            }
+        }
+        ++counter;
+    }
+};
+
+var EventListener = function(callback){
+    this.callback = callback;
+};
+
+EventListener.prototype.handleEvent = function(event){
+    this.callback(event);
+};
+
 var ServiceLocator = function(container){
     this.container = container;
 };

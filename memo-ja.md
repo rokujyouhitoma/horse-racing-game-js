@@ -8,7 +8,7 @@
 
 ## コアライブラリs
 
- - [ ] Observerパターンによるイベントシステム。subscribe、unsubscribe、publish
+ - [x] Observerパターンによるイベントシステム。DOM Level2参考
  - [x] ServiceLocator
  - [x] モデルオブジェクト
  - [ ] データ集合に対するFindById系のクエリシステム
@@ -61,6 +61,10 @@
  - [x] ゲームリセット
 
 # History
+
+## 2017.4.26
+
+ - イベントの仕組みを追加（コアライブラリ）
 
 ## 2017.4.25
 
@@ -119,6 +123,19 @@
 ## 2017.4.17
 
  - Engineのメインループを実装
+
+# 設計
+
+## コアライブラリs
+
+### イベントシステム
+
+インスパイヤDOM Level2のEvent。
+
+ - https://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-Event
+ - https://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-EventTarget
+ - https://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-EventListener
+ - https://developer.mozilla.org/en-US/docs/Web/API/EventTarget
 
 # 用語集
 
