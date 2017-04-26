@@ -2,65 +2,6 @@
 
 console.log("main.js");
 
-var Engine = function(objects){
-    this.objects = objects;
-    this.count = 0;
-    this.FPS = 1000 / 60;
-    this.lastUpdate = Date.now();
-};
-
-Engine.prototype.Loop = function(){
-    console.log("Loop");
-    var loop = function(){
-        if(0 <= this.count){
-            setTimeout(loop, this.FPS);
-            this.count++;
-        }
-        var now = Date.now();
-        var deltaTime = (now - this.lastUpdate) / 1000;
-        this.lastUpdate = now;
-        this.Update(deltaTime);
-    }.bind(this);
-    loop();
-}
-
-Engine.prototype.Start = function(){
-    console.log("Start");
-    this.objects.forEach(function(value, index, array){
-        //TODO: 呼び出しをeventモデルにしたほうがよい
-        value.OnStart();
-    }, this);
-};
-
-Engine.prototype.Update = function(deltaTime){
-    this.objects.forEach(function(value, index, array){
-        //TODO: 呼び出しをeventモデルにしたほうがよい
-        value.OnUpdate(deltaTime);
-    }, this);
-};
-
-var GameObject = function(){
-    this.objects = [];
-};
-
-GameObject.prototype.OnStart = function(){
-    this.objects.forEach(function(value, index, array){
-        value.OnStart();
-    }, this);
-};
-
-GameObject.prototype.OnUpdate = function(deltaTime){
-    this.objects.forEach(function(value, index, array){
-        value.OnUpdate(deltaTime);
-    }, this);
-};
-
-GameObject.prototype.OnDestroy = function(){
-    this.objects.forEach(function(value, index, array){
-        value.OnDestroy();
-    }, this);
-};
-
 var Event = function(type, target){
     this.type = type;
     this.target = target;
@@ -71,6 +12,7 @@ var EventTarget = function(){
 };
 
 EventTarget.prototype.listen = function(type, listener){
+    var self = this;
     var wrapper = function(e) {
         if (typeof listener.handleEvent != 'undefined') {
             listener.handleEvent(e);
@@ -131,12 +73,71 @@ var ServiceLocator = function(container){
     this.container = container;
 };
 
-ServiceLocator.prototype.Create = function(obj){
+ServiceLocator.prototype.create = function(obj){
     if(!(obj in this.container)){
         this.container[obj] = new obj();
     }
     return this.container[obj];
 }
+
+var GameObject = function(){
+    this.objects = [];
+};
+
+GameObject.prototype.OnStart = function(){
+    this.objects.forEach(function(value, index, array){
+        value.OnStart();
+    }, this);
+};
+
+GameObject.prototype.OnUpdate = function(deltaTime){
+    this.objects.forEach(function(value, index, array){
+        value.OnUpdate(deltaTime);
+    }, this);
+};
+
+GameObject.prototype.OnDestroy = function(){
+    this.objects.forEach(function(value, index, array){
+        value.OnDestroy();
+    }, this);
+};
+
+var Engine = function(objects){
+    this.objects = objects;
+    this.count = 0;
+    this.FPS = 1000 / 60;
+    this.lastUpdate = Date.now();
+};
+
+Engine.prototype.Loop = function(){
+    console.log("Loop");
+    var loop = function(){
+        if(0 <= this.count){
+            setTimeout(loop, this.FPS);
+            this.count++;
+        }
+        var now = Date.now();
+        var deltaTime = (now - this.lastUpdate) / 1000;
+        this.lastUpdate = now;
+        this.Update(deltaTime);
+    }.bind(this);
+    loop();
+}
+
+Engine.prototype.Start = function(){
+    console.log("Start");
+    this.objects.forEach(function(value, index, array){
+        //TODO: 呼び出しをeventモデルにしたほうがよい
+        value.OnStart();
+    }, this);
+};
+
+Engine.prototype.Update = function(deltaTime){
+    this.objects.forEach(function(value, index, array){
+        //TODO: 呼び出しをeventモデルにしたほうがよい
+        value.OnUpdate(deltaTime);
+    }, this);
+};
 
 var Model = function(definitions, row){
     for(var i=0; i < definitions.length; i++){
@@ -209,7 +210,7 @@ FigureDirector.prototype = new GameObject();
 
 FigureDirector.prototype.OnStart = function(){
     GameObject.prototype.OnStart.call(this, arguments);
-    Game.ServiceLocator.Create(MasterData).Get("Figure").forEach(function(value, index, array){
+    Game.ServiceLocator.create(MasterData).Get("Figure").forEach(function(value, index, array){
         var figure = new Figure(value);
         this.figures[value] = figure;
         figure.OnStart();
@@ -237,7 +238,7 @@ MonsterCoinDirector.prototype = new GameObject();
 
 MonsterCoinDirector.prototype.OnStart = function(){
     GameObject.prototype.OnStart.call(this, arguments);
-    Game.ServiceLocator.Create(MasterData).Get("MonsterCoin").forEach(function(value, index, array){
+    Game.ServiceLocator.create(MasterData).Get("MonsterCoin").forEach(function(value, index, array){
         var coin = new MonsterCoin(value);
         this.coins[value] = coin;
         coin.OnStart();
@@ -273,7 +274,7 @@ MonsterFigureDirector.prototype = new GameObject();
 
 MonsterFigureDirector.prototype.OnStart = function(){
     GameObject.prototype.OnStart.call(this, arguments);
-    Game.ServiceLocator.Create(MasterData).Get("MonsterCoin").forEach(function(value, index, array){
+    Game.ServiceLocator.create(MasterData).Get("MonsterCoin").forEach(function(value, index, array){
         var figure = new MonsterFigure(value);
         this.figures[value] = figure;
         figure.OnStart();
@@ -331,7 +332,7 @@ var GameBoard = function(race){
 GameBoard.prototype = new GameObject();
 
 GameBoard.prototype.OnStart = function(){
-    var master = Game.ServiceLocator.Create(MasterData);
+    var master = Game.ServiceLocator.create(MasterData);
     var figures = master.Get("Figure");
     this.racetrack = new Racetrack(figures.map(function(x){
         return new Figure(x);
@@ -368,7 +369,7 @@ RaceDirector.prototype.OnUpdate = function(){
             this.IsFinish = true;
         }
     }
-    var game = Game.ServiceLocator.Create(Game);
+    var game = Game.ServiceLocator.create(Game);
     var lanes = game.race.gameBoard.racetrack.lanes;
     var goalLanes = lanes.filter(function(lane){
         return !(-1 < this.orderOfFinish.indexOf(lane.runner)) && lane.IsGolePosition();
@@ -391,16 +392,16 @@ RaceDirector.prototype.OnDestroy = function(){
 
 var Game = function(){
     // TODO: find系のクエリの仕組みないと辛い
-    var row = Game.ServiceLocator.Create(MasterData).Get("Race")[0];
+    var row = Game.ServiceLocator.create(MasterData).Get("Race")[0];
     this.fps = new FPS();
     this.race = new Race(row);
     this.objects = [
         this.fps,
         this.race,
-        Game.ServiceLocator.Create(RaceDirector),
-        Game.ServiceLocator.Create(FigureDirector),
-        Game.ServiceLocator.Create(MonsterCoinDirector),
-        Game.ServiceLocator.Create(MonsterFigureDirector),
+        Game.ServiceLocator.create(RaceDirector),
+        Game.ServiceLocator.create(FigureDirector),
+        Game.ServiceLocator.create(MonsterCoinDirector),
+        Game.ServiceLocator.create(MonsterFigureDirector),
     ];
 };
 Game.prototype = new GameObject();
@@ -414,7 +415,7 @@ Game.ServiceLocatorContainer = {};
 Game.ServiceLocator = new ServiceLocator(Game.ServiceLocatorContainer);
 
 var FPS = function(){
-    var engine = Game.ServiceLocator.Create(Engine);
+    var engine = Game.ServiceLocator.create(Engine);
     this.baseTime = engine.lastUpdate;
     this.baseCount = 0;
     this.currentFPS = 0;
@@ -422,7 +423,7 @@ var FPS = function(){
 FPS.prototype = new GameObject();
 
 FPS.prototype.OnUpdate = function(deltaTime){
-    var engine = Game.ServiceLocator.Create(Engine);
+    var engine = Game.ServiceLocator.create(Engine);
     if(1000 <= engine.lastUpdate - this.baseTime){
         this.currentFPS = ((engine.count - this.baseCount) * 1000) / (engine.lastUpdate - this.baseTime);
         this.baseTime = engine.lastUpdate;
@@ -442,7 +443,7 @@ FPSRenderer.prototype.OnStart = function(){
 
 FPSRenderer.prototype.OnUpdate = function(deltaTime){
     Renderer.prototype.OnUpdate.call(this, arguments);
-    var fps = Math.floor(Game.ServiceLocator.Create(Game).fps.currentFPS * 100) / 100;
+    var fps = Math.floor(Game.ServiceLocator.create(Game).fps.currentFPS * 100) / 100;
     this.Render({
         "fps": fps,
     });
@@ -503,7 +504,7 @@ RacetrackRenderer.prototype.OnStart = function(){
 
 RacetrackRenderer.prototype.OnUpdate = function(deltaTime){
     Renderer.prototype.OnUpdate.call(this, arguments);
-    var game = Game.ServiceLocator.Create(Game);
+    var game = Game.ServiceLocator.create(Game);
     // TODO: innerHTMLは手抜き。createElementによるDOM操作が望ましい
     this.dom.innerHTML = this.Render({
         "racetrack": game.race.gameBoard.racetrack,
@@ -549,7 +550,7 @@ DebugMenu.prototype = new Renderer();
 DebugMenu.prototype.OnStart = function(){
     Renderer.prototype.OnStart.call(this, arguments);
     this.CreateDOM();
-    var game = Game.ServiceLocator.Create(Game);
+    var game = Game.ServiceLocator.create(Game);
     // TODO: innerHTMLは手抜き。createElementによるDOM操作が望ましい
     this.dom.innerHTML = this.Render({
         "racetrack": game.race.gameBoard.racetrack,
@@ -575,7 +576,7 @@ DebugMenu.prototype.Render = function(dictionary){
     return [
         [
             "<button onClick='",
-            "(function(){Game.ServiceLocator.Create(DebugMenu).Random(", lanes.length ,")})()'>",
+            "(function(){Game.ServiceLocator.create(DebugMenu).Random(", lanes.length ,")})()'>",
             "Random",
             "</button>",
         ].join(""),
@@ -585,20 +586,20 @@ DebugMenu.prototype.Render = function(dictionary){
             var color = lane.runner.model.color;
             return [
                 "<button onClick='",
-                "(function(){Game.ServiceLocator.Create(Game).race.gameBoard.racetrack.lanes[", index, "].position += 1;})()'>",
+                "(function(){Game.ServiceLocator.create(Game).race.gameBoard.racetrack.lanes[", index, "].position += 1;})()'>",
                 "<span style='background-color:#", color, ";'>", text, "</span>",
                 "</button>",
             ].join("");
         }).join(""),
         [
             "<button onClick='",
-            "(function(){Game.ServiceLocator.Create(DebugMenu).Winners()})()'>",
+            "(function(){Game.ServiceLocator.create(DebugMenu).Winners()})()'>",
             "Winners",
             "</button>",
         ].join(""),
         [
             "<button onClick='",
-            "(function(){Game.ServiceLocator.Create(DebugMenu).Reset()})()'>",
+            "(function(){Game.ServiceLocator.create(DebugMenu).Reset()})()'>",
             "Reset Game",
             "</button>",
         ].join(""),
@@ -608,15 +609,15 @@ DebugMenu.prototype.Render = function(dictionary){
 DebugMenu.prototype.Random = function(len){
     var index = Math.floor(Math.random() * len);
     var step = 1;
-    Game.ServiceLocator.Create(Game).race.gameBoard.racetrack.lanes[index].position += step;
+    Game.ServiceLocator.create(Game).race.gameBoard.racetrack.lanes[index].position += step;
 };
 
 DebugMenu.prototype.Reset = function(){
-    Game.ServiceLocator.Create(Game).Reset();
+    Game.ServiceLocator.create(Game).Reset();
 };
 
 DebugMenu.prototype.Winners = function(){
-    console.log(Game.ServiceLocator.Create(RaceDirector).orderOfFinish.map(function(figure){return figure.model.type;}));
+    console.log(Game.ServiceLocator.create(RaceDirector).orderOfFinish.map(function(figure){return figure.model.type;}));
 };
 
 // For debug.
@@ -624,17 +625,17 @@ var DebugUIDirector = function(){
     this.objects = [
         new FPSRenderer(),
         new RacetrackRenderer(),
-        Game.ServiceLocator.Create(DebugMenu),
+        Game.ServiceLocator.create(DebugMenu),
     ];
 };
 DebugUIDirector.prototype = new GameObject();
 
 // main
 (window.onload = function(){
-    var engine = Game.ServiceLocator.Create(Engine);
+    var engine = Game.ServiceLocator.create(Engine);
     engine.objects = [
-        Game.ServiceLocator.Create(Game),
-        Game.ServiceLocator.Create(DebugUIDirector), //For debug.
+        Game.ServiceLocator.create(Game),
+        Game.ServiceLocator.create(DebugUIDirector), //For debug.
     ];
     engine.Start();
     engine.Loop();
