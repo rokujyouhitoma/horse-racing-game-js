@@ -84,21 +84,21 @@ var GameObject = function(){
     this.objects = [];
 };
 
-GameObject.prototype.OnStart = function(){
+GameObject.prototype.Start = function(){
     this.objects.forEach(function(value, index, array){
-        value.OnStart();
+        value.Start();
     }, this);
 };
 
-GameObject.prototype.OnUpdate = function(deltaTime){
+GameObject.prototype.Update = function(deltaTime){
     this.objects.forEach(function(value, index, array){
-        value.OnUpdate(deltaTime);
+        value.Update(deltaTime);
     }, this);
 };
 
-GameObject.prototype.OnDestroy = function(){
+GameObject.prototype.Destroy = function(){
     this.objects.forEach(function(value, index, array){
-        value.OnDestroy();
+        value.Destroy();
     }, this);
 };
 
@@ -127,13 +127,13 @@ Engine.prototype.Loop = function(){
 Engine.prototype.Start = function(){
     console.log("Start");
     this.objects.forEach(function(value, index, array){
-        value.OnStart();
+        value.Start();
     }, this);
 };
 
 Engine.prototype.Update = function(deltaTime){
     this.objects.forEach(function(value, index, array){
-        value.OnUpdate(deltaTime);
+        value.Update(deltaTime);
     }, this);
 };
 
@@ -198,21 +198,21 @@ var FigureDirector = function(){
 };
 FigureDirector.prototype = new GameObject();
 
-FigureDirector.prototype.OnStart = function(){
-    GameObject.prototype.OnStart.call(this, arguments);
+FigureDirector.prototype.Start = function(){
+    GameObject.prototype.Start.call(this, arguments);
     Game.ServiceLocator.create(MasterData).Get("Figure").forEach(function(value, index, array){
         var figure = new Figure(value);
         this.figures[value] = figure;
-        figure.OnStart();
+        figure.Start();
     }, this);
 };
 
-FigureDirector.prototype.OnUpdate = function(deltaTime){
-    GameObject.prototype.OnUpdate.call(this, arguments);
+FigureDirector.prototype.Update = function(deltaTime){
+    GameObject.prototype.Update.call(this, arguments);
 };
 
-FigureDirector.prototype.OnDestroy = function(){
-    GameObject.prototype.OnDestroy.call(this, arguments);
+FigureDirector.prototype.Destroy = function(){
+    GameObject.prototype.Destroy.call(this, arguments);
     this.figure = {};
 };
 
@@ -226,21 +226,21 @@ var MonsterCoinDirector = function(){
 };
 MonsterCoinDirector.prototype = new GameObject();
 
-MonsterCoinDirector.prototype.OnStart = function(){
-    GameObject.prototype.OnStart.call(this, arguments);
+MonsterCoinDirector.prototype.Start = function(){
+    GameObject.prototype.Start.call(this, arguments);
     Game.ServiceLocator.create(MasterData).Get("MonsterCoin").forEach(function(value, index, array){
         var coin = new MonsterCoin(value);
         this.coins[value] = coin;
-        coin.OnStart();
+        coin.Start();
     }, this);
 };
 
-MonsterCoinDirector.prototype.OnUpdate = function(deltaTime){
-    GameObject.prototype.OnUpdate.call(this, arguments);
+MonsterCoinDirector.prototype.Update = function(deltaTime){
+    GameObject.prototype.Update.call(this, arguments);
 };
 
-MonsterCoinDirector.prototype.OnDestroy = function(){
-    GameObject.prototype.OnDestroy.call(this, arguments);
+MonsterCoinDirector.prototype.Destroy = function(){
+    GameObject.prototype.Destroy.call(this, arguments);
     this.coins = {};
 };
 
@@ -249,12 +249,12 @@ var MonsterFigure = function(row){
 };
 MonsterFigure.prototype = new GameObject();
 
-MonsterFigure.prototype.OnStart = function(){
-    GameObject.prototype.OnStart.call(this, arguments);
+MonsterFigure.prototype.Start = function(){
+    GameObject.prototype.Start.call(this, arguments);
 };
 
-MonsterFigure.prototype.OnUpdate = function(deltaTime){
-    GameObject.prototype.OnUpdate.call(this, arguments);
+MonsterFigure.prototype.Update = function(deltaTime){
+    GameObject.prototype.Update.call(this, arguments);
 };
 
 var MonsterFigureDirector = function(){
@@ -262,21 +262,21 @@ var MonsterFigureDirector = function(){
 };
 MonsterFigureDirector.prototype = new GameObject();
 
-MonsterFigureDirector.prototype.OnStart = function(){
-    GameObject.prototype.OnStart.call(this, arguments);
+MonsterFigureDirector.prototype.Start = function(){
+    GameObject.prototype.Start.call(this, arguments);
     Game.ServiceLocator.create(MasterData).Get("MonsterCoin").forEach(function(value, index, array){
         var figure = new MonsterFigure(value);
         this.figures[value] = figure;
-        figure.OnStart();
+        figure.Start();
     }, this);
 };
 
-MonsterFigureDirector.prototype.OnUpdate = function(deltaTime){
-    GameObject.prototype.OnUpdate.call(this, arguments);
+MonsterFigureDirector.prototype.Update = function(deltaTime){
+    GameObject.prototype.Update.call(this, arguments);
 };
 
-MonsterFigureDirector.prototype.OnDestroy = function(){
-    GameObject.prototype.OnDestroy.call(this, arguments);
+MonsterFigureDirector.prototype.Destroy = function(){
+    GameObject.prototype.Destroy.call(this, arguments);
     this.figures = {};
 };
 
@@ -306,13 +306,13 @@ var Racetrack = function(runners, len){
 };
 Racetrack.prototype = new GameObject();
 
-Racetrack.prototype.OnStart = function(){
+Racetrack.prototype.Start = function(){
     this.lanes = this.runners.map(function(runner, index, array){
         var number = index + 1;
         return new Lane(index, number, runner, this.len);
     }.bind(this));
     this.objects.concat(this.lanes);
-    GameObject.prototype.OnStart.call(this, arguments);
+    GameObject.prototype.Start.call(this, arguments);
 };
 
 var GameBoard = function(race){
@@ -321,7 +321,7 @@ var GameBoard = function(race){
 };
 GameBoard.prototype = new GameObject();
 
-GameBoard.prototype.OnStart = function(){
+GameBoard.prototype.Start = function(){
     var master = Game.ServiceLocator.create(MasterData);
     var figures = master.Get("Figure");
     this.racetrack = new Racetrack(figures.map(function(x){
@@ -330,7 +330,7 @@ GameBoard.prototype.OnStart = function(){
     this.objects = [
         this.racetrack,
     ];
-    GameObject.prototype.OnStart.call(this, arguments);
+    GameObject.prototype.Start.call(this, arguments);
 };
 
 var Race = function(row){
@@ -339,11 +339,11 @@ var Race = function(row){
 };
 Race.prototype = new GameObject();
 
-Race.prototype.OnStart = function(){
+Race.prototype.Start = function(){
     this.objects = [
         this.gameBoard,
     ];
-    GameObject.prototype.OnStart.call(this, arguments);
+    GameObject.prototype.Start.call(this, arguments);
 };
 
 var RaceDirector = function(){
@@ -352,7 +352,7 @@ var RaceDirector = function(){
 };
 RaceDirector.prototype = new GameObject();
 
-RaceDirector.prototype.OnUpdate = function(){
+RaceDirector.prototype.Update = function(){
     if(2 <= this.orderOfFinish.length){
         if(!this.IsFinish){
             this.Finish();
@@ -376,7 +376,7 @@ RaceDirector.prototype.Finish = function(){
     console.log(this.orderOfFinish.slice(0, 2).map(function(figure){return figure.model.type;}));
 };
 
-RaceDirector.prototype.OnDestroy = function(){
+RaceDirector.prototype.Destroy = function(){
     this.orderOfFinish = [];
 };
 
@@ -413,8 +413,8 @@ var Game = function(){
 Game.prototype = new GameObject();
 
 Game.prototype.Reset = function(){
-    this.OnDestroy();
-    this.OnStart();
+    this.Destroy();
+    this.Start();
 };
 
 Game.ServiceLocatorContainer = {};
@@ -430,7 +430,7 @@ var FPS = function(){
 };
 FPS.prototype = new GameObject();
 
-FPS.prototype.OnUpdate = function(deltaTime){
+FPS.prototype.Update = function(deltaTime){
     var engine = Game.ServiceLocator.create(Engine);
     if(1000 <= engine.lastUpdate - this.baseTime){
         this.currentFPS = ((engine.count - this.baseCount) * 1000) / (engine.lastUpdate - this.baseTime);
@@ -444,13 +444,13 @@ var FPSRenderer = function(){
 };
 FPSRenderer.prototype = new Renderer();
 
-FPSRenderer.prototype.OnStart = function(){
-    Renderer.prototype.OnStart.call(this, arguments);
+FPSRenderer.prototype.Start = function(){
+    Renderer.prototype.Start.call(this, arguments);
     this.CreateDOM();
 };
 
-FPSRenderer.prototype.OnUpdate = function(deltaTime){
-    Renderer.prototype.OnUpdate.call(this, arguments);
+FPSRenderer.prototype.Update = function(deltaTime){
+    Renderer.prototype.Update.call(this, arguments);
     var fps = Math.floor(Game.ServiceLocator.create(Game).fps.currentFPS * 100) / 100;
     this.Render({
         "fps": fps,
@@ -505,13 +505,13 @@ var RacetrackRenderer = function(){
 };
 RacetrackRenderer.prototype = new Renderer();
 
-RacetrackRenderer.prototype.OnStart = function(){
-    Renderer.prototype.OnStart.call(this, arguments);
+RacetrackRenderer.prototype.Start = function(){
+    Renderer.prototype.Start.call(this, arguments);
     this.CreateDOM();
 };
 
-RacetrackRenderer.prototype.OnUpdate = function(deltaTime){
-    Renderer.prototype.OnUpdate.call(this, arguments);
+RacetrackRenderer.prototype.Update = function(deltaTime){
+    Renderer.prototype.Update.call(this, arguments);
     var game = Game.ServiceLocator.create(Game);
     // TODO: innerHTMLは手抜き。createElementによるDOM操作が望ましい
     this.dom.innerHTML = this.Render({
@@ -555,8 +555,8 @@ var DebugMenu = function(){
 };
 DebugMenu.prototype = new Renderer();
 
-DebugMenu.prototype.OnStart = function(){
-    Renderer.prototype.OnStart.call(this, arguments);
+DebugMenu.prototype.Start = function(){
+    Renderer.prototype.Start.call(this, arguments);
     this.CreateDOM();
     var game = Game.ServiceLocator.create(Game);
     // TODO: innerHTMLは手抜き。createElementによるDOM操作が望ましい
