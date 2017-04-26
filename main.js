@@ -127,14 +127,12 @@ Engine.prototype.Loop = function(){
 Engine.prototype.Start = function(){
     console.log("Start");
     this.objects.forEach(function(value, index, array){
-        //TODO: 呼び出しをeventモデルにしたほうがよい
         value.OnStart();
     }, this);
 };
 
 Engine.prototype.Update = function(deltaTime){
     this.objects.forEach(function(value, index, array){
-        //TODO: 呼び出しをeventモデルにしたほうがよい
         value.OnUpdate(deltaTime);
     }, this);
 };
@@ -142,14 +140,6 @@ Engine.prototype.Update = function(deltaTime){
 var Model = function(definitions, row){
     for(var i=0; i < definitions.length; i++){
         this[definitions[i]] = row[i];
-        // Object.defineProperty(this, definitions[i], (function(){
-        //     var value = row[i];
-        //     return {
-        //         get: function(){
-        //             return value;
-        //         }
-        //     }
-        // }()));
     }
 };
 
