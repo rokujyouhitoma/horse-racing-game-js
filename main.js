@@ -397,15 +397,15 @@ Publisher.prototype.GetOrCreateTarget = function(type){
 }
 
 Publisher.prototype.Subscribe = function(type, listener){
-    this.GetOrCreateTarget().listen(type, listener);
+    this.GetOrCreateTarget(type).listen(type, listener);
 };
 
 Publisher.prototype.UnSubscribe = function(type, listener){
-    this.GetOrCreateTarget().unlisten(type, listener);
+    this.GetOrCreateTarget(type).unlisten(type, listener);
 };
 
 Publisher.prototype.Publish = function(type, publisher, payload){
-    this.GetOrCreateTarget().dispatch(type, publisher, payload);
+    this.GetOrCreateTarget(type).dispatch(type, publisher, payload);
 };
 
 var Game = function(){
