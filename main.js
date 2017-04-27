@@ -1,7 +1,5 @@
 "use strict";
 
-console.log("main.js");
-
 var Event = function(type, target, sender, payload){
     this.type = type;
     this.target = target;
@@ -22,6 +20,7 @@ EventTarget.prototype.listen = function(type, listener){
             listener.call(self, e);
         }
     };
+    console.log(this);
     this.eventListeners.push({
         object: this,
         type: type,
@@ -556,7 +555,9 @@ RacetrackRenderer.prototype.Render = function(dictionary){
 
 var DebugMenu = function(){
     this.dom;
-    Game.Publisher.subscribe("OnReset", this.OnReset);
+    Game.Publisher.subscribe("OnMove", this.OnMove.bind(this));
+    Game.Publisher.subscribe("OnReset", this.OnReset.bind(this));
+    Game.Publisher.subscribe("OnCheckWinners", this.OnCheckWinners.bind(this));
 };
 DebugMenu.prototype = new Renderer();
 
@@ -599,20 +600,20 @@ DebugMenu.prototype.Render = function(dictionary){
             var color = lane.runner.model.color;
             return [
                 "<button onClick='",
-                "(function(){Game.ServiceLocator.create(Game).race.gameBoard.racetrack.lanes[", index, "].position += 1;})()'>",
+                "(function(){Game.Publisher.publish(\"OnMove\", this, {index: ", index, "})})()'>",
                 "<span style='background-color:#", color, ";'>", text, "</span>",
                 "</button>",
             ].join("");
         }).join(""),
         [
             "<button onClick='",
-            "(function(){Game.ServiceLocator.create(DebugMenu).Winners()})()'>",
+            "(function(){Game.Publisher.publish(\"OnCheckWinners\", this);})()'>",
             "Winners",
             "</button>",
         ].join(""),
         [
             "<button onClick='",
-            "(function(){Game.Publisher.publish(\"OnReset\", this)})()'>",
+            "(function(){Game.Publisher.publish(\"OnReset\", this);})()'>",
             "Reset Game",
             "</button>",
         ].join(""),
@@ -625,12 +626,19 @@ DebugMenu.prototype.Random = function(len){
     Game.ServiceLocator.create(Game).race.gameBoard.racetrack.lanes[index].position += step;
 };
 
-DebugMenu.prototype.OnReset = function(){
+DebugMenu.prototype.OnMove = function(e){
+    var index = e.payload["index"];
+    Game.ServiceLocator.create(Game).race.gameBoard.racetrack.lanes[index].position += 1;
+};
+
+DebugMenu.prototype.OnReset = function(e){
     Game.ServiceLocator.create(Game).Reset();
 };
 
-DebugMenu.prototype.Winners = function(){
-    console.log(Game.ServiceLocator.create(RaceDirector).orderOfFinish.map(function(figure){return figure.model.type;}));
+DebugMenu.prototype.OnCheckWinners = function(e){
+    console.log(Game.ServiceLocator.create(RaceDirector).orderOfFinish.map(function(figure){
+        return figure.model.type;
+    }));
 };
 
 // For debug.
