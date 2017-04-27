@@ -151,7 +151,7 @@ Renderer.prototype.Render = function(dictionary){};
 
 var MasterData = function(){
     this.stub = {
-        "Figure": [
+        "HorseFigure": [
             // id, type, color
             // int, string, string
             [1, "Red", "FF0000"],
@@ -182,7 +182,79 @@ var MasterData = function(){
             // id, len
             // int, int
             [1, 70],
-        ]
+        ],
+        "HorseCard": [
+            // id, target_id, step
+            // int, int, int
+            [1, 1, 5],
+            [2, 1, 5],
+            [3, 1, 5],
+            [4, 1, 9],
+            [5, 1, 9],
+            [6, 1, 9],
+            [7, 1, 10],
+            [8, 1, 10],
+            [9, 1, 10],
+            [10, 2, 5],
+            [11, 2, 5],
+            [12, 2, 5],
+            [13, 2, 6],
+            [14, 2, 6],
+            [15, 2, 6],
+            [16, 2, 8],
+            [17, 2, 8],
+            [18, 2, 8],
+            [19, 3, 4],
+            [20, 3, 4],
+            [21, 3, 4],
+            [22, 3, 5],
+            [23, 3, 5],
+            [24, 3, 5],
+            [25, 3, 7],
+            [26, 3, 7],
+            [27, 3, 7],
+            [28, 4, 4],
+            [29, 4, 4],
+            [30, 4, 4],
+            [31, 4, 5],
+            [32, 4, 5],
+            [33, 4, 5],
+            [34, 4, 6],
+            [35, 4, 6],
+            [36, 4, 6],
+            [37, 5, 3],
+            [38, 5, 3],
+            [39, 5, 3],
+            [40, 5, 4],
+            [41, 5, 4],
+            [42, 5, 4],
+            [43, 5, 5],
+            [44, 5, 5],
+            [45, 5, 5],
+        ],
+        "RankCard": [
+            // id, target_rank, step
+            // int, int, int
+            [1, 1, 5],
+            [2, 1, 10],
+            [3, 1, 15],
+            [4, 2, 5],
+            [5, 2, 10],
+            [6, 2, 15],
+            [7, 3, 5],
+            [8, 3, 10],
+            [9, 3, 15],
+            [10, 4, 5],
+            [11, 4, 10],
+            [12, 4, 15],
+            [13, 5, 35],
+        ],
+        "DashCard": [
+            // id, target_rank, type
+            // int, int, int
+            [1, 1, 1],
+            [1, 2, 2],
+        ],
     };
 };
 
@@ -190,30 +262,30 @@ MasterData.prototype.Get = function(key){
     return this.stub[key];
 }
 
-var Figure = function(row){
+var HorseFigure = function(row){
     this.model = new Model(["id","type","color"], row);
 };
-Figure.prototype = new GameObject();
+HorseFigure.prototype = new GameObject();
 
-var FigureDirector = function(){
+var HorseFigureDirector = function(){
     this.figures = {};
 };
-FigureDirector.prototype = new GameObject();
+HorseFigureDirector.prototype = new GameObject();
 
-FigureDirector.prototype.Start = function(){
+HorseFigureDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this, arguments);
-    Game.ServiceLocator.create(MasterData).Get("Figure").forEach(function(value, index, array){
-        var figure = new Figure(value);
+    Game.ServiceLocator.create(MasterData).Get("HorseFigure").forEach(function(value, index, array){
+        var figure = new HorseFigure(value);
         this.figures[value] = figure;
         figure.Start();
     }, this);
 };
 
-FigureDirector.prototype.Update = function(deltaTime){
+HorseFigureDirector.prototype.Update = function(deltaTime){
     GameObject.prototype.Update.call(this, arguments);
 };
 
-FigureDirector.prototype.Destroy = function(){
+HorseFigureDirector.prototype.Destroy = function(){
     GameObject.prototype.Destroy.call(this, arguments);
     this.figure = {};
 };
@@ -325,9 +397,9 @@ GameBoard.prototype = new GameObject();
 
 GameBoard.prototype.Start = function(){
     var master = Game.ServiceLocator.create(MasterData);
-    var figures = master.Get("Figure");
-    this.racetrack = new Racetrack(figures.map(function(x){
-        return new Figure(x);
+    var figures = master.Get("HorseFigure");
+    this.racetrack = new Racetrack(figures.map(function(figure){
+        return new HorseFigure(figure);
     }), this.race.model.len);
     this.objects = [
         this.racetrack,
@@ -415,7 +487,7 @@ var Game = function(){
         this.fps,
         this.race,
         Game.ServiceLocator.create(RaceDirector),
-        Game.ServiceLocator.create(FigureDirector),
+        Game.ServiceLocator.create(HorseFigureDirector),
         Game.ServiceLocator.create(MonsterCoinDirector),
         Game.ServiceLocator.create(MonsterFigureDirector),
     ];
