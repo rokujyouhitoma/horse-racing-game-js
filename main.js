@@ -1,9 +1,8 @@
 "use strict";
 
-var Event = function(type, target, sender, payload){
+var Event = function(type, target, payload){
     this.type = type;
     this.target = target;
-    this.sender = sender;
     this.payload = payload;
 };
 
@@ -11,7 +10,7 @@ var EventTarget = function(){
     this.eventListeners = [];
 };
 
-EventTarget.prototype.listen = function(type, listener){
+EventTarget.prototype.addEventListener = function(type, listener){
     var self = this;
     var wrapper = function(e) {
         if (typeof listener.handleEvent != 'undefined') {
@@ -28,7 +27,7 @@ EventTarget.prototype.listen = function(type, listener){
     });
 };
 
-EventTarget.prototype.unlisten = function(type, listener){
+EventTarget.prototype.removeEventListener = function(type, listener){
     var eventListeners = this.eventListeners;
     var counter = 0;
     //TODO: O(n)探索は改善しよう
@@ -44,7 +43,7 @@ EventTarget.prototype.unlisten = function(type, listener){
     }
 };
 
-EventTarget.prototype.dispatch = function(type, sender, payload){
+EventTarget.prototype.dispatchEvent = function(type, payload){
     var eventListeners = this.eventListeners;
     var counter = 0;
     //TODO: O(n)探索は改善しよう
@@ -54,11 +53,10 @@ EventTarget.prototype.dispatch = function(type, sender, payload){
             eventListener.type == type){
             if(type instanceof Event){
                 type.target = this;
-                type.sender = sender;
                 type.payload = payload;
                 eventListener.wrapper(type);
             } else {
-                eventListener.wrapper(new Event(type, this, sender, payload));
+                eventListener.wrapper(new Event(type, this, payload));
             }
         }
         ++counter;
@@ -397,15 +395,15 @@ Publisher.prototype.GetOrCreateTarget = function(type){
 }
 
 Publisher.prototype.Subscribe = function(type, listener){
-    this.GetOrCreateTarget(type).listen(type, listener);
+    this.GetOrCreateTarget(type).addEventListener(type, listener);
 };
 
 Publisher.prototype.UnSubscribe = function(type, listener){
-    this.GetOrCreateTarget(type).unlisten(type, listener);
+    this.GetOrCreateTarget(type).removeEventListener(type, listener);
 };
 
-Publisher.prototype.Publish = function(type, publisher, payload){
-    this.GetOrCreateTarget(type).dispatch(type, publisher, payload);
+Publisher.prototype.Publish = function(type, payload){
+    this.GetOrCreateTarget(type).dispatchEvent(type, payload);
 };
 
 var Game = function(){
@@ -609,20 +607,20 @@ DebugMenu.prototype.Render = function(dictionary){
             var color = lane.runner.model.color;
             return [
                 "<button onClick='",
-                "(function(){Game.Publisher.Publish(\"OnMove\", this, {index: ", index, "})})()'>",
+                "(function(){Game.Publisher.Publish(\"OnMove\", {index: ", index, "})})()'>",
                 "<span style='background-color:#", color, ";'>", text, "</span>",
                 "</button>",
             ].join("");
         }).join(""),
         [
             "<button onClick='",
-            "(function(){Game.Publisher.Publish(\"OnCheckWinners\", this);})()'>",
+            "(function(){Game.Publisher.Publish(\"OnCheckWinners\");})()'>",
             "Winners",
             "</button>",
         ].join(""),
         [
             "<button onClick='",
-            "(function(){Game.Publisher.Publish(\"OnReset\", this);})()'>",
+            "(function(){Game.Publisher.Publish(\"OnReset\");})()'>",
             "Reset Game",
             "</button>",
         ].join(""),
