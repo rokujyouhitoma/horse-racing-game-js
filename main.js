@@ -362,10 +362,9 @@ RaceDirector.prototype.Update = function(){
     }
     var game = Game.ServiceLocator.create(Game);
     var lanes = game.race.gameBoard.racetrack.lanes;
-    var goalLanes = lanes.filter(function(lane){
-        return !(-1 < this.orderOfFinish.indexOf(lane.runner)) && lane.IsGolePosition();
-    }.bind(this));
-    var runners = goalLanes.map(function(lane){
+    var runners = lanes.filter(function(lane){
+        return !this.orderOfFinish.includes(lane.runner) && lane.IsGolePosition();
+    }.bind(this)).map(function(lane){
         return lane.runner;
     });
     if(0 < runners.length){
