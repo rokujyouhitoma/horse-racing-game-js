@@ -351,15 +351,14 @@ Race.prototype.Start = function(){
 var RaceDirector = function(){
     this.orderOfFinish = [];
     this.IsFinish = false;
+    Game.Publisher.Subscribe("OnFinish", this.OnFinish.bind(this));
 };
 RaceDirector.prototype = new GameObject();
 
 RaceDirector.prototype.Update = function(){
-    if(2 <= this.orderOfFinish.length){
-        if(!this.IsFinish){
-            this.Finish();
-            this.IsFinish = true;
-        }
+    if(2 <= this.orderOfFinish.length && !this.IsFinish){
+        Game.Publisher.Publish("OnFinish");
+        this.IsFinish = true;
     }
     var game = Game.ServiceLocator.create(Game);
     var lanes = game.race.gameBoard.racetrack.lanes;
@@ -374,8 +373,10 @@ RaceDirector.prototype.Update = function(){
     }
 };
 
-RaceDirector.prototype.Finish = function(){
-    console.log(this.orderOfFinish.slice(0, 2).map(function(figure){return figure.model.type;}));
+RaceDirector.prototype.OnFinish = function(){
+    console.log(this.orderOfFinish.slice(0, 2).map(function(figure){
+        return figure.model.type;
+    }));
 };
 
 RaceDirector.prototype.Destroy = function(){
