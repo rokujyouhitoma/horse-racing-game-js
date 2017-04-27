@@ -20,7 +20,6 @@ EventTarget.prototype.listen = function(type, listener){
             listener.call(self, e);
         }
     };
-    console.log(this);
     this.eventListeners.push({
         object: this,
         type: type,
@@ -32,6 +31,7 @@ EventTarget.prototype.listen = function(type, listener){
 EventTarget.prototype.unlisten = function(type, listener){
     var eventListeners = this.eventListeners;
     var counter = 0;
+    //TODO: O(n)探索は改善しよう
     while(counter < eventListeners.length){
         var eventListener = eventListeners[counter];
         if (eventListener.object == this &&
@@ -47,6 +47,7 @@ EventTarget.prototype.unlisten = function(type, listener){
 EventTarget.prototype.dispatch = function(type, sender, payload){
     var eventListeners = this.eventListeners;
     var counter = 0;
+    //TODO: O(n)探索は改善しよう
     while(counter < eventListeners.length){
         var eventListener = eventListeners[counter];
         if (eventListener.object == this &&
@@ -384,19 +385,27 @@ RaceDirector.prototype.Destroy = function(){
 };
 
 var Publisher = function(){
-    this.target = new EventTarget();
+    this.targets = {};
 };
 
-Publisher.prototype.subscribe = function(type, listener){
-    this.target.listen(type, listener);
+Publisher.prototype.GetOrCreateTarget = function(type){
+    var target = this.targets[type];
+    if(!target){
+        target = this.targets[type] = new EventTarget();
+    }
+    return target;
+}
+
+Publisher.prototype.Subscribe = function(type, listener){
+    this.GetOrCreateTarget().listen(type, listener);
 };
 
-Publisher.prototype.unsubscribe = function(type, listener){
-    this.target.unlisten(type, listener);
+Publisher.prototype.UnSubscribe = function(type, listener){
+    this.GetOrCreateTarget().unlisten(type, listener);
 };
 
-Publisher.prototype.publish = function(type, publisher, payload){
-    this.target.dispatch(type, publisher, payload);
+Publisher.prototype.Publish = function(type, publisher, payload){
+    this.GetOrCreateTarget().dispatch(type, publisher, payload);
 };
 
 var Game = function(){
@@ -555,9 +564,9 @@ RacetrackRenderer.prototype.Render = function(dictionary){
 
 var DebugMenu = function(){
     this.dom;
-    Game.Publisher.subscribe("OnMove", this.OnMove.bind(this));
-    Game.Publisher.subscribe("OnReset", this.OnReset.bind(this));
-    Game.Publisher.subscribe("OnCheckWinners", this.OnCheckWinners.bind(this));
+    Game.Publisher.Subscribe("OnMove", this.OnMove.bind(this));
+    Game.Publisher.Subscribe("OnReset", this.OnReset.bind(this));
+    Game.Publisher.Subscribe("OnCheckWinners", this.OnCheckWinners.bind(this));
 };
 DebugMenu.prototype = new Renderer();
 
@@ -600,20 +609,20 @@ DebugMenu.prototype.Render = function(dictionary){
             var color = lane.runner.model.color;
             return [
                 "<button onClick='",
-                "(function(){Game.Publisher.publish(\"OnMove\", this, {index: ", index, "})})()'>",
+                "(function(){Game.Publisher.Publish(\"OnMove\", this, {index: ", index, "})})()'>",
                 "<span style='background-color:#", color, ";'>", text, "</span>",
                 "</button>",
             ].join("");
         }).join(""),
         [
             "<button onClick='",
-            "(function(){Game.Publisher.publish(\"OnCheckWinners\", this);})()'>",
+            "(function(){Game.Publisher.Publish(\"OnCheckWinners\", this);})()'>",
             "Winners",
             "</button>",
         ].join(""),
         [
             "<button onClick='",
-            "(function(){Game.Publisher.publish(\"OnReset\", this);})()'>",
+            "(function(){Game.Publisher.Publish(\"OnReset\", this);})()'>",
             "Reset Game",
             "</button>",
         ].join(""),
