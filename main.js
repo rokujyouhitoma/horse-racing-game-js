@@ -151,10 +151,6 @@ Model.prototype.Set = function(value){
     return this;
 }
 
-Model.prototype.To = function(obj){
-    return new obj(this);
-}
-
 var Renderer = function(){};
 Renderer.prototype = new GameObject();
 Renderer.prototype.Render = function(dictionary){};
@@ -321,7 +317,7 @@ var MasterData = function(){
 
 };
 
-MasterData.prototype.GetAll = function(key){
+MasterData.prototype.Get = function(key){
     return this.stub[key];
 }
 
@@ -341,8 +337,8 @@ HorseFigureDirector.prototype = new GameObject();
 
 HorseFigureDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this, arguments);
-    var figures = Game.ServiceLocator.create(MasterData).GetAll("HorseFigure").map(function(row){
-        return Game.Model("HorseFigure").Set(row).To(HorseFigure);
+    var figures = Game.ServiceLocator.create(MasterData).Get("HorseFigure").map(function(row){
+        return new HorseFigure(Game.Model("HorseFigure").Set(row));
     });
     figures.forEach(function(figure){
         this.figures[figure.model.id] = figure;
@@ -371,8 +367,8 @@ MonsterCoinDirector.prototype = new GameObject();
 
 MonsterCoinDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this, arguments);
-    var coins = Game.ServiceLocator.create(MasterData).GetAll("MonsterCoin").map(function(row){
-        return Game.Model("MonsterCoin").Set(row).To(MonsterCoin);
+    var coins = Game.ServiceLocator.create(MasterData).Get("MonsterCoin").map(function(row){
+        return new MonsterCoin(Game.Model("MonsterCoin").Set(row));
     });
     coins.forEach(function(coin){
         this.coins[coin.model.id] = coin;
@@ -409,8 +405,8 @@ MonsterFigureDirector.prototype = new GameObject();
 
 MonsterFigureDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this, arguments);
-    var figures = Game.ServiceLocator.create(MasterData).GetAll("MonsterFigure").map(function(row){
-        return Game.Model("MonsterFigure").Set(row).To(MonsterFigure);
+    var figures = Game.ServiceLocator.create(MasterData).Get("MonsterFigure").map(function(row){
+        return new MonsterFigure(Game.Model("MonsterFigure").Set(row));
     });
     figures.forEach(function(figure){
         this.figures[figure.model.id] = figure;
@@ -491,8 +487,8 @@ GameBoard.prototype = new GameObject();
 
 GameBoard.prototype.Start = function(){
     var master = Game.ServiceLocator.create(MasterData);
-    this.racetrack = new Racetrack(master.GetAll("HorseFigure").map(function(row){
-        return Game.Model("HorseFigure").Set(row).To(HorseFigure);
+    this.racetrack = new Racetrack(master.Get("HorseFigure").map(function(row){
+        return new HorseFigure(Game.Model("HorseFigure").Set(row));
     }), this.race.model.len);
     this.objects = [
         this.racetrack,
@@ -573,9 +569,9 @@ Publisher.prototype.Publish = function(type, payload){
 
 var Game = function(){
     // TODO: find系のクエリの仕組みないと辛い
-    var row = Game.ServiceLocator.create(MasterData).GetAll("Race")[0];
+    var row = Game.ServiceLocator.create(MasterData).Get("Race")[0];
     this.fps = new FPS();
-    this.race = Game.Model("Race").Set(row).To(Race);
+    this.race = new Race(Game.Model("Race").Set(row));
     this.objects = [
         this.fps,
         this.race,
@@ -600,7 +596,7 @@ Game.Publisher = Game.ServiceLocator.create(Publisher);
 Game.Model = function(name){
     var meta = Game.ServiceLocator.create(MasterData).GetMeta(name);
     return new Model(meta);
-}
+};
 
 var FPS = function(){
     var engine = Game.ServiceLocator.create(Engine);
