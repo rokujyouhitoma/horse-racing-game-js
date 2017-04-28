@@ -423,19 +423,62 @@ MonsterFigureDirector.prototype.Destroy = function(){
     this.figures = {};
 };
 
+var Repository = function(obj){
+    this.storage = obj || {};
+};
+
+Repository.prototype.Store = function(key, value){
+    this.storage[key] = value;
+};
+
+Repository.prototype.Find = function(key){
+    return this.storage[key];
+};
+
+Repository.prototype.All = function(){
+    return Object.values(this.storage);
+};
+
+var RepositoryDirector = function(){
+    this.repository = new Repository({
+        "StepCardDetail": new Repository(),
+        "DashCardDetail": new Repository(),
+        "RankCardDetail": new Repository(),
+        "PlayCard": new Repository(),
+    });
+};
+RepositoryDirector.prototype = new GameObject();
+
+RepositoryDirector.prototype.Start = function(){
+    Game.ServiceLocator.create(MasterData).Get("StepCardDetail").forEach(function(row){
+        var model = Game.Model("StepCardDetail").Set(row);
+        var entity = new StepCardDetail(model);
+        this.repository.Find("StepCardDetail").Store(model.id, entity);
+    }, this);
+    Game.ServiceLocator.create(MasterData).Get("DashCardDetail").forEach(function(row){
+        var model = Game.Model("DashCardDetail").Set(row);
+        var entity = new DashCardDetail(model);
+        this.repository.Find("DashCardDetail").Store(model.id, entity);
+    }, this);
+    //TODO: xxx
+};
+
 var CardDetail = function(){};
 CardDetail.prototype = new GameObject();
-CardDetail.prototype.Apply = function(){};
+CardDetail.prototype.Apply = function(racetrack){};
 
 var StepCardDetail = function(model){
+    this.model = model;
 };
 StepCardDetail.prototype = new CardDetail();
 
 var DashCardDetail = function(model){
+    this.model = model;
 };
 DashCardDetail.prototype = new CardDetail();
 
 var RankCardDetail = function(model){
+    this.model = model;
 };
 RankCardDetail.prototype = new CardDetail();
 
@@ -443,6 +486,18 @@ var PlayCard = function(model){
     this.model = model;
 };
 PlayCard.prototype = new GameObject();
+
+PlayCard.prototype.Apply = function(racetrack){};
+
+var PlayCardDirector = function(){};
+PlayCardDirector.prototype = new GameObject();
+
+PlayCardDirector.prototype.Start = function(){
+    var playcards = Game.ServiceLocator.create(MasterData).Get("PlayCard").map(function(row){
+        return new PlayCard(Game.Model("PlayCard").Set(row));
+    });
+    GameObject.prototype.Start.call(this, arguments);
+};
 
 var Lane = function(index, number, runner, len){
     this.index = index;
@@ -579,6 +634,8 @@ var Game = function(){
         Game.ServiceLocator.create(HorseFigureDirector),
         Game.ServiceLocator.create(MonsterCoinDirector),
         Game.ServiceLocator.create(MonsterFigureDirector),
+        Game.ServiceLocator.create(PlayCardDirector),
+        Game.ServiceLocator.create(RepositoryDirector),
     ];
 };
 Game.prototype = new GameObject();
