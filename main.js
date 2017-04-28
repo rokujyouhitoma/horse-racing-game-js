@@ -152,7 +152,7 @@ Renderer.prototype.Render = function(dictionary){};
 var MasterData = function(){
     this.stub = {
         "HorseFigure": {
-            "columns": ["id", "type", "color"],
+            "names": ["id", "type", "color"],
             "types": ["int", "int", "string"],
             "rows" : [
                 [1, "Red", "FF0000"],
@@ -163,7 +163,7 @@ var MasterData = function(){
             ]
         },
         "MonsterCoin": {
-            "columns": ["id", "type"],
+            "names": ["id", "type"],
             "types": ["int", "string"],
             "rows": [
                 [1, "Dragon"],
@@ -174,7 +174,7 @@ var MasterData = function(){
             ]
         },
         "MonsterFigure": {
-            "columns": ["id", "type"],
+            "names": ["id", "type"],
             "types": ["int", "string"],
             "rows": [
                 [1, "Dragon"],
@@ -185,14 +185,14 @@ var MasterData = function(){
             ],
         },
         "Race": {
-            "columns": ["id", "len"],
+            "names": ["id", "len"],
             "types": ["int", "int"],
             "rows": [
                 [1, 70],
             ]
         },
         "PlayCard": {
-            "columns": ["id", "card_type", "detail_id"],
+            "names": ["id", "card_type", "detail_id"],
             "types": ["int", "int", "int"],
             "rows": [
                 [1, 1, 1],
@@ -257,7 +257,7 @@ var MasterData = function(){
             ]
         },
         "StepCardDetail": {
-            "columns": ["id", "target_id", "step"],
+            "names": ["id", "target_id", "step"],
             "types": ["int", "int", "int"],
             "rows": [
                 [1, 1, 5],
@@ -278,7 +278,7 @@ var MasterData = function(){
             ]
         },
         "RankCardDeail": {
-            "columns": ["id", "target_rank", "step"],
+            "names": ["id", "target_rank", "step"],
             "types": ["int", "int", "int"],
             "rows": [
                 [1, 1, 5],
@@ -297,7 +297,7 @@ var MasterData = function(){
             ]
         },
         "DashCardDetail": {
-            "columns": ["id", "target_rank", "dash_type"],
+            "names": ["id", "target_rank", "dash_type"],
             "types": ["int", "int", "int"],
             "rows": [
                 [1, 1, 1],
@@ -308,7 +308,7 @@ var MasterData = function(){
 };
 
 MasterData.prototype.Get = function(key){
-    return this.stub[key].rows;
+    return this.stub[key];
 }
 
 var HorseFigure = function(model){
@@ -323,8 +323,8 @@ HorseFigureDirector.prototype = new GameObject();
 
 HorseFigureDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this, arguments);
-    Game.ServiceLocator.create(MasterData).Get("HorseFigure").forEach(function(value, index, array){
-        var figure = new HorseFigure(new Model(["id","type","color"], value));
+    Game.ServiceLocator.create(MasterData).Get("HorseFigure").rows.forEach(function(value, index, array){
+        var figure = new HorseFigure(Game.Model("HorseFigure", value));
         this.figures[figure.model.id] = figure;
         figure.Start();
     }, this);
@@ -351,8 +351,8 @@ MonsterCoinDirector.prototype = new GameObject();
 
 MonsterCoinDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this, arguments);
-    Game.ServiceLocator.create(MasterData).Get("MonsterCoin").forEach(function(value, index, array){
-        var coin = new MonsterCoin(new Model(["id","type"], value));
+    Game.ServiceLocator.create(MasterData).Get("MonsterCoin").rows.forEach(function(value, index, array){
+        var coin = new MonsterCoin(Game.Model("MonsterCoin", value));
         this.coins[value] = coin;
         coin.Start();
     }, this);
@@ -388,7 +388,7 @@ MonsterFigureDirector.prototype = new GameObject();
 MonsterFigureDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this, arguments);
     Game.ServiceLocator.create(MasterData).Get("MonsterCoin").forEach(function(value, index, array){
-        var figure = new MonsterFigure(new Model(["id","type"], value));
+        var figure = new MonsterFigure(Game.Model("MonsterCoin", value));
         this.figures[value] = figure;
         figure.Start();
     }, this);
@@ -467,9 +467,9 @@ GameBoard.prototype = new GameObject();
 
 GameBoard.prototype.Start = function(){
     var master = Game.ServiceLocator.create(MasterData);
-    var figures = master.Get("HorseFigure");
+    var figures = master.Get("HorseFigure").rows;
     this.racetrack = new Racetrack(figures.map(function(figure){
-        return new HorseFigure(new Model(["id","type","color"], figure));
+        return new HorseFigure(Game.Model("HorseFigure", figure));
     }), this.race.model.len);
     this.objects = [
         this.racetrack,
@@ -550,9 +550,9 @@ Publisher.prototype.Publish = function(type, payload){
 
 var Game = function(){
     // TODO: find系のクエリの仕組みないと辛い
-    var row = Game.ServiceLocator.create(MasterData).Get("Race")[0];
+    var row = Game.ServiceLocator.create(MasterData).Get("Race").rows[0];
     this.fps = new FPS();
-    this.race = new Race(new Model(["id","len"], row));
+    this.race = new Race(Game.Model("Race", row));
     this.objects = [
         this.fps,
         this.race,
@@ -573,6 +573,11 @@ Game.ServiceLocatorContainer = {};
 Game.ServiceLocator = new ServiceLocator(Game.ServiceLocatorContainer);
 
 Game.Publisher = Game.ServiceLocator.create(Publisher);
+
+Game.Model = function(modelName, row){
+    var data = Game.ServiceLocator.create(MasterData).Get(modelName);
+    return new Model(data.names, row);
+}
 
 var FPS = function(){
     var engine = Game.ServiceLocator.create(Engine);
