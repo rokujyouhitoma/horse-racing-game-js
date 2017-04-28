@@ -151,165 +151,173 @@ Renderer.prototype.Render = function(dictionary){};
 
 var MasterData = function(){
     this.stub = {
+        "HorseFigure": [
+            [1, "Red", "FF0000"],
+            [2, "Orange", "FFA500"],
+            [3, "Green", "008000"],
+            [4, "Blue", "0000FF"],
+            [5, "Purple", "800080"],
+        ],
+        "MonsterCoin": [
+            [1, "Dragon"],
+            [2, "Daemon"],
+            [3, "Drakee"],
+            [4, "Golem"],
+            [5, "Ghost"],
+        ],
+        "MonsterFigure": [
+            [1, "Dragon"],
+            [2, "Daemon"],
+            [3, "Drakee"],
+            [4, "Golem"],
+            [5, "Ghost"],
+        ],
+        "Race": [
+            [1, 70],
+        ],
+        "PlayCard": [
+            [1, 1, 1],
+            [2, 1, 1],
+            [3, 1, 1],
+            [4, 1, 2],
+            [5, 1, 2],
+            [6, 1, 2],
+            [7, 1, 3],
+            [8, 1, 3],
+            [9, 1, 3],
+            [10, 1, 4],
+            [11, 1, 4],
+            [12, 1, 4],
+            [13, 1, 5],
+            [14, 1, 5],
+            [16, 1, 6],
+            [17, 1, 6],
+            [18, 1, 6],
+            [19, 1, 7],
+            [20, 1, 7],
+            [21, 1, 7],
+            [22, 1, 8],
+            [23, 1, 8],
+            [24, 1, 8],
+            [25, 1, 9],
+            [26, 1, 9],
+            [27, 1, 9],
+            [28, 1, 10],
+            [29, 1, 10],
+            [30, 1, 10],
+            [31, 1, 11],
+            [32, 1, 11],
+            [33, 1, 11],
+            [34, 1, 12],
+            [35, 1, 12],
+            [36, 1, 12],
+            [37, 1, 13],
+            [38, 1, 13],
+            [39, 1, 13],
+            [40, 1, 14],
+            [41, 1, 14],
+            [42, 1, 14],
+            [43, 1, 15],
+            [44, 1, 15],
+            [45, 1, 15],
+            [46, 2, 1],
+            [47, 2, 2],
+            [48, 2, 3],
+            [49, 2, 4],
+            [50, 2, 5],
+            [51, 2, 6],
+            [52, 2, 7],
+            [53, 2, 8],
+            [54, 2, 9],
+            [55, 2, 10],
+            [56, 2, 11],
+            [57, 2, 12],
+            [58, 2, 13],
+            [59, 3, 1],
+            [60, 3, 2],
+        ],
+        "StepCardDetail": [
+            [1, 1, 5],
+            [2, 1, 9],
+            [3, 1, 10],
+            [4, 2, 5],
+            [5, 2, 6],
+            [6, 2, 8],
+            [7, 3, 4],
+            [8, 3, 5],
+            [9, 3, 7],
+            [10, 4, 4],
+            [11, 4, 5],
+            [12, 4, 6],
+            [13, 5, 3],
+            [14, 5, 4],
+            [15, 5, 5],
+        ],
+        "RankCardDeail": [
+            [1, 1, 5],
+            [2, 1, 10],
+            [3, 1, 15],
+            [4, 2, 5],
+            [5, 2, 10],
+            [6, 2, 15],
+            [7, 3, 5],
+            [8, 3, 10],
+            [9, 3, 15],
+            [10, 4, 5],
+            [11, 4, 10],
+            [12, 4, 15],
+            [13, 5, 35],
+        ],
+        "DashCardDetail": [
+            [1, 1, 1],
+            [1, 2, 2],
+        ],
+    };
+
+    this.meta = {
         "HorseFigure": {
             "names": ["id", "type", "color"],
             "types": ["int", "int", "string"],
-            "rows" : [
-                [1, "Red", "FF0000"],
-                [2, "Orange", "FFA500"],
-                [3, "Green", "008000"],
-                [4, "Blue", "0000FF"],
-                [5, "Purple", "800080"],
-            ]
         },
         "MonsterCoin": {
             "names": ["id", "type"],
             "types": ["int", "string"],
-            "rows": [
-                [1, "Dragon"],
-                [2, "Daemon"],
-                [3, "Drakee"],
-                [4, "Golem"],
-                [5, "Ghost"],
-            ]
         },
         "MonsterFigure": {
             "names": ["id", "type"],
             "types": ["int", "string"],
-            "rows": [
-                [1, "Dragon"],
-                [2, "Daemon"],
-                [3, "Drakee"],
-                [4, "Golem"],
-                [5, "Ghost"],
-            ],
         },
         "Race": {
             "names": ["id", "len"],
             "types": ["int", "int"],
-            "rows": [
-                [1, 70],
-            ]
         },
         "PlayCard": {
             "names": ["id", "card_type", "detail_id"],
             "types": ["int", "int", "int"],
-            "rows": [
-                [1, 1, 1],
-                [2, 1, 1],
-                [3, 1, 1],
-                [4, 1, 2],
-                [5, 1, 2],
-                [6, 1, 2],
-                [7, 1, 3],
-                [8, 1, 3],
-                [9, 1, 3],
-                [10, 1, 4],
-                [11, 1, 4],
-                [12, 1, 4],
-                [13, 1, 5],
-                [14, 1, 5],
-                [16, 1, 6],
-                [17, 1, 6],
-                [18, 1, 6],
-                [19, 1, 7],
-                [20, 1, 7],
-                [21, 1, 7],
-                [22, 1, 8],
-                [23, 1, 8],
-                [24, 1, 8],
-                [25, 1, 9],
-                [26, 1, 9],
-                [27, 1, 9],
-                [28, 1, 10],
-                [29, 1, 10],
-                [30, 1, 10],
-                [31, 1, 11],
-                [32, 1, 11],
-                [33, 1, 11],
-                [34, 1, 12],
-                [35, 1, 12],
-                [36, 1, 12],
-                [37, 1, 13],
-                [38, 1, 13],
-                [39, 1, 13],
-                [40, 1, 14],
-                [41, 1, 14],
-                [42, 1, 14],
-                [43, 1, 15],
-                [44, 1, 15],
-                [45, 1, 15],
-                [46, 2, 1],
-                [47, 2, 2],
-                [48, 2, 3],
-                [49, 2, 4],
-                [50, 2, 5],
-                [51, 2, 6],
-                [52, 2, 7],
-                [53, 2, 8],
-                [54, 2, 9],
-                [55, 2, 10],
-                [56, 2, 11],
-                [57, 2, 12],
-                [58, 2, 13],
-                [59, 3, 1],
-                [60, 3, 2],
-            ]
         },
         "StepCardDetail": {
             "names": ["id", "target_id", "step"],
             "types": ["int", "int", "int"],
-            "rows": [
-                [1, 1, 5],
-                [2, 1, 9],
-                [3, 1, 10],
-                [4, 2, 5],
-                [5, 2, 6],
-                [6, 2, 8],
-                [7, 3, 4],
-                [8, 3, 5],
-                [9, 3, 7],
-                [10, 4, 4],
-                [11, 4, 5],
-                [12, 4, 6],
-                [13, 5, 3],
-                [14, 5, 4],
-                [15, 5, 5],
-            ]
         },
         "RankCardDeail": {
             "names": ["id", "target_rank", "step"],
             "types": ["int", "int", "int"],
-            "rows": [
-                [1, 1, 5],
-                [2, 1, 10],
-                [3, 1, 15],
-                [4, 2, 5],
-                [5, 2, 10],
-                [6, 2, 15],
-                [7, 3, 5],
-                [8, 3, 10],
-                [9, 3, 15],
-                [10, 4, 5],
-                [11, 4, 10],
-                [12, 4, 15],
-                [13, 5, 35],
-            ]
         },
         "DashCardDetail": {
             "names": ["id", "target_rank", "dash_type"],
             "types": ["int", "int", "int"],
-            "rows": [
-                [1, 1, 1],
-                [1, 2, 2],
-            ]
         },
-    }
+    };
+
 };
 
 MasterData.prototype.Get = function(key){
     return this.stub[key];
 }
+
+MasterData.prototype.GetMeta = function(key){
+    return this.meta[key];
+};
 
 var HorseFigure = function(model){
     this.model = model;
@@ -323,8 +331,10 @@ HorseFigureDirector.prototype = new GameObject();
 
 HorseFigureDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this, arguments);
-    Game.ServiceLocator.create(MasterData).Get("HorseFigure").rows.forEach(function(value, index, array){
-        var figure = new HorseFigure(Game.Model("HorseFigure", value));
+    var figures = Game.ServiceLocator.create(MasterData).Get("HorseFigure").map(function(row){
+        return new HorseFigure(Game.Model("HorseFigure", row));
+    });
+    figures.forEach(function(figure){
         this.figures[figure.model.id] = figure;
         figure.Start();
     }, this);
@@ -351,9 +361,11 @@ MonsterCoinDirector.prototype = new GameObject();
 
 MonsterCoinDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this, arguments);
-    Game.ServiceLocator.create(MasterData).Get("MonsterCoin").rows.forEach(function(value, index, array){
-        var coin = new MonsterCoin(Game.Model("MonsterCoin", value));
-        this.coins[value] = coin;
+    var coins = Game.ServiceLocator.create(MasterData).Get("MonsterCoin").map(function(row){
+        return new MonsterCoin(Game.Model("MonsterCoin", row));
+    });
+    coins.forEach(function(coin){
+        this.coins[coin.model.id] = coin;
         coin.Start();
     }, this);
 };
@@ -387,11 +399,13 @@ MonsterFigureDirector.prototype = new GameObject();
 
 MonsterFigureDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this, arguments);
-    Game.ServiceLocator.create(MasterData).Get("MonsterCoin").forEach(function(value, index, array){
-        var figure = new MonsterFigure(Game.Model("MonsterCoin", value));
-        this.figures[value] = figure;
+    var figures = Game.ServiceLocator.create(MasterData).Get("MonsterFigure").map(function(row){
+        return new MonsterFigure(Game.Model("MonsterFigure", row));
+    });
+    figures.forEach(function(figure){
+        this.figures[figure.model.id] = figure;
         figure.Start();
-    }, this);
+    });
 };
 
 MonsterFigureDirector.prototype.Update = function(deltaTime){
@@ -467,7 +481,7 @@ GameBoard.prototype = new GameObject();
 
 GameBoard.prototype.Start = function(){
     var master = Game.ServiceLocator.create(MasterData);
-    var figures = master.Get("HorseFigure").rows;
+    var figures = master.Get("HorseFigure");
     this.racetrack = new Racetrack(figures.map(function(figure){
         return new HorseFigure(Game.Model("HorseFigure", figure));
     }), this.race.model.len);
@@ -550,7 +564,7 @@ Publisher.prototype.Publish = function(type, payload){
 
 var Game = function(){
     // TODO: find系のクエリの仕組みないと辛い
-    var row = Game.ServiceLocator.create(MasterData).Get("Race").rows[0];
+    var row = Game.ServiceLocator.create(MasterData).Get("Race")[0];
     this.fps = new FPS();
     this.race = new Race(Game.Model("Race", row));
     this.objects = [
@@ -575,8 +589,8 @@ Game.ServiceLocator = new ServiceLocator(Game.ServiceLocatorContainer);
 Game.Publisher = Game.ServiceLocator.create(Publisher);
 
 Game.Model = function(modelName, row){
-    var data = Game.ServiceLocator.create(MasterData).Get(modelName);
-    return new Model(data.names, row);
+    var meta = Game.ServiceLocator.create(MasterData).GetMeta(modelName);
+    return new Model(meta.names, row);
 }
 
 var FPS = function(){
