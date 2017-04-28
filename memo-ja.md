@@ -14,6 +14,7 @@
  - [ ] データ集合に対するFindById系のクエリシステム
  - [x] レンダラーオブジェクト
  - [ ] レンダラーオブジェクトがどうしてもモデル、ディレクターオブジェクトと密結合してしまうので、疎結合に
+ - [ ] マスターデータのリレーション、バリューチェッカー
 
 ## ゲーム
 
@@ -62,9 +63,17 @@
 
 # History
 
+## 2017.4.28
+
+ - CardDetailオブジェクトを追加
+ - StepCardDetailオブジェクトを追加
+ - RankCardDetailオブジェクトを追加
+ - DashCardDetailオブジェクトを追加
+ - PlayCardオブジェクトを追加
+
 ## 2017.4.27
 
- - MasterDataにHorseCard、RankCard、DashCardを追加
+ - MasterDataにStepCardDetail、RankCardDetail、DashCardDetailを追加
  - イベントの仕組みを整理
 
 ## 2017.4.26
