@@ -139,11 +139,21 @@ Engine.prototype.Update = function(deltaTime){
     }, this);
 };
 
-var Model = function(definitions, row){
-    for(var i=0; i < definitions.length; i++){
-        this[definitions[i]] = row[i];
-    }
+var Model = function(meta){
+    this.meta = meta;
 };
+
+Model.prototype.Set = function(value){
+    var names = this.meta.names;
+    for(var i=0; i < names.length; i++){
+        this[names[i]] = value[i];
+    }
+    return this;
+}
+
+Model.prototype.To = function(obj){
+    return new obj(this);
+}
 
 var Renderer = function(){};
 Renderer.prototype = new GameObject();
@@ -311,7 +321,7 @@ var MasterData = function(){
 
 };
 
-MasterData.prototype.Get = function(key){
+MasterData.prototype.GetAll = function(key){
     return this.stub[key];
 }
 
@@ -331,8 +341,8 @@ HorseFigureDirector.prototype = new GameObject();
 
 HorseFigureDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this, arguments);
-    var figures = Game.ServiceLocator.create(MasterData).Get("HorseFigure").map(function(row){
-        return new HorseFigure(Game.Model("HorseFigure", row));
+    var figures = Game.ServiceLocator.create(MasterData).GetAll("HorseFigure").map(function(row){
+        return Game.Model("HorseFigure").Set(row).To(HorseFigure);
     });
     figures.forEach(function(figure){
         this.figures[figure.model.id] = figure;
@@ -361,8 +371,8 @@ MonsterCoinDirector.prototype = new GameObject();
 
 MonsterCoinDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this, arguments);
-    var coins = Game.ServiceLocator.create(MasterData).Get("MonsterCoin").map(function(row){
-        return new MonsterCoin(Game.Model("MonsterCoin", row));
+    var coins = Game.ServiceLocator.create(MasterData).GetAll("MonsterCoin").map(function(row){
+        return Game.Model("MonsterCoin").Set(row).To(MonsterCoin);
     });
     coins.forEach(function(coin){
         this.coins[coin.model.id] = coin;
@@ -399,8 +409,8 @@ MonsterFigureDirector.prototype = new GameObject();
 
 MonsterFigureDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this, arguments);
-    var figures = Game.ServiceLocator.create(MasterData).Get("MonsterFigure").map(function(row){
-        return new MonsterFigure(Game.Model("MonsterFigure", row));
+    var figures = Game.ServiceLocator.create(MasterData).GetAll("MonsterFigure").map(function(row){
+        return Game.Model("MonsterFigure").Set(row).To(MonsterFigure);
     });
     figures.forEach(function(figure){
         this.figures[figure.model.id] = figure;
@@ -481,9 +491,8 @@ GameBoard.prototype = new GameObject();
 
 GameBoard.prototype.Start = function(){
     var master = Game.ServiceLocator.create(MasterData);
-    var figures = master.Get("HorseFigure");
-    this.racetrack = new Racetrack(figures.map(function(figure){
-        return new HorseFigure(Game.Model("HorseFigure", figure));
+    this.racetrack = new Racetrack(master.GetAll("HorseFigure").map(function(row){
+        return Game.Model("HorseFigure").Set(row).To(HorseFigure);
     }), this.race.model.len);
     this.objects = [
         this.racetrack,
@@ -564,9 +573,9 @@ Publisher.prototype.Publish = function(type, payload){
 
 var Game = function(){
     // TODO: find系のクエリの仕組みないと辛い
-    var row = Game.ServiceLocator.create(MasterData).Get("Race")[0];
+    var row = Game.ServiceLocator.create(MasterData).GetAll("Race")[0];
     this.fps = new FPS();
-    this.race = new Race(Game.Model("Race", row));
+    this.race = Game.Model("Race").Set(row).To(Race);
     this.objects = [
         this.fps,
         this.race,
@@ -588,9 +597,9 @@ Game.ServiceLocator = new ServiceLocator(Game.ServiceLocatorContainer);
 
 Game.Publisher = Game.ServiceLocator.create(Publisher);
 
-Game.Model = function(modelName, row){
-    var meta = Game.ServiceLocator.create(MasterData).GetMeta(modelName);
-    return new Model(meta.names, row);
+Game.Model = function(name){
+    var meta = Game.ServiceLocator.create(MasterData).GetMeta(name);
+    return new Model(meta);
 }
 
 var FPS = function(){
