@@ -376,10 +376,6 @@ MonsterCoinDirector.prototype.Start = function(){
     }, this);
 };
 
-MonsterCoinDirector.prototype.Update = function(deltaTime){
-    GameObject.prototype.Update.call(this, arguments);
-};
-
 MonsterCoinDirector.prototype.Destroy = function(){
     GameObject.prototype.Destroy.call(this, arguments);
     this.coins = {};
@@ -389,14 +385,6 @@ var MonsterFigure = function(model){
     this.model = model;
 };
 MonsterFigure.prototype = new GameObject();
-
-MonsterFigure.prototype.Start = function(){
-    GameObject.prototype.Start.call(this, arguments);
-};
-
-MonsterFigure.prototype.Update = function(deltaTime){
-    GameObject.prototype.Update.call(this, arguments);
-};
 
 var MonsterFigureDirector = function(){
     this.figures = {};
@@ -414,10 +402,6 @@ MonsterFigureDirector.prototype.Start = function(){
     });
 };
 
-MonsterFigureDirector.prototype.Update = function(deltaTime){
-    GameObject.prototype.Update.call(this, arguments);
-};
-
 MonsterFigureDirector.prototype.Destroy = function(){
     GameObject.prototype.Destroy.call(this, arguments);
     this.figures = {};
@@ -426,7 +410,7 @@ MonsterFigureDirector.prototype.Destroy = function(){
 var Card = function(){};
 Card.prototype = new GameObject();
 Card.prototype.Play = function(racetrack){};
-Card.prototype.GetMessage = function(){};
+Card.prototype.LogMessage = function(){};
 
 var StepCard = function(model){
     this.model = model;
@@ -441,7 +425,7 @@ StepCard.prototype.Play = function(racetrack){
     }, this);
 };
 
-StepCard.prototype.GetMessage = function(){
+StepCard.prototype.LogMessage = function(){
     var racetrack = Game.ServiceLocator.create(Game).race.gameBoard.racetrack;
     var figures = racetrack.lanes.filter(function(lane){
         return lane.runner.model.id === this.model.target_id;
@@ -462,10 +446,24 @@ var DashCard = function(model){
 };
 DashCard.prototype = new Card();
 
+DashCard.prototype.Play = function(racetrack){};
+DashCard.prototype.LogMessage = function(racetrack){
+    return [
+        "[Dash]",
+    ].join("");
+};
+
 var RankCard = function(model){
     this.model = model;
 };
 RankCard.prototype = new Card();
+
+RankCard.prototype.Play = function(racetrack){};
+RankCard.prototype.LogMessage = function(racetrack){
+    return [
+        "[Rank]",
+    ].join("");
+};
 
 var PlayCard = function(model){
     this.model = model;
@@ -480,7 +478,6 @@ PlayCard.prototype = new Card();
 PlayCard.prototype.GetCard = function(){
     var detail_id = this.model.detail_id;
     var name = this.GetCardName();
-    console.log(name);
     var repositoryDirector = Game.ServiceLocator.create(RepositoryDirector);
     var repository = repositoryDirector.Get(name);
     return repository.Find(detail_id);
@@ -502,8 +499,8 @@ PlayCard.prototype.Play = function(racetrack){
     this.card.Play(racetrack);
 };
 
-PlayCard.prototype.GetMessage = function(){
-    return this.card.GetMessage();
+PlayCard.prototype.LogMessage = function(){
+    return this.card.LogMessage();
 };
 
 PlayCard.CardType = {
@@ -514,7 +511,7 @@ PlayCard.CardType = {
 
 var PlayCardDirector = function(){
     this.playCards = [];
-    this.index = 0;
+    this.position = 0;
 };
 PlayCardDirector.prototype = new GameObject();
 
@@ -533,11 +530,13 @@ PlayCardDirector.prototype.Start = function(){
 };
 
 PlayCardDirector.prototype.GetNextCard = function(){
-    if(this.playCards.length < this.index){
+    var length = this.playCards.length;
+    var position = this.position;
+    if(length < position){
         return;
     }
-    var card = this.playCards[this.index];
-    this.index++;
+    var card = this.playCards[position];
+    this.position++;
     return card;
 };
 
@@ -967,7 +966,7 @@ DebugMenu.prototype.OnPlayCard = function(e){
         return;
     }
     racetrack.Apply(card);
-    console.log(card.GetMessage());
+    console.log(card.LogMessage());
 };
 
 DebugMenu.prototype.Random = function(len){
