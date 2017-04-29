@@ -242,7 +242,7 @@ var MasterData = function(){
             [59, 3, 1],
             [60, 3, 2],
         ],
-        "StepCardDetail": [
+        "StepCard": [
             [1, 1, 5],
             [2, 1, 9],
             [3, 1, 10],
@@ -259,7 +259,7 @@ var MasterData = function(){
             [14, 5, 4],
             [15, 5, 5],
         ],
-        "RankCardDetail": [
+        "RankCard": [
             [1, 1, 5],
             [2, 1, 10],
             [3, 1, 15],
@@ -274,7 +274,7 @@ var MasterData = function(){
             [12, 4, 15],
             [13, 5, 35],
         ],
-        "DashCardDetail": [
+        "DashCard": [
             [1, 1, 1],
             [1, 2, 2],
         ],
@@ -301,15 +301,15 @@ var MasterData = function(){
             "names": ["id", "card_type", "detail_id"],
             "types": ["int", "int", "int"],
         },
-        "StepCardDetail": {
+        "StepCard": {
             "names": ["id", "target_id", "step"],
             "types": ["int", "int", "int"],
         },
-        "RankCardDetail": {
+        "RankCard": {
             "names": ["id", "target_rank", "step"],
             "types": ["int", "int", "int"],
         },
-        "DashCardDetail": {
+        "DashCard": {
             "names": ["id", "target_rank", "dash_type"],
             "types": ["int", "int", "int"],
         },
@@ -423,24 +423,24 @@ MonsterFigureDirector.prototype.Destroy = function(){
     this.figures = {};
 };
 
-var CardDetail = function(){};
-CardDetail.prototype = new GameObject();
-CardDetail.prototype.Apply = function(racetrack){};
+var Card = function(){};
+Card.prototype = new GameObject();
+Card.prototype.Apply = function(racetrack){};
 
-var StepCardDetail = function(model){
+var StepCard = function(model){
     this.model = model;
 };
-StepCardDetail.prototype = new CardDetail();
+StepCard.prototype = new Card();
 
-var DashCardDetail = function(model){
+var DashCard = function(model){
     this.model = model;
 };
-DashCardDetail.prototype = new CardDetail();
+DashCard.prototype = new Card();
 
-var RankCardDetail = function(model){
+var RankCard = function(model){
     this.model = model;
 };
-RankCardDetail.prototype = new CardDetail();
+RankCard.prototype = new Card();
 
 var PlayCard = function(model){
     this.model = model;
@@ -460,11 +460,11 @@ PlayCard.prototype.GetCardName = function(){
     var card_type = this.model.card_type;
     switch(card_type){
     case PlayCard.CardType.StepCard:
-        return "StepCardDetail";
+        return "StepCard";
     case PlayCard.CardType.RankCard:
-        return "RankCardDetail";
+        return "RankCard";
     case PlayCard.CardType.DashCard:
-        return "DashCardDetail";
+        return "DashCard";
     }
 };
 
@@ -626,9 +626,9 @@ Repository.prototype.All = function(){
 
 var RepositoryDirector = function(){
     this.repository = new Repository({
-        "StepCardDetail": new Repository(),
-        "DashCardDetail": new Repository(),
-        "RankCardDetail": new Repository(),
+        "StepCard": new Repository(),
+        "DashCard": new Repository(),
+        "RankCard": new Repository(),
         "PlayCard": new Repository(),
     });
 };
@@ -640,9 +640,9 @@ RepositoryDirector.prototype.Get = function(name){
 
 RepositoryDirector.prototype.Start = function(){
     var names = [
-        "StepCardDetail",
-        "RankCardDetail",
-        "DashCardDetail",
+        "StepCard",
+        "RankCard",
+        "DashCard",
         "PlayCard",
     ];
     names.forEach(function(modelName){
@@ -689,9 +689,9 @@ Game.Model = function(name){
 
 Game.Entity = function(name, model){
     return new ({
-        "StepCardDetail": StepCardDetail,
-        "RankCardDetail": RankCardDetail,
-        "DashCardDetail": DashCardDetail,
+        "StepCard": StepCard,
+        "RankCard": RankCard,
+        "DashCard": DashCard,
         "PlayCard": PlayCard,
         //TODO: xxx
     }[name])(model);
