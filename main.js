@@ -444,28 +444,28 @@ RankCardDetail.prototype = new CardDetail();
 
 var PlayCard = function(model){
     this.model = model;
-    this.card = this.GetCard(model);
+    this.card = this.GetCard();
 };
 PlayCard.prototype = new GameObject();
 
-PlayCard.prototype.GetCard = function(model){
-    var card_type = model.card_type;
-    var detail_id = model.detail_id;
+PlayCard.prototype.GetCard = function(){
+    var detail_id = this.model.detail_id;
+    var name = this.GetCardName();
     var repositoryDirector = Game.ServiceLocator.create(RepositoryDirector);
-    var name;
-    switch(card_type){
-    case PlayCard.CardType.StepCard:
-        name = "StepCardDetail";
-        break;
-    case PlayCard.CardType.RankCard:
-        name = "RankCardDetail";
-        break;
-    case PlayCard.CardType.DashCard:
-        name = "DashCardDetail";
-        break;
-    }
     var repository = repositoryDirector.Get(name);
     return repository.Find(detail_id);
+};
+
+PlayCard.prototype.GetCardName = function(){
+    var card_type = this.model.card_type;
+    switch(card_type){
+    case PlayCard.CardType.StepCard:
+        return "StepCardDetail";
+    case PlayCard.CardType.RankCard:
+        return "RankCardDetail";
+    case PlayCard.CardType.DashCard:
+        return "DashCardDetail";
+    }
 };
 
 PlayCard.prototype.Apply = function(racetrack){
@@ -644,7 +644,7 @@ RepositoryDirector.prototype.Start = function(){
         "RankCardDetail",
         "DashCardDetail",
         "PlayCard",
-    ]
+    ];
     names.forEach(function(modelName){
         Game.ServiceLocator.create(MasterData).Get(modelName).forEach(function(row){
             var model = Game.Model(modelName).Set(row);
