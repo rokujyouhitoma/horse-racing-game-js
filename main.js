@@ -453,10 +453,7 @@ StepCard.prototype.GetMessage = function(){
     }).join(",");
     var step = this.model.step;
     return [
-        "[Step]:",
-        target,
-        " ",
-        step,
+        "[Step]:", target, " ", step,
     ].join("");
 };
 
@@ -525,7 +522,8 @@ PlayCardDirector.prototype.Start = function(){
     var repositoryDirector = Game.ServiceLocator.create(RepositoryDirector);
     var repository = repositoryDirector.Get("PlayCard");
     var array = repository.All();
-    for(var i = array.length - 1; i > 0; i--){
+    // Fisher–Yates shuffle
+    for(var i = array.length - 1; 0 < i; i--){
         var r = Math.floor(Math.random() * (i + 1));
         var tmp = array[i];
         array[i] = array[r];
