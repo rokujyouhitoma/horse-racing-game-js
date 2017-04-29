@@ -418,24 +418,27 @@ var StepCard = function(model){
 StepCard.prototype = new Card();
 
 StepCard.prototype.Play = function(racetrack){
+    var target_id = this.model.target_id;
+    var step = this.model.step;
     racetrack.lanes.filter(function(lane){
-        return lane.runner.model.id === this.model.target_id;
-    }, this).forEach(function(lane){
-        lane.position += this.model.step;
-    }, this);
+        return lane.runner.model.id === target_id;
+    }).forEach(function(lane){
+        lane.position += step;
+    });
 };
 
 StepCard.prototype.LogMessage = function(){
+    var target_id = this.model.target_id;
+    var step = this.model.step;
     var racetrack = Game.ServiceLocator.create(Game).race.gameBoard.racetrack;
     var figures = racetrack.lanes.filter(function(lane){
-        return lane.runner.model.id === this.model.target_id;
-    }, this).map(function(lane){
+        return lane.runner.model.id === target_id;
+    }).map(function(lane){
         return lane.runner;
     });
     var target = figures.map(function(figure){
         return figure.model.type;
     }).join(",");
-    var step = this.model.step;
     return [
         "[Step]:", target, " ", step,
     ].join("");
@@ -446,7 +449,10 @@ var DashCard = function(model){
 };
 DashCard.prototype = new Card();
 
-DashCard.prototype.Play = function(racetrack){};
+DashCard.prototype.Play = function(racetrack){
+    //
+};
+
 DashCard.prototype.LogMessage = function(racetrack){
     return [
         "[Dash]",
