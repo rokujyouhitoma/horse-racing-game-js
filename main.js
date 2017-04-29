@@ -444,18 +444,44 @@ RankCardDetail.prototype = new CardDetail();
 
 var PlayCard = function(model){
     this.model = model;
+    this.card = this.GetCard(model);
 };
 PlayCard.prototype = new GameObject();
 
-PlayCard.prototype.Apply = function(racetrack){};
+PlayCard.prototype.GetCard = function(model){
+    var card_type = model.card_type;
+    var detail_id = model.detail_id;
+    var repositoryDirector = Game.ServiceLocator.create(RepositoryDirector);
+    var name;
+    switch(card_type){
+    case PlayCard.CardType.StepCard:
+        name = "StepCardDetail";
+        break;
+    case PlayCard.CardType.RankCard:
+        name = "RankCardDetail";
+        break;
+    case PlayCard.CardType.DashCard:
+        name = "DashCardDetail";
+        break;
+    }
+    var repository = repositoryDirector.Get(name);
+    return repository.Find(detail_id);
+};
+
+PlayCard.prototype.Apply = function(racetrack){
+    this.card.Apply(racetrack);
+};
+
+PlayCard.CardType = {
+    StepCard: 1,
+    RankCard: 2,
+    DashCard: 3,
+};
 
 var PlayCardDirector = function(){};
 PlayCardDirector.prototype = new GameObject();
 
 PlayCardDirector.prototype.Start = function(){
-    var playcards = Game.ServiceLocator.create(MasterData).Get("PlayCard").map(function(row){
-        return new PlayCard(Game.Model("PlayCard").Set(row));
-    });
     GameObject.prototype.Start.call(this, arguments);
 };
 
@@ -608,11 +634,16 @@ var RepositoryDirector = function(){
 };
 RepositoryDirector.prototype = new GameObject();
 
+RepositoryDirector.prototype.Get = function(name){
+    return this.repository.Find(name);
+};
+
 RepositoryDirector.prototype.Start = function(){
     var names = [
         "StepCardDetail",
         "RankCardDetail",
         "DashCardDetail",
+        "PlayCard",
     ]
     names.forEach(function(modelName){
         Game.ServiceLocator.create(MasterData).Get(modelName).forEach(function(row){
@@ -661,6 +692,7 @@ Game.Entity = function(name, model){
         "StepCardDetail": StepCardDetail,
         "RankCardDetail": RankCardDetail,
         "DashCardDetail": DashCardDetail,
+        "PlayCard": PlayCard,
         //TODO: xxx
     }[name])(model);
 }
