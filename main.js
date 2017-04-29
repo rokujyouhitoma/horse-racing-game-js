@@ -276,7 +276,7 @@ var MasterData = function(){
         ],
         "DashCard": [
             [1, 1, 1],
-            [1, 2, 2],
+            [2, 2, 2],
         ],
     };
 
@@ -473,12 +473,17 @@ RankCard.prototype = new Card();
 var PlayCard = function(model){
     this.model = model;
     this.card = this.GetCard();
+    //Debug code.
+    if(!this.card){
+        throw Object(model);
+    }
 };
 PlayCard.prototype = new Card();
 
 PlayCard.prototype.GetCard = function(){
     var detail_id = this.model.detail_id;
     var name = this.GetCardName();
+    console.log(name);
     var repositoryDirector = Game.ServiceLocator.create(RepositoryDirector);
     var repository = repositoryDirector.Get(name);
     return repository.Find(detail_id);
@@ -512,13 +517,30 @@ PlayCard.CardType = {
 
 var PlayCardDirector = function(){
     this.playCards = [];
+    this.index = 0;
 };
 PlayCardDirector.prototype = new GameObject();
 
 PlayCardDirector.prototype.Start = function(){
     var repositoryDirector = Game.ServiceLocator.create(RepositoryDirector);
     var repository = repositoryDirector.Get("PlayCard");
-    this.playCards = repository.All();
+    var array = repository.All();
+    for(var i = array.length - 1; i > 0; i--){
+        var r = Math.floor(Math.random() * (i + 1));
+        var tmp = array[i];
+        array[i] = array[r];
+        array[r] = tmp;
+    }
+    this.playCards = array;
+};
+
+PlayCardDirector.prototype.GetNextCard = function(){
+    if(this.playCards.length < this.index){
+        return;
+    }
+    var card = this.playCards[this.index];
+    this.index++;
+    return card;
 };
 
 var Lane = function(index, number, runner, len){
@@ -941,7 +963,11 @@ DebugMenu.prototype.Render = function(dictionary){
 
 DebugMenu.prototype.OnPlayCard = function(e){
     var racetrack = Game.ServiceLocator.create(Game).race.gameBoard.racetrack;
-    var card = Game.ServiceLocator.create(PlayCardDirector).playCards[0];
+    var card = Game.ServiceLocator.create(PlayCardDirector).GetNextCard();
+    if(!card){
+        console.log("404 Card Not found.");
+        return;
+    }
     racetrack.Apply(card);
     console.log(card.GetMessage());
 };
