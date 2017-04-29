@@ -259,7 +259,7 @@ var MasterData = function(){
             [14, 5, 4],
             [15, 5, 5],
         ],
-        "RankCardDeail": [
+        "RankCardDetail": [
             [1, 1, 5],
             [2, 1, 10],
             [3, 1, 15],
@@ -305,7 +305,7 @@ var MasterData = function(){
             "names": ["id", "target_id", "step"],
             "types": ["int", "int", "int"],
         },
-        "RankCardDeail": {
+        "RankCardDetail": {
             "names": ["id", "target_rank", "step"],
             "types": ["int", "int", "int"],
         },
@@ -421,46 +421,6 @@ MonsterFigureDirector.prototype.Update = function(deltaTime){
 MonsterFigureDirector.prototype.Destroy = function(){
     GameObject.prototype.Destroy.call(this, arguments);
     this.figures = {};
-};
-
-var Repository = function(obj){
-    this.storage = obj || {};
-};
-
-Repository.prototype.Store = function(key, value){
-    this.storage[key] = value;
-};
-
-Repository.prototype.Find = function(key){
-    return this.storage[key];
-};
-
-Repository.prototype.All = function(){
-    return Object.values(this.storage);
-};
-
-var RepositoryDirector = function(){
-    this.repository = new Repository({
-        "StepCardDetail": new Repository(),
-        "DashCardDetail": new Repository(),
-        "RankCardDetail": new Repository(),
-        "PlayCard": new Repository(),
-    });
-};
-RepositoryDirector.prototype = new GameObject();
-
-RepositoryDirector.prototype.Start = function(){
-    Game.ServiceLocator.create(MasterData).Get("StepCardDetail").forEach(function(row){
-        var model = Game.Model("StepCardDetail").Set(row);
-        var entity = new StepCardDetail(model);
-        this.repository.Find("StepCardDetail").Store(model.id, entity);
-    }, this);
-    Game.ServiceLocator.create(MasterData).Get("DashCardDetail").forEach(function(row){
-        var model = Game.Model("DashCardDetail").Set(row);
-        var entity = new DashCardDetail(model);
-        this.repository.Find("DashCardDetail").Store(model.id, entity);
-    }, this);
-    //TODO: xxx
 };
 
 var CardDetail = function(){};
@@ -622,6 +582,47 @@ Publisher.prototype.Publish = function(type, payload){
     this.GetOrCreateTarget(type).dispatchEvent(type, payload);
 };
 
+var Repository = function(obj){
+    this.storage = obj || {};
+};
+
+Repository.prototype.Store = function(key, value){
+    this.storage[key] = value;
+};
+
+Repository.prototype.Find = function(key){
+    return this.storage[key];
+};
+
+Repository.prototype.All = function(){
+    return Object.values(this.storage);
+};
+
+var RepositoryDirector = function(){
+    this.repository = new Repository({
+        "StepCardDetail": new Repository(),
+        "DashCardDetail": new Repository(),
+        "RankCardDetail": new Repository(),
+        "PlayCard": new Repository(),
+    });
+};
+RepositoryDirector.prototype = new GameObject();
+
+RepositoryDirector.prototype.Start = function(){
+    var names = [
+        "StepCardDetail",
+        "RankCardDetail",
+        "DashCardDetail",
+    ]
+    names.forEach(function(modelName){
+        Game.ServiceLocator.create(MasterData).Get(modelName).forEach(function(row){
+            var model = Game.Model(modelName).Set(row);
+            var entity = Game.Entity(modelName, model);
+            this.repository.Find(modelName).Store(model.id, entity);
+        }, this);
+    }, this);
+};
+
 var Game = function(){
     // TODO: find系のクエリの仕組みないと辛い
     var row = Game.ServiceLocator.create(MasterData).Get("Race")[0];
@@ -654,6 +655,15 @@ Game.Model = function(name){
     var meta = Game.ServiceLocator.create(MasterData).GetMeta(name);
     return new Model(meta);
 };
+
+Game.Entity = function(name, model){
+    return new ({
+        "StepCardDetail": StepCardDetail,
+        "RankCardDetail": RankCardDetail,
+        "DashCardDetail": DashCardDetail,
+        //TODO: xxx
+    }[name])(model);
+}
 
 var FPS = function(){
     var engine = Game.ServiceLocator.create(Engine);
