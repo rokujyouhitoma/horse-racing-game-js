@@ -425,7 +425,7 @@ MonsterFigureDirector.prototype.Destroy = function(){
 
 var Card = function(){};
 Card.prototype = new GameObject();
-Card.prototype.Apply = function(racetrack){};
+Card.prototype.Play = function(racetrack){};
 Card.prototype.GetMessage = function(){};
 
 var StepCard = function(model){
@@ -433,7 +433,7 @@ var StepCard = function(model){
 };
 StepCard.prototype = new Card();
 
-StepCard.prototype.Apply = function(racetrack){
+StepCard.prototype.Play = function(racetrack){
     racetrack.lanes.filter(function(lane){
         return lane.runner.model.id === this.model.target_id;
     }, this).forEach(function(lane){
@@ -496,8 +496,8 @@ PlayCard.prototype.GetCardName = function(){
     }
 };
 
-PlayCard.prototype.Apply = function(racetrack){
-    this.card.Apply(racetrack);
+PlayCard.prototype.Play = function(racetrack){
+    this.card.Play(racetrack);
 };
 
 PlayCard.prototype.GetMessage = function(){
@@ -547,8 +547,8 @@ var Racetrack = function(runners, len){
 };
 Racetrack.prototype = new GameObject();
 
-Racetrack.prototype.Apply = function(obj){
-    obj.Apply(this);
+Racetrack.prototype.Apply = function(card){
+    card.Play(this);
 };
 
 Racetrack.prototype.Start = function(){
