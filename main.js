@@ -673,15 +673,26 @@ Race.prototype.Ranks = function(){
 
 var RaceDirector = function(){
     this.orderOfFinish = [];
-    this.IsFinish = false;
-    Game.Publisher.Subscribe("OnRaceFinish", this.OnRaceFinish.bind(this));
+    this.state = RaceDirector.State.Zero;
+    Game.Publisher.Subscribe("OnPlacingFirst", this.OnPlacingFirst.bind(this));
+    Game.Publisher.Subscribe("OnPlacingSecond", this.OnPlacingSecond.bind(this));
 };
 RaceDirector.prototype = new GameObject();
 
+RaceDirector.State = {
+    Zero: 0b00, // Before race.
+    First: 0b01, // official order of placing First.
+    Second: 0b10, // official order of placing Second.
+};
+
 RaceDirector.prototype.Update = function(){
-    if(2 <= this.orderOfFinish.length && !this.IsFinish){
-        Game.Publisher.Publish("OnRaceFinish");
-        this.IsFinish = true;
+    if(1 == this.orderOfFinish.length && (this.state === RaceDirector.State.Zero)){
+        this.state = this.state | RaceDirector.State.First;
+        Game.Publisher.Publish("OnPlacingFirst");
+    }
+    if(2 <= this.orderOfFinish.length && (this.state === RaceDirector.State.First)){
+        this.state = this.state | RaceDirector.State.Second;
+        Game.Publisher.Publish("OnPlacingSecond");
     }
     var game = Game.ServiceLocator.create(Game);
     var lanes = game.race.gameBoard.racetrack.lanes;
@@ -695,7 +706,15 @@ RaceDirector.prototype.Update = function(){
     }
 };
 
-RaceDirector.prototype.OnRaceFinish = function(){
+RaceDirector.prototype.OnPlacingFirst = function(){
+    //TODO: xxx
+    console.log(this.orderOfFinish.slice(0, 1).map(function(figure){
+        return figure.model.type;
+    }));
+};
+
+RaceDirector.prototype.OnPlacingSecond = function(){
+    //TODO: xxx
     console.log(this.orderOfFinish.slice(0, 2).map(function(figure){
         return figure.model.type;
     }));
