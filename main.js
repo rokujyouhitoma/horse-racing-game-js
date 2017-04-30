@@ -459,7 +459,7 @@ RankCard.prototype.Play = function(race){
         return;
     }
     if(0 < lanes.length && lanes.length < 2){
-        var target = lanes[0];
+        var lane = lanes[0];
         lane.position += step;
     } else {
         //無効
@@ -576,6 +576,8 @@ var Lane = function(index, number, runner, len){
 };
 Lane.prototype = new GameObject();
 
+Lane.GatePosition = 0;
+
 Lane.prototype.IsGatePosition = function(){
     return this.position === Lane.GatePosition
 };
@@ -583,8 +585,6 @@ Lane.prototype.IsGatePosition = function(){
 Lane.prototype.IsGolePosition = function(){
     return this.len < this.position;
 };
-
-Lane.GatePosition = 0;
 
 var Racetrack = function(runners, len){
     this.runners = runners;
@@ -610,9 +610,10 @@ GameBoard.prototype = new GameObject();
 
 GameBoard.prototype.Start = function(){
     var master = Game.ServiceLocator.create(MasterData);
+    var length = this.race.model.len;
     this.racetrack = new Racetrack(master.Get("HorseFigure").map(function(row){
         return new HorseFigure(Game.Model("HorseFigure").Set(row));
-    }), this.race.model.len);
+    }), length);
     this.objects = [
         this.racetrack,
     ];
@@ -638,8 +639,33 @@ Race.prototype.Apply = function(card){
 
 Race.prototype.Ranks = function(){
     var lanes = this.gameBoard.racetrack.lanes;
+    var len = this.model.len;
+    var sorted = lanes.slice().sort(function(a, b){
+        return b.position - a.position;
+    });
+    var position;
+    var rank = 0;
+    var goals = [];
+    var ranks = {};
+    sorted.forEach(function(lane){
+        if(lane.IsGolePosition()){
+            goals.push(lane);
+        } else {
+            if(position !== lane.position){
+                rank += 1;
+            }
+            if(!(rank in ranks)){
+                ranks[rank] = [];
+            }
+            ranks[rank].push(lane);
+            position = lane.position;
+        }
+    });
     // -1 means last
-    return {};
+    ranks[-1] = ranks[rank];
+    // 0 means goals
+    ranks[0] = goals;
+    return ranks;
 };
 
 var RaceDirector = function(){
