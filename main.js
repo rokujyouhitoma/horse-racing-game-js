@@ -936,6 +936,7 @@ DebugButton.prototype.Render = function(dictionary){
 var DebugMenu = function(){
     this.dom;
     Game.Publisher.Subscribe("OnPlayCard", this.OnPlayCard.bind(this));
+    Game.Publisher.Subscribe("OnPlayRankCard", this.OnPlayRankCard.bind(this));
     Game.Publisher.Subscribe("OnPlayDashCard", this.OnPlayDashCard.bind(this));
     Game.Publisher.Subscribe("OnMove", this.OnMove.bind(this));
     Game.Publisher.Subscribe("OnCheckWinners", this.OnCheckWinners.bind(this));
@@ -971,7 +972,7 @@ DebugMenu.prototype.Render = function(dictionary){
     var lanes = racetrack.lanes;
     return [
         new DebugButton("Play Card", "(function(){Game.Publisher.Publish(\"OnPlayCard\");})()").Render(),
-        new DebugButton("Play RankCard", "(function(){Game.Publisher.Publish(\"OnPlayCard\");})()").Render(),
+        new DebugButton("Play RankCard", "(function(){Game.Publisher.Publish(\"OnPlayRankCard\");})()").Render(),
         new DebugButton("Play DashCard", "(function(){Game.Publisher.Publish(\"OnPlayDashCard\");})()").Render(),
         [
             "<button onClick='",
@@ -1002,6 +1003,17 @@ DebugMenu.prototype.OnPlayCard = function(e){
         console.log("404 Card Not found.");
         return;
     }
+    race.Apply(card);
+    console.log(card.LogMessage());
+};
+
+DebugMenu.prototype.OnPlayRankCard = function(e){
+    var race = Game.ServiceLocator.create(Game).race;
+    var repositoryDirector = Game.ServiceLocator.create(RepositoryDirector);
+    var name = "RankCard";
+    var repository = repositoryDirector.Get(name);
+    var detail_id = 1;
+    var card = repository.Find(detail_id);
     race.Apply(card);
     console.log(card.LogMessage());
 };
