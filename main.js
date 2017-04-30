@@ -272,7 +272,7 @@ var MasterData = function(){
             [10, 4, 5],
             [11, 4, 10],
             [12, 4, 15],
-            [13, 5, 35],
+            [13, -1, 35],
         ],
         "DashCard": [
             [1, 1, 1],
@@ -417,10 +417,10 @@ var StepCard = function(model){
 };
 StepCard.prototype = new Card();
 
-StepCard.prototype.Play = function(racetrack){
+StepCard.prototype.Play = function(race){
     var target_id = this.model.target_id;
     var step = this.model.step;
-    racetrack.lanes.filter(function(lane){
+    race.gameBoard.racetrack.lanes.filter(function(lane){
         return lane.runner.model.id === target_id;
     }).forEach(function(lane){
         lane.position += step;
@@ -444,30 +444,51 @@ StepCard.prototype.LogMessage = function(){
     ].join("");
 };
 
-var DashCard = function(model){
-    this.model = model;
-};
-DashCard.prototype = new Card();
-
-DashCard.prototype.Play = function(racetrack){
-    //
-};
-
-DashCard.prototype.LogMessage = function(racetrack){
-    return [
-        "[Dash]",
-    ].join("");
-};
-
 var RankCard = function(model){
     this.model = model;
 };
 RankCard.prototype = new Card();
 
-RankCard.prototype.Play = function(racetrack){};
-RankCard.prototype.LogMessage = function(racetrack){
+RankCard.prototype.Play = function(race){
+    var target_rank = this.model.target_rank;
+    var step = this.model.step;
+    var race = Game.ServiceLocator.create(Game).race;
+    var ranks = race.Ranks();
+    var lanes = ranks[target_rank];
+    if(!lanes){
+        return;
+    }
+    if(0 < lanes.length && lanes.length < 2){
+        var target = lanes[0];
+        lane.position += step;
+    } else {
+        //無効
+    }
+};
+
+RankCard.prototype.LogMessage = function(race){
+    var target_rank = this.model.target_rank;
+    var step = this.model.step;
     return [
-        "[Rank]",
+        "[Rank]:", target_rank, " ", step,
+    ].join("");
+};
+
+var DashCard = function(model){
+    this.model = model;
+};
+DashCard.prototype = new Card();
+
+DashCard.prototype.Play = function(race){
+    var race = Game.ServiceLocator.create(Game).race;
+    var ranks = race.Ranks();
+};
+
+DashCard.prototype.LogMessage = function(race){
+    //TODO: xxx
+    var target_rank = this.model.target_rank;
+    return [
+        "[Dash]:", target_rank,
     ].join("");
 };
 
@@ -480,6 +501,12 @@ var PlayCard = function(model){
     }
 };
 PlayCard.prototype = new Card();
+
+PlayCard.CardType = {
+    StepCard: 1,
+    RankCard: 2,
+    DashCard: 3,
+};
 
 PlayCard.prototype.GetCard = function(){
     var detail_id = this.model.detail_id;
@@ -501,18 +528,12 @@ PlayCard.prototype.GetCardName = function(){
     }
 };
 
-PlayCard.prototype.Play = function(racetrack){
-    this.card.Play(racetrack);
+PlayCard.prototype.Play = function(race){
+    this.card.Play(race);
 };
 
 PlayCard.prototype.LogMessage = function(){
     return this.card.LogMessage();
-};
-
-PlayCard.CardType = {
-    StepCard: 1,
-    RankCard: 2,
-    DashCard: 3,
 };
 
 var PlayCardDirector = function(){
@@ -535,7 +556,7 @@ PlayCardDirector.prototype.Start = function(){
     this.playCards = array;
 };
 
-PlayCardDirector.prototype.GetNextCard = function(){
+PlayCardDirector.prototype.NextCard = function(){
     var length = this.playCards.length;
     var position = this.position;
     if(length < position){
@@ -571,10 +592,6 @@ var Racetrack = function(runners, len){
     this.lanes = [];
 };
 Racetrack.prototype = new GameObject();
-
-Racetrack.prototype.Apply = function(card){
-    card.Play(this);
-};
 
 Racetrack.prototype.Start = function(){
     this.lanes = this.runners.map(function(runner, index, array){
@@ -613,6 +630,16 @@ Race.prototype.Start = function(){
         this.gameBoard,
     ];
     GameObject.prototype.Start.call(this, arguments);
+};
+
+Race.prototype.Apply = function(card){
+    card.Play(this);
+};
+
+Race.prototype.Ranks = function(){
+    var lanes = this.gameBoard.racetrack.lanes;
+    // -1 means last
+    return {};
 };
 
 var RaceDirector = function(){
@@ -692,8 +719,8 @@ Repository.prototype.All = function(){
 var RepositoryDirector = function(){
     this.repository = new Repository({
         "StepCard": new Repository(),
-        "DashCard": new Repository(),
         "RankCard": new Repository(),
+        "DashCard": new Repository(),
         "PlayCard": new Repository(),
     });
 };
@@ -890,12 +917,29 @@ RacetrackRenderer.prototype.Render = function(dictionary){
     return text;
 }
 
+var DebugButton = function(text, onClickText){
+    this.text = text;
+    this.onClickText = onClickText;
+};
+DebugButton.prototype = new Renderer();
+
+DebugButton.prototype.Render = function(dictionary){
+    return [
+        "<button onClick='",
+        this.onClickText,
+        "'>",
+        this.text,
+        "</button>",
+    ].join("");
+};
+
 var DebugMenu = function(){
     this.dom;
     Game.Publisher.Subscribe("OnPlayCard", this.OnPlayCard.bind(this));
+    Game.Publisher.Subscribe("OnPlayDashCard", this.OnPlayDashCard.bind(this));
     Game.Publisher.Subscribe("OnMove", this.OnMove.bind(this));
-    Game.Publisher.Subscribe("OnReset", this.OnReset.bind(this));
     Game.Publisher.Subscribe("OnCheckWinners", this.OnCheckWinners.bind(this));
+    Game.Publisher.Subscribe("OnGameReset", this.OnGameReset.bind(this));
 };
 DebugMenu.prototype = new Renderer();
 
@@ -926,15 +970,12 @@ DebugMenu.prototype.Render = function(dictionary){
     var racetrack = dictionary["racetrack"];
     var lanes = racetrack.lanes;
     return [
+        new DebugButton("Play Card", "(function(){Game.Publisher.Publish(\"OnPlayCard\");})()").Render(),
+        new DebugButton("Play RankCard", "(function(){Game.Publisher.Publish(\"OnPlayCard\");})()").Render(),
+        new DebugButton("Play DashCard", "(function(){Game.Publisher.Publish(\"OnPlayDashCard\");})()").Render(),
         [
             "<button onClick='",
-            "(function(){Game.Publisher.Publish(\"OnPlayCard\");})()'>",
-            "Play Card",
-            "</button>",
-        ].join(""),
-        [
-            "<button onClick='",
-            "(function(){Game.ServiceLocator.create(DebugMenu).Random(", lanes.length ,")})()'>",
+            "(function(){Game.ServiceLocator.create(DebugMenu).OnRandom(", lanes.length ,")})()'>",
             "Random",
             "</button>",
         ].join(""),
@@ -949,33 +990,34 @@ DebugMenu.prototype.Render = function(dictionary){
                 "</button>",
             ].join("");
         }).join(""),
-        [
-            "<button onClick='",
-            "(function(){Game.Publisher.Publish(\"OnCheckWinners\");})()'>",
-            "Winners",
-            "</button>",
-        ].join(""),
-        [
-            "<button onClick='",
-            "(function(){Game.Publisher.Publish(\"OnReset\");})()'>",
-            "Reset Game",
-            "</button>",
-        ].join(""),
+        new DebugButton("Winners", "(function(){Game.Publisher.Publish(\"OnCheckWinners\");})()").Render(),
+        new DebugButton("Reset Game", "(function(){Game.Publisher.Publish(\"OnGameReset\");})()").Render(),
     ].join("<br />");
 };
 
 DebugMenu.prototype.OnPlayCard = function(e){
-    var racetrack = Game.ServiceLocator.create(Game).race.gameBoard.racetrack;
-    var card = Game.ServiceLocator.create(PlayCardDirector).GetNextCard();
+    var race = Game.ServiceLocator.create(Game).race;
+    var card = Game.ServiceLocator.create(PlayCardDirector).NextCard();
     if(!card){
         console.log("404 Card Not found.");
         return;
     }
-    racetrack.Apply(card);
+    race.Apply(card);
     console.log(card.LogMessage());
 };
 
-DebugMenu.prototype.Random = function(len){
+DebugMenu.prototype.OnPlayDashCard = function(e){
+    var race = Game.ServiceLocator.create(Game).race;
+    var repositoryDirector = Game.ServiceLocator.create(RepositoryDirector);
+    var name = "DashCard";
+    var repository = repositoryDirector.Get(name);
+    var detail_id = 1;
+    var card = repository.Find(detail_id);
+    race.Apply(card);
+    console.log(card.LogMessage());
+};
+
+DebugMenu.prototype.OnRandom = function(len){
     var index = Math.floor(Math.random() * len);
     var step = 1;
     Game.ServiceLocator.create(Game).race.gameBoard.racetrack.lanes[index].position += step;
@@ -986,7 +1028,7 @@ DebugMenu.prototype.OnMove = function(e){
     Game.ServiceLocator.create(Game).race.gameBoard.racetrack.lanes[index].position += 1;
 };
 
-DebugMenu.prototype.OnReset = function(e){
+DebugMenu.prototype.OnGameReset = function(e){
     Game.ServiceLocator.create(Game).Reset();
 };
 
