@@ -196,6 +196,7 @@ var MasterData = function(){
             [12, 1, 4],
             [13, 1, 5],
             [14, 1, 5],
+            [15, 1, 5],
             [16, 1, 6],
             [17, 1, 6],
             [18, 1, 6],
@@ -423,7 +424,9 @@ StepCard.prototype.Play = function(race){
     race.gameBoard.racetrack.lanes.filter(function(lane){
         return lane.runner.model.id === target_id;
     }).forEach(function(lane){
-        lane.position += step;
+        if(!lane.IsGolePosition()){
+            lane.position += step;
+        }
     });
 };
 
@@ -454,10 +457,10 @@ RankCard.prototype.Play = function(race){
     var step = this.model.step;
     var race = Game.ServiceLocator.create(Game).race;
     var ranks = race.Ranks();
-    var lanes = ranks[target_rank];
-    if(!lanes){
+    if(!(target_rank in ranks)){
         return;
     }
+    var lanes = ranks[target_rank];
     if(0 < lanes.length && lanes.length < 2){
         var lane = lanes[0];
         lane.position += step;
@@ -641,8 +644,8 @@ Race.prototype.Ranks = function(){
     var lanes = this.gameBoard.racetrack.lanes;
     var len = this.model.len;
     var sorted = lanes.slice().sort(function(a, b){
-        return b.position - a.position;
-    });
+        return a.position - b.position;
+    }).reverse();
     var position;
     var rank = 0;
     var goals = [];
@@ -671,13 +674,13 @@ Race.prototype.Ranks = function(){
 var RaceDirector = function(){
     this.orderOfFinish = [];
     this.IsFinish = false;
-    Game.Publisher.Subscribe("OnFinish", this.OnFinish.bind(this));
+    Game.Publisher.Subscribe("OnRaceFinish", this.OnRaceFinish.bind(this));
 };
 RaceDirector.prototype = new GameObject();
 
 RaceDirector.prototype.Update = function(){
     if(2 <= this.orderOfFinish.length && !this.IsFinish){
-        Game.Publisher.Publish("OnFinish");
+        Game.Publisher.Publish("OnRaceFinish");
         this.IsFinish = true;
     }
     var game = Game.ServiceLocator.create(Game);
@@ -692,7 +695,7 @@ RaceDirector.prototype.Update = function(){
     }
 };
 
-RaceDirector.prototype.OnFinish = function(){
+RaceDirector.prototype.OnRaceFinish = function(){
     console.log(this.orderOfFinish.slice(0, 2).map(function(figure){
         return figure.model.type;
     }));
@@ -1024,13 +1027,19 @@ DebugMenu.prototype.Render = function(dictionary){
 
 DebugMenu.prototype.OnPlayCard = function(e){
     var race = Game.ServiceLocator.create(Game).race;
-    var card = Game.ServiceLocator.create(PlayCardDirector).NextCard();
+    var playCardDirector = Game.ServiceLocator.create(PlayCardDirector);
+    var card = playCardDirector.NextCard();
+    var position = playCardDirector.position;
     if(!card){
         console.log("404 Card Not found.");
         return;
     }
     race.Apply(card);
-    console.log(card.LogMessage());
+    console.log([
+        position,
+        " ",
+        card.LogMessage(),
+    ].join(""));
 };
 
 DebugMenu.prototype.OnPlayRankCard = function(e){
