@@ -81,7 +81,21 @@ ServiceLocator.prototype.create = function(obj){
         this.container[obj] = new obj();
     }
     return this.container[obj];
-}
+};
+
+var Utility = {};
+
+Utility.FisherYatesShuffle = function(array){
+    // Fisher–Yates shuffle
+    var result = array.slice();
+    for(var i = array.length - 1; 0 < i; i--){
+        var r = Math.floor(Math.random() * (i + 1));
+        var tmp = result[i];
+        result[i] = result[r];
+        result[r] = tmp;
+    }
+    return result;
+};
 
 var GameObject = function(){
     this.objects = [];
@@ -125,7 +139,7 @@ Engine.prototype.Loop = function(){
         this.Update(deltaTime);
     }.bind(this);
     loop();
-}
+};
 
 Engine.prototype.Start = function(){
     console.log("Start");
@@ -150,7 +164,7 @@ Model.prototype.Set = function(value){
         this[names[i]] = value[i];
     }
     return this;
-}
+};
 
 var Renderer = function(){};
 Renderer.prototype = new GameObject();
@@ -321,7 +335,7 @@ var MasterData = function(){
 
 MasterData.prototype.Get = function(key){
     return this.stub[key];
-}
+};
 
 MasterData.prototype.GetMeta = function(key){
     return this.meta[key];
@@ -550,14 +564,7 @@ PlayCardDirector.prototype.Start = function(){
     var repositoryDirector = Game.ServiceLocator.create(RepositoryDirector);
     var repository = repositoryDirector.Get("PlayCard");
     var array = repository.All();
-    // Fisher–Yates shuffle
-    for(var i = array.length - 1; 0 < i; i--){
-        var r = Math.floor(Math.random() * (i + 1));
-        var tmp = array[i];
-        array[i] = array[r];
-        array[r] = tmp;
-    }
-    this.playCards = array;
+    this.playCards = Utility.FisherYatesShuffle(array);
 };
 
 PlayCardDirector.prototype.NextCard = function(){
@@ -973,7 +980,7 @@ RacetrackRenderer.prototype.Render = function(dictionary){
         })
     ].join("");
     return text;
-}
+};
 
 var DebugButton = function(text, onClickText){
     this.text = text;
