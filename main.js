@@ -103,7 +103,7 @@ var Xorshift = function(){
 };
 
 Xorshift.MIN_VALUE = 0;
-Xorshift.MAX_VALUE = 0xffffffff;
+Xorshift.MAX_VALUE = 0xffffffff / 2;
 
 Xorshift.prototype.seed = function(seed){
     this.x = (seed & 0x66666666) >>> 0;
@@ -118,7 +118,7 @@ Xorshift.prototype.rand = function(){
     this.y = this.z;
     this.z = this.w;
     this.w = (this.w ^ (this.w >> 19)) ^ (t ^ (t >> 8));
-    return this.w; /* 0 to 0xFFFFFFFF */
+    return this.w; /* 0 to 0xFFFFFFFF / 2 */
 };
 
 var GameObject = function(){
