@@ -16,7 +16,7 @@
  - [ ] レンダラーオブジェクトがどうしてもモデル、ディレクターオブジェクトと密結合してしまうので、疎結合に
  - [ ] マスターデータのリレーション、バリューチェッカー
  - [x] Utility/Fisher–Yates shuffle
- - [ ] Utility/Xorshift(シードベースの乱数生成器ならなんでもいい)
+ - [x] Xorshift(シードベースの乱数生成器ならなんでもいい) ただし、分布を未検証
 
 ## ゲーム
 
@@ -68,6 +68,7 @@
 
 ## 2017.5.1
 
+ - Xorshiftを実装
  - Fisher–Yates shuffleをUtilityに切り出す
  - EventTargetのEventListenerの探索がO(n)だったのをO(1)に改善
 

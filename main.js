@@ -87,14 +87,38 @@ var Utility = {};
 
 Utility.FisherYatesShuffle = function(array){
     // Fisher–Yates shuffle
+    var g = new Xorshift();
     var result = array.slice();
     for(var i = array.length - 1; 0 < i; i--){
-        var r = Math.floor(Math.random() * (i + 1));
+        var r = Math.floor((g.rand() / Xorshift.MAX_VALUE) * (i + 1));
         var tmp = result[i];
         result[i] = result[r];
         result[r] = tmp;
     }
     return result;
+};
+
+var Xorshift = function(){
+    this.seed(Date.now());
+};
+
+Xorshift.MIN_VALUE = 0;
+Xorshift.MAX_VALUE = 0xffffffff;
+
+Xorshift.prototype.seed = function(seed){
+    this.x = (seed & 0x66666666) >>> 0;
+    this.y = (seed ^ 0xffffffff) >>> 0;
+    this.z = ((seed & 0x0000ffff << 16) | (seed >> 16) & 0x0000ffff) >>> 0;
+    this.w = this.x ^ this.y;
+};
+
+Xorshift.prototype.rand = function(){
+    var t = this.x ^ (this.x << 11);
+    this.x = this.y;
+    this.y = this.z;
+    this.z = this.w;
+    this.w = (this.w ^ (this.w >> 19)) ^ (t ^ (t >> 8));
+    return this.w; /* 0 to 0xFFFFFFFF */
 };
 
 var GameObject = function(){
