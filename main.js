@@ -7,7 +7,7 @@ var Event = function(type, target, payload){
 };
 
 var EventTarget = function(){
-    this.eventListeners = [];
+    this.eventListeners = {};
 };
 
 EventTarget.prototype.addEventListener = function(type, listener){
@@ -19,7 +19,10 @@ EventTarget.prototype.addEventListener = function(type, listener){
             listener.call(self, e);
         }
     };
-    this.eventListeners.push({
+    if(!(type in this.eventListeners)){
+        this.eventListeners[type] = [];
+    }
+    this.eventListeners[type].push({
         object: this,
         type: type,
         listener: listener,
@@ -28,9 +31,8 @@ EventTarget.prototype.addEventListener = function(type, listener){
 };
 
 EventTarget.prototype.removeEventListener = function(type, listener){
-    var eventListeners = this.eventListeners;
+    var eventListeners = this.eventListeners[type];
     var counter = 0;
-    //TODO: O(n)探索は改善しよう
     while(counter < eventListeners.length){
         var eventListener = eventListeners[counter];
         if (eventListener.object == this &&
@@ -44,9 +46,8 @@ EventTarget.prototype.removeEventListener = function(type, listener){
 };
 
 EventTarget.prototype.dispatchEvent = function(type, payload){
-    var eventListeners = this.eventListeners;
+    var eventListeners = this.eventListeners[type];
     var counter = 0;
-    //TODO: O(n)探索は改善しよう
     while(counter < eventListeners.length){
         var eventListener = eventListeners[counter];
         if (eventListener.object == this &&

@@ -64,6 +64,10 @@
 
 # History
 
+## 2017.5.1
+
+ - EventTargetのEventListenerの探索がO(n)だったのをO(1)に改善
+
 ## 2017.4.30
 
  - 順位カードの効果を実装
