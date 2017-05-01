@@ -173,3 +173,19 @@
  - ゲート(gate)。...省略...
  - 走者(runner)。レーンの走者
  - 着順(order of finish)
+
+# 雑感
+
+## KPT
+
+### Keep
+
+ - DOMLevel2インスパイヤのEvent(Event, EventTarget, EventListener)はすばらしい
+
+### Problem
+
+ - xxx
+
+### Try
+
+ - xxx
