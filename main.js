@@ -494,7 +494,6 @@ RankCard.prototype = new Card();
 RankCard.prototype.Play = function(race){
     var target_rank = this.model.target_rank;
     var step = this.model.step;
-    var race = Game.ServiceLocator.create(Game).race;
     var ranks = race.Ranks();
     if(!(target_rank in ranks)){
         return;
@@ -516,14 +515,55 @@ RankCard.prototype.LogMessage = function(race){
     ].join("");
 };
 
+var DashCardTypeBoost = function(){};
+DashCardTypeBoost.prototype = new Card();
+DashCardTypeBoost.prototype.Play = function(race){
+    var ranks = race.Ranks();
+    if(1 < ranks[1].length){
+        //TODO: xxx
+        return;
+    }
+    if(!(2 in ranks)){
+        //TODO: xxx
+        return;
+    }
+    var first = ranks[1][0];
+    var second = ranks[2][0];
+    var step = (first.position - second.position) * 2;
+    first.position += step;
+};
+
+var DashCardTypeCatchUp = function(){};
+DashCardTypeCatchUp.prototype = new Card();
+DashCardTypeCatchUp.prototype.Play = function(race){
+    var ranks = race.Ranks();
+    if(1 < ranks[1].length){
+        //TODO: xxx
+        return;
+    }
+    if(!(2 in ranks)){
+        //TODO: xxx
+        return;
+    }
+    var first = ranks[1][0];
+    var second = ranks[2][0];
+    var step = (first.position - 1) - second.position;
+    second.position += step;
+};
+
 var DashCard = function(model){
     this.model = model;
+    this.behavior = this.GetBehavior();
 };
 DashCard.prototype = new Card();
 
+DashCard.DashType = {
+    Boost: 1,
+    CatchUp: 2,
+};
+
 DashCard.prototype.Play = function(race){
-    var race = Game.ServiceLocator.create(Game).race;
-    var ranks = race.Ranks();
+    this.behavior.Play(race);
 };
 
 DashCard.prototype.LogMessage = function(race){
@@ -532,6 +572,19 @@ DashCard.prototype.LogMessage = function(race){
     return [
         "[Dash]:", target_rank,
     ].join("");
+};
+
+DashCard.prototype.GetBehavior = function(){
+    var dashType = this.model.dash_type;
+    switch(dashType){
+    case DashCard.DashType.Boost:
+        return new DashCardTypeBoost();
+    case DashCard.DashType.CatchUp:
+        return new DashCardTypeCatchUp();
+    default:
+        throw new Error("Not support DashCard.DashType");
+    }
+    console.log(this.model);
 };
 
 var PlayCard = function(model){
@@ -1118,7 +1171,7 @@ DebugMenu.prototype.OnPlayDashCard = function(e){
     var repositoryDirector = Game.ServiceLocator.create(RepositoryDirector);
     var name = "DashCard";
     var repository = repositoryDirector.Get(name);
-    var detail_id = 1;
+    var detail_id = 1 + 1;
     var card = repository.Find(detail_id);
     race.Apply(card);
     console.log(card.LogMessage());
