@@ -674,27 +674,19 @@ Race.prototype.Ranks = function(){
 
 var RaceDirector = function(){
     this.orderOfFinish = [];
-    this.state = RaceDirector.State.Zero;
+    this.state = RaceDirector.State.None;
     Game.Publisher.Subscribe("OnPlacingFirst", this.OnPlacingFirst.bind(this));
     Game.Publisher.Subscribe("OnPlacingSecond", this.OnPlacingSecond.bind(this));
 };
 RaceDirector.prototype = new GameObject();
 
 RaceDirector.State = {
-    Zero: 0b00, // Before race.
+    None: 0b00, // Before race.
     First: 0b01, // official order of placing First.
     Second: 0b10, // official order of placing Second.
 };
 
 RaceDirector.prototype.Update = function(){
-    if(1 == this.orderOfFinish.length && (this.state === RaceDirector.State.Zero)){
-        this.state = this.state | RaceDirector.State.First;
-        Game.Publisher.Publish("OnPlacingFirst");
-    }
-    if(2 <= this.orderOfFinish.length && (this.state === RaceDirector.State.First)){
-        this.state = this.state | RaceDirector.State.Second;
-        Game.Publisher.Publish("OnPlacingSecond");
-    }
     var game = Game.ServiceLocator.create(Game);
     var lanes = game.race.gameBoard.racetrack.lanes;
     var runners = lanes.filter(function(lane){
@@ -704,6 +696,23 @@ RaceDirector.prototype.Update = function(){
     });
     if(0 < runners.length){
         this.orderOfFinish.push(runners[0]);
+        this.UpdateState();
+    }
+};
+
+RaceDirector.prototype.UpdateState = function(){
+    var state = this.state;
+    switch(state){
+    case RaceDirector.State.None:
+        this.state = state | RaceDirector.State.First;
+        Game.Publisher.Publish("OnPlacingFirst");
+        break;
+    case RaceDirector.State.First:
+        this.state = state | RaceDirector.State.Second;
+        Game.Publisher.Publish("OnPlacingSecond");
+        break;
+    case RaceDirector.State.Second:
+        break;
     }
 };
 
