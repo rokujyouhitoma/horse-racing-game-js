@@ -886,6 +886,7 @@ Publisher.prototype.UnSubscribe = function(type, listener){
 };
 
 Publisher.prototype.Publish = function(type, payload){
+    console.log("[Event]: " + type);
     this.GetOrCreateTarget(type).dispatchEvent(type, payload);
 };
 
@@ -936,13 +937,9 @@ RepositoryDirector.prototype.Start = function(){
 };
 
 var Game = function(){
-    // TODO: find系のクエリの仕組みないと辛い
-    var row = Game.ServiceLocator.create(MasterData).Get("Race")[0];
     this.fps = new FPS();
-    this.race = new Race(Game.Model("Race").Set(row));
     this.objects = [
         this.fps,
-        this.race,
         Game.ServiceLocator.create(RaceDirector),
         Game.ServiceLocator.create(HorseFigureDirector),
         Game.ServiceLocator.create(MonsterCoinDirector),
@@ -950,8 +947,20 @@ var Game = function(){
         Game.ServiceLocator.create(RepositoryDirector),
         Game.ServiceLocator.create(PlayCardDirector),
     ];
+    Game.Publisher.Subscribe(Events.OnNewRace, this.OnNewRace.bind(this));
+    Game.Publisher.Publish(Events.OnNewRace);
 };
 Game.prototype = new GameObject();
+
+Game.prototype.OnNewRace = function(e){
+    //TODO: xxx
+    var row = Game.ServiceLocator.create(MasterData).Get("Race")[0];
+    var model = Game.Model("Race").Set(row);
+    var race = new Race(model);
+    race.Start();
+    this.objects.push(race);
+    this.race = race;
+};
 
 Game.prototype.Reset = function(){
     this.Destroy();
@@ -979,6 +988,7 @@ Game.Entity = function(name, model){
 }
 
 var Events = {
+    OnNewRace: "OnNewRace",
     OnPlacingFirst: "OnPlacingFirst",
     OnPlacingSecond: "OnPlacingSecond",
     // For debug.
