@@ -437,10 +437,6 @@ HorseFigureDirector.prototype.Start = function(){
     }, this);
 };
 
-HorseFigureDirector.prototype.Update = function(deltaTime){
-    GameObject.prototype.Update.call(this, arguments);
-};
-
 HorseFigureDirector.prototype.Destroy = function(){
     GameObject.prototype.Destroy.call(this, arguments);
     this.figure = {};
@@ -490,7 +486,7 @@ MonsterFigureDirector.prototype.Start = function(){
     figures.forEach(function(figure){
         this.figures[figure.model.id] = figure;
         figure.Start();
-    });
+    }, this);
 };
 
 MonsterFigureDirector.prototype.Destroy = function(){
@@ -947,11 +943,11 @@ var Game = function(){
     this.fps = new FPS();
     this.objects = [
         this.fps,
-        Game.ServiceLocator.create(RaceDirector),
+        Game.ServiceLocator.create(RepositoryDirector),
         Game.ServiceLocator.create(HorseFigureDirector),
         Game.ServiceLocator.create(MonsterCoinDirector),
         Game.ServiceLocator.create(MonsterFigureDirector),
-        Game.ServiceLocator.create(RepositoryDirector),
+        Game.ServiceLocator.create(RaceDirector),
         Game.ServiceLocator.create(PlayCardDirector),
     ];
     Game.Publisher.Subscribe(Events.Game.OnNewRace, this.OnNewRace.bind(this));
