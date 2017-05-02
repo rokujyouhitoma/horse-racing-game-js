@@ -867,6 +867,9 @@ RaceDirector.prototype.OnPlacingSecond = function(){
 
 RaceDirector.prototype.Destroy = function(){
     this.orderOfFinish = [];
+    this.state = RaceDirector.State.None;
+    Game.Publisher.UnSubscribe(Events.Race.OnPlacingFirst, this.OnPlacingFirst.bind(this));
+    Game.Publisher.UnSubscribe(Events.Race.OnPlacingSecond, this.OnPlacingSecond.bind(this));
 };
 
 var Publisher = function(){
@@ -952,6 +955,7 @@ var Game = function(){
         Game.ServiceLocator.create(PlayCardDirector),
     ];
     Game.Publisher.Subscribe(Events.Game.OnNewRace, this.OnNewRace.bind(this));
+    Game.Publisher.Subscribe(Events.Game.OnResetGame, this.OnResetGame.bind(this));
     Game.Publisher.Publish(Events.Game.OnNewRace); //TODO: xxx
 };
 Game.prototype = new GameObject();
@@ -965,7 +969,7 @@ Game.prototype.OnNewRace = function(e){
     this.race = race;
 };
 
-Game.prototype.Reset = function(){
+Game.prototype.OnResetGame = function(){
     this.Destroy();
     this.Start();
 };
@@ -993,19 +997,21 @@ Game.Entity = function(name, model){
 var Events = {
     Game: {
         OnNewRace: "OnNewRace",
+        OnResetGame: "OnResetGame",
     },
     Race: {
         OnPlacingFirst: "OnPlacingFirst",
         OnPlacingSecond: "OnPlacingSecond",
     },
     // For debug.
-    OnPlayCard: "OnPlayCard",
-    OnPlayRankCard: "OnPlayRankCard",
-    OnPlayDashCard: "OnPlayDashCard",
-    OnMove: "OnMove",
-    OnCheckWinners: "OnCheckWinners",
-    OnGameReset: "OnGameReset",
-    OnCheckRelationship: "OnCheckRelationship",
+    Debug: {
+        OnPlayCard: "OnPlayCard",
+        OnPlayRankCard: "OnPlayRankCard",
+        OnPlayDashCard: "OnPlayDashCard",
+        OnMove: "OnMove",
+        OnCheckWinners: "OnCheckWinners",
+        OnCheckRelationship: "OnCheckRelationship",
+    },
 };
 
 var FPS = function(){
@@ -1154,13 +1160,12 @@ DebugButton.prototype.Render = function(dictionary){
 
 var DebugMenu = function(){
     this.dom;
-    Game.Publisher.Subscribe(Events.OnPlayCard, this.OnPlayCard.bind(this));
-    Game.Publisher.Subscribe(Events.OnPlayRankCard, this.OnPlayRankCard.bind(this));
-    Game.Publisher.Subscribe(Events.OnPlayDashCard, this.OnPlayDashCard.bind(this));
-    Game.Publisher.Subscribe(Events.OnMove, this.OnMove.bind(this));
-    Game.Publisher.Subscribe(Events.OnCheckWinners, this.OnCheckWinners.bind(this));
-    Game.Publisher.Subscribe(Events.OnGameReset, this.OnGameReset.bind(this));
-    Game.Publisher.Subscribe(Events.OnCheckRelationship, this.OnCheckRelationship.bind(this));
+    Game.Publisher.Subscribe(Events.Debug.OnPlayCard, this.OnPlayCard.bind(this));
+    Game.Publisher.Subscribe(Events.Debug.OnPlayRankCard, this.OnPlayRankCard.bind(this));
+    Game.Publisher.Subscribe(Events.Debug.OnPlayDashCard, this.OnPlayDashCard.bind(this));
+    Game.Publisher.Subscribe(Events.Debug.OnMove, this.OnMove.bind(this));
+    Game.Publisher.Subscribe(Events.Debug.OnCheckWinners, this.OnCheckWinners.bind(this));
+    Game.Publisher.Subscribe(Events.Debug.OnCheckRelationship, this.OnCheckRelationship.bind(this));
 };
 DebugMenu.prototype = new Renderer();
 
@@ -1183,12 +1188,12 @@ DebugMenu.prototype.Start = function(){
 
 DebugMenu.prototype.Render = function(dictionary){
     return [
-        new DebugButton("Play Card", "(function(){Game.Publisher.Publish(Events.OnPlayCard);})()").Render(),
-        new DebugButton("Play RankCard", "(function(){Game.Publisher.Publish(Events.OnPlayRankCard);})()").Render(),
-        new DebugButton("Play DashCard", "(function(){Game.Publisher.Publish(Events.OnPlayDashCard);})()").Render(),
-        new DebugButton("Winners", "(function(){Game.Publisher.Publish(Events.OnCheckWinners);})()").Render(),
-        new DebugButton("Reset Game", "(function(){Game.Publisher.Publish(Events.OnGameReset);})()").Render(),
-        new DebugButton("Check Relationship", "(function(){Game.Publisher.Publish(Events.OnCheckRelationship);})()").Render(),
+        new DebugButton("Play Card", "(function(){Game.Publisher.Publish(Events.Debug.OnPlayCard);})()").Render(),
+        new DebugButton("Play RankCard", "(function(){Game.Publisher.Publish(Events.Debug.OnPlayRankCard);})()").Render(),
+        new DebugButton("Play DashCard", "(function(){Game.Publisher.Publish(Events.Debug.OnPlayDashCard);})()").Render(),
+        new DebugButton("Winners", "(function(){Game.Publisher.Publish(Events.Debug.OnCheckWinners);})()").Render(),
+        new DebugButton("Reset Game", "(function(){Game.Publisher.Publish(Events.Game.OnResetGame);})()").Render(),
+        new DebugButton("Check Relationship", "(function(){Game.Publisher.Publish(Events.Debug.OnCheckRelationship);})()").Render(),
     ].join("<br />");
 };
 
@@ -1234,10 +1239,6 @@ DebugMenu.prototype.OnPlayDashCard = function(e){
 DebugMenu.prototype.OnMove = function(e){
     var index = e.payload["index"];
     Game.ServiceLocator.create(Game).race.gameBoard.racetrack.lanes[index].position += 1;
-};
-
-DebugMenu.prototype.OnGameReset = function(e){
-    Game.ServiceLocator.create(Game).Reset();
 };
 
 DebugMenu.prototype.OnCheckWinners = function(e){
