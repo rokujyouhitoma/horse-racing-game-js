@@ -317,40 +317,89 @@ var MasterData = function(){
     };
 
     this.meta = {
-        "HorseFigure": {
-            "names": ["id", "type", "color"],
-            "types": ["int", "int", "string"],
+        HorseFigure: {
+            names: ["id", "type", "color"],
+            types: ["int", "int", "string"],
         },
-        "MonsterCoin": {
-            "names": ["id", "type"],
-            "types": ["int", "string"],
+        MonsterCoin: {
+            names: ["id", "type"],
+            types: ["int", "string"],
         },
-        "MonsterFigure": {
-            "names": ["id", "type"],
-            "types": ["int", "string"],
+        MonsterFigure: {
+            names: ["id", "type"],
+            types: ["int", "string"],
         },
-        "Race": {
-            "names": ["id", "len"],
-            "types": ["int", "int"],
+        Race: {
+            names: ["id", "len"],
+            types: ["int", "int"],
         },
-        "PlayCard": {
-            "names": ["id", "card_type", "detail_id"],
-            "types": ["int", "int", "int"],
+        PlayCard: {
+            names: ["id", "card_type", "detail_id"],
+            types: ["int", "int", "int"],
+            relationships: [
+                {
+                    filters: [
+                        {
+                            condition: "equal",
+                            name: "card_type",
+                            value: 1,
+                        },
+                    ],
+                    from: {
+                        name: "detail_id",
+                    },
+                    to: {
+                        object: "StepCard",
+                        name: "id",
+                    },
+                },
+                {
+                    filters: [
+                        {
+                            condition: "equal",
+                            name: "card_type",
+                            value: 2,
+                        },
+                    ],
+                    from: {
+                        name: "detail_id",
+                    },
+                    to: {
+                        object: "RankCard",
+                        name: "id",
+                    },
+                },
+                {
+                    filters: [
+                        {
+                            condition: "equal",
+                            name: "card_type",
+                            value: 3,
+                        },
+                    ],
+                    from: {
+                        name: "detail_id",
+                    },
+                    to: {
+                        object: "RankCard",
+                        name: "id",
+                    },
+                },
+            ],
         },
-        "StepCard": {
-            "names": ["id", "target_id", "step"],
-            "types": ["int", "int", "int"],
+        StepCard: {
+            names: ["id", "target_id", "step"],
+            types: ["int", "int", "int"],
         },
-        "RankCard": {
-            "names": ["id", "target_rank", "step"],
-            "types": ["int", "int", "int"],
+        RankCard: {
+            names: ["id", "target_rank", "step"],
+            types: ["int", "int", "int"],
         },
-        "DashCard": {
-            "names": ["id", "target_rank", "dash_type"],
-            "types": ["int", "int", "int"],
+        DashCard: {
+            names: ["id", "target_rank", "dash_type"],
+            types: ["int", "int", "int"],
         },
     };
-
 };
 
 MasterData.prototype.Get = function(key){
@@ -1207,6 +1256,89 @@ var DebugUIDirector = function(){
     ];
 };
 DebugUIDirector.prototype = new GameObject();
+
+// For debug.
+var RelationshipChecker = function(){};
+
+RelationshipChecker.prototype.Check = function(modelName){
+    var masterData = Game.ServiceLocator.create(MasterData);
+    var meta = masterData.GetMeta(modelName)
+    if(!("relationships" in meta)){
+        return;
+    }
+    var relationships = meta["relationships"];
+    relationships.forEach(function(relationship){
+        var from_rows = masterData.Get(modelName)
+        if("filters" in relationship){
+            var filters = relationship["filters"];
+            filters.forEach(function(filter){
+                if(!("name" in filter)){
+                    return;
+                }
+                if(!("value" in filter)){
+                    return;
+                }
+                var name = filter["name"];
+                var value = filter["value"];
+                var index = meta.names.findIndex(function(v){
+                    return v === name;
+                });
+                from_rows = from_rows.filter(function(row){
+                    return row[index] === value;
+                });
+            });
+        }
+        var from = relationship["from"];
+        var from_name = from["name"];
+        var from_index = meta.names.findIndex(function(v){
+            return v === from_name;
+        });
+        var to = relationship["to"];
+        var to_object = to["object"]
+        var to_name = to["name"];
+        var to_index = meta.names.findIndex(function(v){
+            return v === to_name;
+        });
+        var to_rows = masterData.Get(to_object);
+        var to_map = {};
+        to_rows.forEach(function(row){
+            var key = row[to_index];
+            to_map[key] = row;
+        });
+        var errorMessages = [];
+        from_rows.forEach(function(row){
+            var value = row[from_index];
+            if(!(value in to_map)){
+                errorMessages.push(["RelationShipChecker Error:",
+                                    " from: ", modelName, ".", from_name,
+                                    " value=", value,
+                                    " to: ", to_object, ".", to_name].join(""));
+            }
+        })
+        if(0 < errorMessages.length){
+            errorMessages.forEach(function(message){
+                console.error(message)
+            });
+        }
+    });
+};
+
+RelationshipChecker.prototype.CheckAll = function(modelNames){
+    modelNames.forEach(function(modelName){
+        this.Check(modelName);
+    }, this);
+};
+
+(new RelationshipChecker()).CheckAll([
+        "HorseFigure",
+        "MonsterCoin",
+        "MonsterFigure",
+        "Race",
+        "PlayCard",
+        "StepCard",
+        "RankCard",
+        "DashCard",
+]);
 
 // main
 (window.onload = function(){
