@@ -889,25 +889,28 @@ var Publisher = function(){
     this.targets = {};
 };
 
-Publisher.prototype.GetOrCreateTarget = function(type){
-    var target = this.targets[type];
-    if(!target){
-        target = this.targets[type] = new EventTarget();
+Publisher.prototype.GetOrCreateTarget = function(key){
+    if(!(key in this.targets)){
+        this.targets[key] = new EventTarget();
     }
-    return target;
-}
-
-Publisher.prototype.Subscribe = function(type, listener){
-    this.GetOrCreateTarget(type).addEventListener(type, listener);
+    return this.targets[key];
 };
 
-Publisher.prototype.UnSubscribe = function(type, listener){
-    this.GetOrCreateTarget(type).removeEventListener(type, listener);
+Publisher.prototype.Subscribe = function(type, listener, opt_channel){
+    var channel = opt_channel || type;
+    this.GetOrCreateTarget(channel).addEventListener(type, listener);
 };
 
-Publisher.prototype.Publish = function(type, payload){
+Publisher.prototype.UnSubscribe = function(type, listener, opt_channel){
+    //TODO: tiny memory leak issue. EventTarget not remove when it has not listeners.
+    var channel = opt_channel || type;
+    this.GetOrCreateTarget(channel).removeEventListener(type, listener);
+};
+
+Publisher.prototype.Publish = function(type, payload, opt_channel){
     console.log("[Event]: " + type);
-    this.GetOrCreateTarget(type).dispatchEvent(type, payload);
+    var channel = opt_channel || type;
+    this.GetOrCreateTarget(channel).dispatchEvent(type, payload);
 };
 
 var Repository = function(obj){

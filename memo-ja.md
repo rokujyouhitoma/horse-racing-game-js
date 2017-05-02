@@ -74,6 +74,10 @@
 
 # History
 
+## 2017.5.3
+
+ - Publisher.Subscribeでチャンネルをオプション指定できるようにする
+
 ## 2017.5.2
 
  - RelationshipCheckerを仮実装
