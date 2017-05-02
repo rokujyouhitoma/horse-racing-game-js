@@ -806,8 +806,8 @@ Race.prototype.Ranks = function(){
 var RaceDirector = function(){
     this.orderOfFinish = [];
     this.state = RaceDirector.State.None;
-    Game.Publisher.Subscribe(Events.OnPlacingFirst, this.OnPlacingFirst.bind(this));
-    Game.Publisher.Subscribe(Events.OnPlacingSecond, this.OnPlacingSecond.bind(this));
+    Game.Publisher.Subscribe(Events.Race.OnPlacingFirst, this.OnPlacingFirst.bind(this));
+    Game.Publisher.Subscribe(Events.Race.OnPlacingSecond, this.OnPlacingSecond.bind(this));
 };
 RaceDirector.prototype = new GameObject();
 
@@ -819,6 +819,10 @@ RaceDirector.State = {
 
 RaceDirector.prototype.Update = function(){
     var game = Game.ServiceLocator.create(Game);
+    //TODO: xxx
+    if(!game.race){
+        return;
+    }
     var lanes = game.race.gameBoard.racetrack.lanes;
     var runners = lanes.filter(function(lane){
         return !this.orderOfFinish.includes(lane.runner) && lane.IsGolePosition();
@@ -836,11 +840,11 @@ RaceDirector.prototype.UpdateState = function(){
     switch(state){
     case RaceDirector.State.None:
         this.state = state | RaceDirector.State.First;
-        Game.Publisher.Publish(Events.OnPlacingFirst);
+        Game.Publisher.Publish(Events.Race.OnPlacingFirst);
         break;
     case RaceDirector.State.First:
         this.state = state | RaceDirector.State.Second;
-        Game.Publisher.Publish(Events.OnPlacingSecond);
+        Game.Publisher.Publish(Events.Race.OnPlacingSecond);
         break;
     case RaceDirector.State.Second:
         break;
@@ -947,13 +951,12 @@ var Game = function(){
         Game.ServiceLocator.create(RepositoryDirector),
         Game.ServiceLocator.create(PlayCardDirector),
     ];
-    Game.Publisher.Subscribe(Events.OnNewRace, this.OnNewRace.bind(this));
-    Game.Publisher.Publish(Events.OnNewRace);
+    Game.Publisher.Subscribe(Events.Game.OnNewRace, this.OnNewRace.bind(this));
+    Game.Publisher.Publish(Events.Game.OnNewRace); //TODO: xxx
 };
 Game.prototype = new GameObject();
 
 Game.prototype.OnNewRace = function(e){
-    //TODO: xxx
     var row = Game.ServiceLocator.create(MasterData).Get("Race")[0];
     var model = Game.Model("Race").Set(row);
     var race = new Race(model);
@@ -988,9 +991,13 @@ Game.Entity = function(name, model){
 }
 
 var Events = {
-    OnNewRace: "OnNewRace",
-    OnPlacingFirst: "OnPlacingFirst",
-    OnPlacingSecond: "OnPlacingSecond",
+    Game: {
+        OnNewRace: "OnNewRace",
+    },
+    Race: {
+        OnPlacingFirst: "OnPlacingFirst",
+        OnPlacingSecond: "OnPlacingSecond",
+    },
     // For debug.
     OnPlayCard: "OnPlayCard",
     OnPlayRankCard: "OnPlayRankCard",
@@ -1101,6 +1108,10 @@ RacetrackRenderer.prototype.Start = function(){
 RacetrackRenderer.prototype.Update = function(deltaTime){
     Renderer.prototype.Update.call(this, arguments);
     var game = Game.ServiceLocator.create(Game);
+    // TODO: xxx
+    if(!game.race){
+        return;
+    }
     // TODO: innerHTMLは手抜き。createElementによるDOM操作が望ましい
     this.dom.innerHTML = this.Render({
         "racetrack": game.race.gameBoard.racetrack,
@@ -1167,35 +1178,14 @@ DebugMenu.prototype.Start = function(){
     }
     var game = Game.ServiceLocator.create(Game);
     // TODO: innerHTMLは手抜き。createElementによるDOM操作が望ましい
-    this.dom.innerHTML = this.Render({
-        "racetrack": game.race.gameBoard.racetrack,
-    });
+    this.dom.innerHTML = this.Render({});
 };
 
 DebugMenu.prototype.Render = function(dictionary){
-    var racetrack = dictionary["racetrack"];
-    var lanes = racetrack.lanes;
     return [
         new DebugButton("Play Card", "(function(){Game.Publisher.Publish(Events.OnPlayCard);})()").Render(),
         new DebugButton("Play RankCard", "(function(){Game.Publisher.Publish(Events.OnPlayRankCard);})()").Render(),
         new DebugButton("Play DashCard", "(function(){Game.Publisher.Publish(Events.OnPlayDashCard);})()").Render(),
-        [
-            "<button onClick='",
-            "(function(){Game.ServiceLocator.create(DebugMenu).OnRandom(", lanes.length ,")})()'>",
-            "Random",
-            "</button>",
-        ].join(""),
-        lanes.map(function(lane){
-            var text = "+1";
-            var index = lane.index;
-            var color = lane.runner.model.color;
-            return [
-                "<button onClick='",
-                "(function(){Game.Publisher.Publish(Events.OnMove, {index: ", index, "})})()'>",
-                "<span style='background-color:#", color, ";'>", text, "</span>",
-                "</button>",
-            ].join("");
-        }).join(""),
         new DebugButton("Winners", "(function(){Game.Publisher.Publish(Events.OnCheckWinners);})()").Render(),
         new DebugButton("Reset Game", "(function(){Game.Publisher.Publish(Events.OnGameReset);})()").Render(),
         new DebugButton("Check Relationship", "(function(){Game.Publisher.Publish(Events.OnCheckRelationship);})()").Render(),
@@ -1239,12 +1229,6 @@ DebugMenu.prototype.OnPlayDashCard = function(e){
     var card = repository.Find(detail_id);
     race.Apply(card);
     console.log(card.LogMessage());
-};
-
-DebugMenu.prototype.OnRandom = function(len){
-    var index = Math.floor(Math.random() * len);
-    var step = 1;
-    Game.ServiceLocator.create(Game).race.gameBoard.racetrack.lanes[index].position += step;
 };
 
 DebugMenu.prototype.OnMove = function(e){
