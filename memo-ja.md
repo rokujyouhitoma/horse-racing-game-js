@@ -76,6 +76,7 @@
 
 ## 2017.5.3
 
+ - RelationshipChecker.Conditions.Equalをサポート
  - Publisher.Subscribeでチャンネルをオプション指定できるようにする
 
 ## 2017.5.2
