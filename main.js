@@ -44,6 +44,9 @@ EventTarget.prototype.removeEventListener = function(type, listener){
             eventListeners.splice(counter, 1);
             break;
         }
+        else {
+            console.log("not match");
+        }
         ++counter;
     }
 };
@@ -685,6 +688,13 @@ PlayCardDirector.prototype.Start = function(){
     var repository = repositoryDirector.Get("PlayCard");
     var array = repository.All();
     this.playCards = Utility.FisherYatesShuffle(array);
+    Game.Publisher.Subscribe(Events.Race.OnPlayCard, this.OnPlayCard.bind(this));
+};
+
+PlayCardDirector.prototype.OnPlayCard = function(e){
+    var card = e.payload["card"];
+    var race = Game.ServiceLocator.create(Game).race;
+    race.Apply(card);
 };
 
 PlayCardDirector.prototype.NextCard = function(){
@@ -800,10 +810,8 @@ Race.prototype.Ranks = function(){
 };
 
 var RaceDirector = function(){
-    this.orderOfFinish = [];
-    this.state = RaceDirector.State.None;
-    Game.Publisher.Subscribe(Events.Race.OnPlacingFirst, this.OnPlacingFirst.bind(this));
-    Game.Publisher.Subscribe(Events.Race.OnPlacingSecond, this.OnPlacingSecond.bind(this));
+    this.OnPlacingFirstListener = this.OnPlacingFirst.bind(this);
+    this.OnPlacingSecondListener = this.OnPlacingSecond.bind(this);
 };
 RaceDirector.prototype = new GameObject();
 
@@ -811,6 +819,22 @@ RaceDirector.State = {
     None: 0b00, // Before race.
     First: 0b01, // official order of placing First.
     Second: 0b10, // official order of placing Second.
+};
+
+RaceDirector.prototype.Start = function(){
+    GameObject.prototype.Start.call(this, arguments);
+    Game.Publisher.Subscribe(Events.Race.OnPlacingFirst, this.OnPlacingFirstListener);
+    Game.Publisher.Subscribe(Events.Race.OnPlacingSecond, this.OnPlacingSecondListener);
+    this.orderOfFinish = [];
+    this.state = RaceDirector.State.None;
+};
+
+RaceDirector.prototype.Destroy = function(){ 
+    GameObject.prototype.Destroy.call(this, arguments);
+    Game.Publisher.UnSubscribe(Events.Race.OnPlacingFirst, this.OnPlacingFirstListener);
+    Game.Publisher.UnSubscribe(Events.Race.OnPlacingSecond, this.OnPlacingSecondListener);
+    this.orderOfFinish = [];
+    this.state = RaceDirector.State.None;
 };
 
 RaceDirector.prototype.Update = function(){
@@ -859,13 +883,6 @@ RaceDirector.prototype.OnPlacingSecond = function(){
     console.log(this.orderOfFinish.slice(0, 2).map(function(figure){
         return figure.model.type;
     }));
-};
-
-RaceDirector.prototype.Destroy = function(){
-    this.orderOfFinish = [];
-    this.state = RaceDirector.State.None;
-    Game.Publisher.UnSubscribe(Events.Race.OnPlacingFirst, this.OnPlacingFirst.bind(this));
-    Game.Publisher.UnSubscribe(Events.Race.OnPlacingSecond, this.OnPlacingSecond.bind(this));
 };
 
 var Publisher = function(){
@@ -950,11 +967,23 @@ var Game = function(){
         Game.ServiceLocator.create(RaceDirector),
         Game.ServiceLocator.create(PlayCardDirector),
     ];
-    Game.Publisher.Subscribe(Events.Game.OnNewRace, this.OnNewRace.bind(this));
-    Game.Publisher.Subscribe(Events.Game.OnResetGame, this.OnResetGame.bind(this));
-    Game.Publisher.Publish(Events.Game.OnNewRace); //TODO: xxx
+    this.OnNewRaceListener = this.OnNewRace.bind(this);
+    this.OnResetGameListener = this.OnResetGame.bind(this);
 };
 Game.prototype = new GameObject();
+
+Game.prototype.Start = function(){
+    GameObject.prototype.Start.call(this, arguments);
+    Game.Publisher.Subscribe(Events.Game.OnNewRace, this.OnNewRaceListener);
+    Game.Publisher.Subscribe(Events.Game.OnResetGame, this.OnResetGameListener);
+    Game.Publisher.Publish(Events.Game.OnNewRace); //TODO: xxx
+};
+
+Game.prototype.Destroy = function(){ 
+    GameObject.prototype.Destroy.call(this, arguments);
+    Game.Publisher.UnSubscribe(Events.Game.OnNewRace, this.OnNewRaceListener);
+    Game.Publisher.UnSubscribe(Events.Game.OnResetGame, this.OnResetGameListener);
+};
 
 Game.prototype.OnNewRace = function(e){
     var row = Game.ServiceLocator.create(MasterData).Get("Race")[0];
@@ -1006,7 +1035,6 @@ var Events = {
         OnPlayRankCard: "Events.Debug.OnPlayRankCard",
         OnPlayDashCard: "Events.Debug.OnPlayDashCard",
         OnMove: "Events.Debug.OnMove",
-        OnCheckWinners: "Events.Debug.OnCheckWinners",
         OnCheckRelationship: "Events.Debug.OnCheckRelationship",
         OnResetGame: "Events.Debug.OnResetGame",
     },
@@ -1158,18 +1186,17 @@ DebugButton.prototype.Render = function(dictionary){
 
 var DebugMenu = function(){
     this.dom;
-    Game.Publisher.Subscribe(Events.Debug.OnPlayCard, this.OnPlayCard.bind(this));
-    Game.Publisher.Subscribe(Events.Debug.OnPlayRankCard, this.OnPlayRankCard.bind(this));
-    Game.Publisher.Subscribe(Events.Debug.OnPlayDashCard, this.OnPlayDashCard.bind(this));
-    Game.Publisher.Subscribe(Events.Debug.OnMove, this.OnMove.bind(this));
-    Game.Publisher.Subscribe(Events.Debug.OnCheckWinners, this.OnCheckWinners.bind(this));
-    Game.Publisher.Subscribe(Events.Debug.OnResetGame, this.OnResetGame.bind(this));
-    Game.Publisher.Subscribe(Events.Debug.OnCheckRelationship, this.OnCheckRelationship.bind(this));
 };
 DebugMenu.prototype = new Renderer();
 
 DebugMenu.prototype.Start = function(){
     Renderer.prototype.Start.call(this, arguments);
+    Game.Publisher.Subscribe(Events.Debug.OnPlayCard, this.OnPlayCard.bind(this));
+    Game.Publisher.Subscribe(Events.Debug.OnPlayRankCard, this.OnPlayRankCard.bind(this));
+    Game.Publisher.Subscribe(Events.Debug.OnPlayDashCard, this.OnPlayDashCard.bind(this));
+    Game.Publisher.Subscribe(Events.Debug.OnMove, this.OnMove.bind(this));
+    Game.Publisher.Subscribe(Events.Debug.OnResetGame, this.OnResetGame.bind(this));
+    Game.Publisher.Subscribe(Events.Debug.OnCheckRelationship, this.OnCheckRelationship.bind(this));
     var elements = document.getElementsByTagName("body");
     if(elements.length > 0){
         var body = elements[0];
@@ -1190,22 +1217,20 @@ DebugMenu.prototype.Render = function(dictionary){
         new DebugButton("Play Card", "(function(){Game.Publisher.Publish(Events.Debug.OnPlayCard);})()").Render(),
         new DebugButton("Play RankCard", "(function(){Game.Publisher.Publish(Events.Debug.OnPlayRankCard);})()").Render(),
         new DebugButton("Play DashCard", "(function(){Game.Publisher.Publish(Events.Debug.OnPlayDashCard);})()").Render(),
-        new DebugButton("Winners", "(function(){Game.Publisher.Publish(Events.Debug.OnCheckWinners);})()").Render(),
         new DebugButton("Reset Game", "(function(){Game.Publisher.Publish(Events.Debug.OnResetGame);})()").Render(),
         new DebugButton("Check Relationship", "(function(){Game.Publisher.Publish(Events.Debug.OnCheckRelationship);})()").Render(),
     ].join("<br />");
 };
 
 DebugMenu.prototype.OnPlayCard = function(e){
-    var race = Game.ServiceLocator.create(Game).race;
     var playCardDirector = Game.ServiceLocator.create(PlayCardDirector);
     var card = playCardDirector.NextCard();
-    var position = playCardDirector.position;
     if(!card){
         console.log("404 Card Not found.");
         return;
     }
-    race.Apply(card);
+    Game.Publisher.Publish(Events.Race.OnPlayCard, {card: card});
+    var position = playCardDirector.position;
     console.log([
         position,
         " ",
@@ -1238,12 +1263,6 @@ DebugMenu.prototype.OnPlayDashCard = function(e){
 DebugMenu.prototype.OnMove = function(e){
     var index = e.payload["index"];
     Game.ServiceLocator.create(Game).race.gameBoard.racetrack.lanes[index].position += 1;
-};
-
-DebugMenu.prototype.OnCheckWinners = function(e){
-    console.log(Game.ServiceLocator.create(RaceDirector).orderOfFinish.map(function(figure){
-        return figure.model.type;
-    }));
 };
 
 DebugMenu.prototype.OnResetGame = function(e){
