@@ -996,21 +996,23 @@ Game.Entity = function(name, model){
 
 var Events = {
     Game: {
-        OnNewRace: "OnNewRace",
-        OnResetGame: "OnResetGame",
+        OnNewRace: "Events.Game.OnNewRace",
+        OnResetGame: "Events.Game.OnResetGame",
     },
     Race: {
-        OnPlacingFirst: "OnPlacingFirst",
-        OnPlacingSecond: "OnPlacingSecond",
+        OnPlacingFirst: "Events.Race.OnPlacingFirst",
+        OnPlacingSecond: "Events.Race.OnPlacingSecond",
+        OnPlayCard: "Events.Race.OnPlayCard",
     },
     // For debug.
     Debug: {
-        OnPlayCard: "OnPlayCard",
-        OnPlayRankCard: "OnPlayRankCard",
-        OnPlayDashCard: "OnPlayDashCard",
-        OnMove: "OnMove",
-        OnCheckWinners: "OnCheckWinners",
-        OnCheckRelationship: "OnCheckRelationship",
+        OnPlayCard: "Events.Debug.OnPlayCard",
+        OnPlayRankCard: "Events.Debug.OnPlayRankCard",
+        OnPlayDashCard: "Events.Debug.OnPlayDashCard",
+        OnMove: "Events.Debug.OnMove",
+        OnCheckWinners: "Events.Debug.OnCheckWinners",
+        OnCheckRelationship: "Events.Debug.OnCheckRelationship",
+        OnResetGame: "Events.Debug.OnResetGame",
     },
 };
 
@@ -1165,6 +1167,7 @@ var DebugMenu = function(){
     Game.Publisher.Subscribe(Events.Debug.OnPlayDashCard, this.OnPlayDashCard.bind(this));
     Game.Publisher.Subscribe(Events.Debug.OnMove, this.OnMove.bind(this));
     Game.Publisher.Subscribe(Events.Debug.OnCheckWinners, this.OnCheckWinners.bind(this));
+    Game.Publisher.Subscribe(Events.Debug.OnResetGame, this.OnResetGame.bind(this));
     Game.Publisher.Subscribe(Events.Debug.OnCheckRelationship, this.OnCheckRelationship.bind(this));
 };
 DebugMenu.prototype = new Renderer();
@@ -1192,7 +1195,7 @@ DebugMenu.prototype.Render = function(dictionary){
         new DebugButton("Play RankCard", "(function(){Game.Publisher.Publish(Events.Debug.OnPlayRankCard);})()").Render(),
         new DebugButton("Play DashCard", "(function(){Game.Publisher.Publish(Events.Debug.OnPlayDashCard);})()").Render(),
         new DebugButton("Winners", "(function(){Game.Publisher.Publish(Events.Debug.OnCheckWinners);})()").Render(),
-        new DebugButton("Reset Game", "(function(){Game.Publisher.Publish(Events.Game.OnResetGame);})()").Render(),
+        new DebugButton("Reset Game", "(function(){Game.Publisher.Publish(Events.Debug.OnResetGame);})()").Render(),
         new DebugButton("Check Relationship", "(function(){Game.Publisher.Publish(Events.Debug.OnCheckRelationship);})()").Render(),
     ].join("<br />");
 };
@@ -1245,6 +1248,10 @@ DebugMenu.prototype.OnCheckWinners = function(e){
     console.log(Game.ServiceLocator.create(RaceDirector).orderOfFinish.map(function(figure){
         return figure.model.type;
     }));
+};
+
+DebugMenu.prototype.OnResetGame = function(e){
+    Game.Publisher.Publish(Events.Game.OnResetGame);
 };
 
 DebugMenu.prototype.OnCheckRelationship = function(e){
