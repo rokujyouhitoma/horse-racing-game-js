@@ -31,6 +31,9 @@ EventTarget.prototype.addEventListener = function(type, listener){
 };
 
 EventTarget.prototype.removeEventListener = function(type, listener){
+    if(!(type in this.eventListeners)){
+        return;
+    }
     var eventListeners = this.eventListeners[type];
     var counter = 0;
     while(counter < eventListeners.length){
@@ -46,6 +49,9 @@ EventTarget.prototype.removeEventListener = function(type, listener){
 };
 
 EventTarget.prototype.dispatchEvent = function(type, payload){
+    if(!(type in this.eventListeners)){
+        return;
+    }
     var eventListeners = this.eventListeners[type];
     var counter = 0;
     while(counter < eventListeners.length){
@@ -635,10 +641,6 @@ DashCard.prototype.GetBehavior = function(){
 var PlayCard = function(model){
     this.model = model;
     this.card = this.GetCard();
-    //Debug code.
-    if(!this.card){
-        throw Object(model);
-    }
 };
 PlayCard.prototype = new Card();
 
@@ -1124,6 +1126,7 @@ var DebugMenu = function(){
     Game.Publisher.Subscribe("OnMove", this.OnMove.bind(this));
     Game.Publisher.Subscribe("OnCheckWinners", this.OnCheckWinners.bind(this));
     Game.Publisher.Subscribe("OnGameReset", this.OnGameReset.bind(this));
+    Game.Publisher.Subscribe("OnCheckRelationship", this.OnCheckRelationship.bind(this));
 };
 DebugMenu.prototype = new Renderer();
 
@@ -1172,6 +1175,7 @@ DebugMenu.prototype.Render = function(dictionary){
         }).join(""),
         new DebugButton("Winners", "(function(){Game.Publisher.Publish(\"OnCheckWinners\");})()").Render(),
         new DebugButton("Reset Game", "(function(){Game.Publisher.Publish(\"OnGameReset\");})()").Render(),
+        new DebugButton("Check Relationship", "(function(){Game.Publisher.Publish(\"OnCheckRelationship\");})()").Render(),
     ].join("<br />");
 };
 
@@ -1235,6 +1239,20 @@ DebugMenu.prototype.OnCheckWinners = function(e){
     }));
 };
 
+DebugMenu.prototype.OnCheckRelationship = function(e){
+    var checker = new RelationshipChecker()
+    checker.CheckAll([
+        "HorseFigure",
+        "MonsterCoin",
+        "MonsterFigure",
+        "Race",
+        "PlayCard",
+        "StepCard",
+        "RankCard",
+        "DashCard",
+    ]);
+};
+
 // For debug.
 var DebugUIDirector = function(){
     this.objects = [
@@ -1247,6 +1265,7 @@ DebugUIDirector.prototype = new GameObject();
 
 // For debug.
 var RelationshipChecker = function(){};
+RelationshipChecker.prototype = new GameObject();
 
 RelationshipChecker.prototype.Check = function(modelName){
     var masterData = Game.ServiceLocator.create(MasterData);
@@ -1255,6 +1274,7 @@ RelationshipChecker.prototype.Check = function(modelName){
         return;
     }
     var relationships = meta["relationships"];
+    var errorMessages = [];
     relationships.forEach(function(relationship){
         var from_rows = masterData.Get(modelName)
         if("filters" in relationship){
@@ -1293,22 +1313,23 @@ RelationshipChecker.prototype.Check = function(modelName){
             var key = row[to_index];
             to_map[key] = row;
         });
-        var errorMessages = [];
         from_rows.forEach(function(row){
             var value = row[from_index];
             if(!(value in to_map)){
-                errorMessages.push(["RelationShipChecker Error:",
+                errorMessages.push(["RelationshipChecker Error:",
                                     " from: ", modelName, ".", from_name,
                                     " value=", value,
                                     " to: ", to_object, ".", to_name].join(""));
             }
         })
-        if(0 < errorMessages.length){
-            errorMessages.forEach(function(message){
-                console.error(message)
-            });
-        }
     });
+    if(0 < errorMessages.length){
+        errorMessages.forEach(function(message){
+            console.error(message)
+        });
+    } else {
+        console.log("RelationshipChecker: ok");
+    }
 };
 
 RelationshipChecker.prototype.CheckAll = function(modelNames){
@@ -1317,15 +1338,16 @@ RelationshipChecker.prototype.CheckAll = function(modelNames){
     }, this);
 };
 
+// For debug.
 (new RelationshipChecker()).CheckAll([
-        "HorseFigure",
-        "MonsterCoin",
-        "MonsterFigure",
-        "Race",
-        "PlayCard",
-        "StepCard",
-        "RankCard",
-        "DashCard",
+    "HorseFigure",
+    "MonsterCoin",
+    "MonsterFigure",
+    "Race",
+    "PlayCard",
+    "StepCard",
+    "RankCard",
+    "DashCard",
 ]);
 
 // main
