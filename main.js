@@ -349,7 +349,7 @@ var MasterData = function(){
                 {
                     filters: [
                         {
-                            condition: "equal",
+                            condition: "Equal",
                             name: "card_type",
                             value: 1,
                         },
@@ -1300,6 +1300,10 @@ DebugUIDirector.prototype = new GameObject();
 var RelationshipChecker = function(){};
 RelationshipChecker.prototype = new GameObject();
 
+RelationshipChecker.Conditions = {
+    Equal: "Equal",
+};
+
 RelationshipChecker.prototype.Check = function(modelName){
     var masterData = Game.ServiceLocator.create(MasterData);
     var meta = masterData.GetMeta(modelName)
@@ -1319,13 +1323,17 @@ RelationshipChecker.prototype.Check = function(modelName){
                 if(!("value" in filter)){
                     return;
                 }
+                var condition = filter["condition"];
                 var name = filter["name"];
                 var value = filter["value"];
                 var index = meta.names.findIndex(function(v){
                     return v === name;
                 });
                 from_rows = from_rows.filter(function(row){
-                    return row[index] === value;
+                    if(condition === RelationshipChecker.Conditions.Equal){
+                        return row[index] === value;
+                    }
+                    return false;
                 });
             });
         }
