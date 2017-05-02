@@ -190,10 +190,6 @@ Model.prototype.Set = function(value){
     return this;
 };
 
-var Renderer = function(){};
-Renderer.prototype = new GameObject();
-Renderer.prototype.Render = function(dictionary){};
-
 var MasterData = function(){
     this.stub = {
         "HorseFigure": [
@@ -947,6 +943,10 @@ FPS.prototype.Update = function(deltaTime){
         this.baseCount = engine.count;
     }
 }
+
+var Renderer = function(){};
+Renderer.prototype = new GameObject();
+Renderer.prototype.Render = function(dictionary){};
 
 var FPSRenderer = function(){
     this.dom;
