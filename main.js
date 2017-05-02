@@ -1004,18 +1004,6 @@ FPSRenderer.prototype = new Renderer();
 
 FPSRenderer.prototype.Start = function(){
     Renderer.prototype.Start.call(this, arguments);
-    this.CreateDOM();
-};
-
-FPSRenderer.prototype.Update = function(deltaTime){
-    Renderer.prototype.Update.call(this, arguments);
-    var fps = Math.floor(Game.ServiceLocator.create(Game).fps.currentFPS * 100) / 100;
-    this.Render({
-        "fps": fps,
-    });
-};
-
-FPSRenderer.prototype.CreateDOM = function(){
     var elements = document.getElementsByTagName("body");
     if(elements.length > 0){
         var body = elements[0];
@@ -1026,7 +1014,15 @@ FPSRenderer.prototype.CreateDOM = function(){
         body.appendChild(dom);
         this.dom = dom;
     }
-}
+};
+
+FPSRenderer.prototype.Update = function(deltaTime){
+    Renderer.prototype.Update.call(this, arguments);
+    var fps = Math.floor(Game.ServiceLocator.create(Game).fps.currentFPS * 100) / 100;
+    this.Render({
+        "fps": fps,
+    });
+};
 
 FPSRenderer.prototype.Render = function(dictionary){
     Renderer.prototype.Render.call(this, arguments);
@@ -1065,19 +1061,6 @@ RacetrackRenderer.prototype = new Renderer();
 
 RacetrackRenderer.prototype.Start = function(){
     Renderer.prototype.Start.call(this, arguments);
-    this.CreateDOM();
-};
-
-RacetrackRenderer.prototype.Update = function(deltaTime){
-    Renderer.prototype.Update.call(this, arguments);
-    var game = Game.ServiceLocator.create(Game);
-    // TODO: innerHTMLは手抜き。createElementによるDOM操作が望ましい
-    this.dom.innerHTML = this.Render({
-        "racetrack": game.race.gameBoard.racetrack,
-    });
-};
-
-RacetrackRenderer.prototype.CreateDOM = function(){
     var elements = document.getElementsByTagName("body");
     if(elements.length > 0){
         var body = elements[0];
@@ -1088,7 +1071,16 @@ RacetrackRenderer.prototype.CreateDOM = function(){
         body.appendChild(dom);
         this.dom = dom;
     }
-}
+};
+
+RacetrackRenderer.prototype.Update = function(deltaTime){
+    Renderer.prototype.Update.call(this, arguments);
+    var game = Game.ServiceLocator.create(Game);
+    // TODO: innerHTMLは手抜き。createElementによるDOM操作が望ましい
+    this.dom.innerHTML = this.Render({
+        "racetrack": game.race.gameBoard.racetrack,
+    });
+};
 
 RacetrackRenderer.prototype.Render = function(dictionary){
     Renderer.prototype.Render.call(this, arguments);
@@ -1137,15 +1129,6 @@ DebugMenu.prototype = new Renderer();
 
 DebugMenu.prototype.Start = function(){
     Renderer.prototype.Start.call(this, arguments);
-    this.CreateDOM();
-    var game = Game.ServiceLocator.create(Game);
-    // TODO: innerHTMLは手抜き。createElementによるDOM操作が望ましい
-    this.dom.innerHTML = this.Render({
-        "racetrack": game.race.gameBoard.racetrack,
-    });
-};
-
-DebugMenu.prototype.CreateDOM = function(){
     var elements = document.getElementsByTagName("body");
     if(elements.length > 0){
         var body = elements[0];
@@ -1156,6 +1139,11 @@ DebugMenu.prototype.CreateDOM = function(){
         body.appendChild(dom);
         this.dom = dom;
     }
+    var game = Game.ServiceLocator.create(Game);
+    // TODO: innerHTMLは手抜き。createElementによるDOM操作が望ましい
+    this.dom.innerHTML = this.Render({
+        "racetrack": game.race.gameBoard.racetrack,
+    });
 };
 
 DebugMenu.prototype.Render = function(dictionary){
