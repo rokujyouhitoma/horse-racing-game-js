@@ -427,9 +427,8 @@ MasterData.prototype.GetMeta = function(key){
         names: names,
         types: types,
     };
-    var relationships = this.meta[key].relationships;
-    if(relationships){
-        meta["relationships"] = relationships;
+    if(this.meta[key] && this.meta[key].relationships){
+        meta["relationships"] = this.meta[key].relationships;
     }
     return meta;
 };
