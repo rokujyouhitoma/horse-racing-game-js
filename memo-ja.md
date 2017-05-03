@@ -76,6 +76,7 @@
 
 ## 2017.5.3
 
+ - MasterDataのデータフォーマットを修正。よりCSVで管理することを意識した形式に変更した
  - RelationshipChecker.Conditions.Equalをサポート
  - Publisher.Subscribeでチャンネルをオプション指定できるようにする
 
