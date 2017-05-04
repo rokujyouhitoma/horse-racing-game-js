@@ -221,7 +221,7 @@ SceneDirector.prototype.Push = function(scene){
 SceneDirector.prototype.Pop = function(){
     var current = this.CurrentScene();
     if(current == null){
-        return;
+        return null;
     }
     this.scenes.pop();
     this.TriggerExit(current);
