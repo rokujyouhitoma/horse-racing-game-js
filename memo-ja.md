@@ -77,11 +77,12 @@
 
 ## 2017.5.5
 
+ - Closure Compilerを導入した（開発の長期化が予想されるので、強制ギブスが必要だった）
  - EventTargetを改修し、reveiverに対応
 
 ## 2017.5.4
 
- - GameSceneを追加
+OB - GameSceneを追加
  - Scene, SceneDirectorを追加
 
 ## 2017.5.3
