@@ -186,14 +186,25 @@
 
 ## コアライブラリs
 
-### イベントシステム
+### Event, EventTarget, EventListener
 
+イベントシステム。
 インスパイヤDOM Level2のEvent。
 
  - https://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-Event
  - https://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-EventTarget
  - https://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-EventListener
  - https://developer.mozilla.org/en-US/docs/Web/API/EventTarget
+
+### Scene, SceneDirector
+
+シーン管理システム。
+SceneDirectorはSceneの
+
+ 1. state管理
+ 2. OnEnter/OnExit/OnPause/OnResumeの呼び出し管理
+
+を行う。
 
 # 用語集
 
