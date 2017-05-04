@@ -10,7 +10,7 @@ var EventTarget = function(){
     this.eventListeners = {};
 };
 
-EventTarget.prototype.addEventListener = function(type, listener){
+EventTarget.prototype.addEventListener = function(type, listener, receiver){
     if(!(type in this.eventListeners)){
         this.eventListeners[type] = [];
     }
@@ -25,11 +25,12 @@ EventTarget.prototype.addEventListener = function(type, listener){
         object: this,
         type: type,
         listener: listener,
+        receiver: receiver,
         wrapper: wrapper
     });
 };
 
-EventTarget.prototype.removeEventListener = function(type, listener){
+EventTarget.prototype.removeEventListener = function(type, listener, receiver){
     if(!(type in this.eventListeners)){
         return;
     }
@@ -39,7 +40,8 @@ EventTarget.prototype.removeEventListener = function(type, listener){
         var eventListener = eventListeners[counter];
         if (eventListener.object == this &&
             eventListener.type == type &&
-            eventListener.listener == listener){
+            eventListener.listener == listener &&
+            eventListener.receiver == receiver){
             eventListeners.splice(counter, 1);
             break;
         }
@@ -50,7 +52,12 @@ EventTarget.prototype.removeEventListener = function(type, listener){
     }
 };
 
-EventTarget.prototype.dispatchEvent = function(type, payload){
+/**
+ * @param {string} type The Event type.
+ * @param {Object|null} receiver The receiver object.
+ * @param {Object|null} payload The payload object.
+ */
+EventTarget.prototype.dispatchEvent = function(type, receiver, payload){
     if(!(type in this.eventListeners)){
         return;
     }
@@ -59,7 +66,8 @@ EventTarget.prototype.dispatchEvent = function(type, payload){
     while(counter < eventListeners.length){
         var eventListener = eventListeners[counter];
         if (eventListener.object == this &&
-            eventListener.type == type){
+            eventListener.type == type &&
+            (!receiver || receiver === eventListener.receiver)){
             if(type instanceof Event){
                 type.target = this;
                 type.payload = payload;
@@ -1040,21 +1048,18 @@ Publisher.prototype.GetOrCreateTarget = function(key){
     return this.targets[key];
 };
 
-Publisher.prototype.Subscribe = function(type, listener, opt_channel){
-    var channel = opt_channel || type;
-    this.GetOrCreateTarget(channel).addEventListener(type, listener);
+Publisher.prototype.Subscribe = function(type, listener, subscriber){
+    this.GetOrCreateTarget(type).addEventListener(type, listener, subscriber);
 };
 
-Publisher.prototype.UnSubscribe = function(type, listener, opt_channel){
+Publisher.prototype.UnSubscribe = function(type, listener, subscriber){
     //TODO: tiny memory leak issue. EventTarget not remove when it has not listeners.
-    var channel = opt_channel || type;
-    this.GetOrCreateTarget(channel).removeEventListener(type, listener);
+    this.GetOrCreateTarget(type).removeEventListener(type, listener, subscriber);
 };
 
-Publisher.prototype.Publish = function(type, payload, opt_channel){
+Publisher.prototype.Publish = function(type, payload, subscriber){
 //    console.log("[Event]: " + type);
-    var channel = opt_channel || type;
-    this.GetOrCreateTarget(channel).dispatchEvent(type, payload);
+    this.GetOrCreateTarget(type).dispatchEvent(type, subscriber, payload);
 };
 
 var Repository = function(obj){

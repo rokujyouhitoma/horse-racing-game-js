@@ -75,6 +75,10 @@
 
 # History
 
+## 2017.5.5
+
+ - EventTargetを改修し、reveiverに対応
+
 ## 2017.5.4
 
  - GameSceneを追加
