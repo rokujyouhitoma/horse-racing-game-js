@@ -11,14 +11,13 @@ var EventTarget = function(){
 };
 
 EventTarget.prototype.addEventListener = function(type, listener){
-    var self = this;
     var wrapper = function(e) {
         if (typeof listener.handleEvent != 'undefined') {
             listener.handleEvent(e);
         } else {
-            listener.call(self, e);
+            listener.call(this, e);
         }
-    };
+    }.bind(this);
     if(!(type in this.eventListeners)){
         this.eventListeners[type] = [];
     }
