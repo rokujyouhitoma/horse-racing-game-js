@@ -77,6 +77,7 @@
 
 ## 2017.5.4
 
+ - GameSceneを追加
  - Scene, SceneDirectorを追加
 
 ## 2017.5.3

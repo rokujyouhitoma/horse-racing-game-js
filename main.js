@@ -1052,7 +1052,7 @@ Publisher.prototype.UnSubscribe = function(type, listener, opt_channel){
 };
 
 Publisher.prototype.Publish = function(type, payload, opt_channel){
-    console.log("[Event]: " + type);
+//    console.log("[Event]: " + type);
     var channel = opt_channel || type;
     this.GetOrCreateTarget(channel).dispatchEvent(type, payload);
 };
@@ -1121,6 +1121,8 @@ Game.prototype = new GameObject();
 
 Game.prototype.Start = function(){
     GameObject.prototype.Start.call(this, arguments);
+    Game.Publisher.Publish(Events.Game.OnStart);
+    Game.SceneDirector.Push(new GameScene("Debug"));
     Game.Publisher.Subscribe(Events.Game.OnNewRace, this.OnNewRaceListener);
     Game.Publisher.Subscribe(Events.Game.OnResetGame, this.OnResetGameListener);
     Game.Publisher.Publish(Events.Game.OnNewRace); //TODO: xxx
@@ -1128,8 +1130,14 @@ Game.prototype.Start = function(){
 
 Game.prototype.Destroy = function(){ 
     GameObject.prototype.Destroy.call(this, arguments);
+    Game.Publisher.Publish(Events.Game.OnDestroy);
     Game.Publisher.UnSubscribe(Events.Game.OnNewRace, this.OnNewRaceListener);
     Game.Publisher.UnSubscribe(Events.Game.OnResetGame, this.OnResetGameListener);
+};
+
+Game.prototype.Update = function(){
+    GameObject.prototype.Update.call(this, arguments);
+    Game.Publisher.Publish(Events.Game.OnUpdate);
 };
 
 Game.prototype.OnNewRace = function(e){
@@ -1164,12 +1172,23 @@ Game.Entity = function(name, model){
         "PlayCard": PlayCard,
         //TODO: xxx
     }[name])(model);
-}
+};
+
+Game.SceneDirector = Game.ServiceLocator.create(SceneDirector);
 
 var Events = {
     Game: {
+        OnStart: "Events.Game.OnStart",
+        OnUpdate: "Events.Game.OnUpdate",
+        OnDestroy: "Events.Game.OnDestroy",
         OnNewRace: "Events.Game.OnNewRace",
         OnResetGame: "Events.Game.OnResetGame",
+    },
+    GameScene: {
+        OnEnter: "Events.GameScene.OnEnter",
+        OnExit: "Events.GameScene.OnExit",
+        OnPause: "Events.GameScene.OnPause",
+        OnResume: "Events.GameScene.OnResume",
     },
     Race: {
         OnPlacingFirst: "Events.Race.OnPlacingFirst",
@@ -1210,34 +1229,47 @@ Renderer.prototype.Render = function(dictionary){};
 
 var FPSRenderer = function(){
     this.dom;
-};
-FPSRenderer.prototype = new Renderer();
-
-FPSRenderer.prototype.Start = function(){
-    Renderer.prototype.Start.call(this, arguments);
-    var elements = document.getElementsByTagName("body");
-    if(elements.length > 0){
-        var body = elements[0];
-        var h1 = document.createElement("h1");
-        h1.innerText = "FPS";
-        body.appendChild(h1);
-        var dom = document.createElement("p");
-        body.appendChild(dom);
-        this.dom = dom;
-    }
+    this.events = [
+        [Events.Game.OnUpdate, this.OnUpdate.bind(this)],
+        [Events.GameScene.OnEnter, this.OnEnter.bind(this)],
+        [Events.GameScene.OnExit, this.OnExit.bind(this)],
+    ];
+    this.events.forEach(function(event){
+        Game.Publisher.Subscribe(event[0], event[1]);
+    });
 };
 
-FPSRenderer.prototype.Update = function(deltaTime){
-    Renderer.prototype.Update.call(this, arguments);
+FPSRenderer.prototype.OnUpdate = function(deltaTime){
     var fps = Math.floor(Game.ServiceLocator.create(Game).fps.currentFPS * 100) / 100;
     this.Render({
         "fps": fps,
     });
 };
 
+FPSRenderer.prototype.OnEnter = function(){
+    var elements = document.getElementsByTagName("body");
+    if(elements.length > 0){
+        var body = elements[0];
+        var section = document.createElement("section");
+        var h1 = document.createElement("h1");
+        h1.innerText = "FPS";
+        section.appendChild(h1);
+        var p = document.createElement("p");
+        section.appendChild(p);
+        body.appendChild(section);
+        this.dom = section;
+    }
+};
+
+FPSRenderer.prototype.OnExit = function(){
+    this.dom.parentNode.removeChild(this.dom);
+    this.events.forEach(function(event){
+        Game.Publisher.UnSubscribe(event[0], event[1]);
+    });
+};
+
 FPSRenderer.prototype.Render = function(dictionary){
-    Renderer.prototype.Render.call(this, arguments);
-    this.dom.innerText = dictionary["fps"];
+    this.dom.children[1].innerText = dictionary["fps"];
 };
 
 var LaneRenderer = function(){};
@@ -1313,6 +1345,28 @@ RacetrackRenderer.prototype.Render = function(dictionary){
         })
     ].join("");
     return text;
+};
+
+var GameScene = function(name){
+    var views = {
+        "Debug": function(){
+            new FPSRenderer();
+        },
+    };
+    views[name]();
+};
+GameScene.prototype = new Scene();
+GameScene.prototype.OnEnter = function(){
+    Game.Publisher.Publish(Events.GameScene.OnEnter);
+};
+GameScene.prototype.OnExit = function(){
+    Game.Publisher.Publish(Events.GameScene.OnExit);
+};
+GameScene.prototype.OnPause = function(){
+    Game.Publisher.Publish(Events.GameScene.OnPause);
+};
+GameScene.prototype.OnResume = function(){
+    Game.Publisher.Publish(Events.GameScene.OnResume);
 };
 
 var DebugButton = function(text, onClickText){
@@ -1433,7 +1487,6 @@ DebugMenu.prototype.OnCheckRelationship = function(e){
 // For debug.
 var DebugUIDirector = function(){
     this.objects = [
-        new FPSRenderer(),
         new RacetrackRenderer(),
         Game.ServiceLocator.create(DebugMenu),
     ];
