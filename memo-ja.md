@@ -15,6 +15,7 @@
 
 ## コアライブラリs
 
+ - [x] シーンとシーンを管理する仕組み => シーン(Scene)、シーンディレクター(SceneDirector)
  - [x] Observerパターンによるイベントシステム。DOM Level2参考
  - [x] ServiceLocator
  - [x] モデルオブジェクト
@@ -73,6 +74,10 @@
  - [x] ゲームリセット
 
 # History
+
+## 2017.5.4
+
+ - Scene, SceneDirectorを追加
 
 ## 2017.5.3
 
