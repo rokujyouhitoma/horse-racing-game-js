@@ -1135,9 +1135,9 @@ Game.prototype.Destroy = function(){
     Game.Publisher.UnSubscribe(Events.Game.OnResetGame, this.OnResetGameListener);
 };
 
-Game.prototype.Update = function(){
+Game.prototype.Update = function(deltaTime){
     GameObject.prototype.Update.call(this, arguments);
-    Game.Publisher.Publish(Events.Game.OnUpdate);
+    Game.Publisher.Publish(Events.Game.OnUpdate, {deltaTime: deltaTime});
 };
 
 Game.prototype.OnNewRace = function(e){
@@ -1239,14 +1239,14 @@ var FPSRenderer = function(){
     });
 };
 
-FPSRenderer.prototype.OnUpdate = function(deltaTime){
+FPSRenderer.prototype.OnUpdate = function(e){
     var fps = Math.floor(Game.ServiceLocator.create(Game).fps.currentFPS * 100) / 100;
     this.Render({
         "fps": fps,
     });
 };
 
-FPSRenderer.prototype.OnEnter = function(){
+FPSRenderer.prototype.OnEnter = function(e){
     var elements = document.getElementsByTagName("body");
     if(elements.length > 0){
         var body = elements[0];
@@ -1261,7 +1261,7 @@ FPSRenderer.prototype.OnEnter = function(){
     }
 };
 
-FPSRenderer.prototype.OnExit = function(){
+FPSRenderer.prototype.OnExit = function(e){
     this.dom.parentNode.removeChild(this.dom);
     this.events.forEach(function(event){
         Game.Publisher.UnSubscribe(event[0], event[1]);
