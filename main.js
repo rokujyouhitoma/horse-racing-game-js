@@ -11,6 +11,9 @@ var EventTarget = function(){
 };
 
 EventTarget.prototype.addEventListener = function(type, listener){
+    if(!(type in this.eventListeners)){
+        this.eventListeners[type] = [];
+    }
     var wrapper = function(e) {
         if (typeof listener.handleEvent != 'undefined') {
             listener.handleEvent(e);
@@ -18,9 +21,6 @@ EventTarget.prototype.addEventListener = function(type, listener){
             listener.call(this, e);
         }
     }.bind(this);
-    if(!(type in this.eventListeners)){
-        this.eventListeners[type] = [];
-    }
     this.eventListeners[type].push({
         object: this,
         type: type,
