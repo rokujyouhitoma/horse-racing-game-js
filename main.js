@@ -1221,7 +1221,7 @@ FPS.prototype.Update = function(deltaTime){
         this.baseTime = engine.lastUpdate;
         this.baseCount = engine.count;
     }
-}
+};
 
 var Renderer = function(){};
 Renderer.prototype = new GameObject();
