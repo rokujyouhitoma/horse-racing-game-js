@@ -1245,6 +1245,7 @@ Game.prototype.Start = function(){
 
 Game.prototype.Destroy = function(){ 
     GameObject.prototype.Destroy.call(this);
+    Game.SceneDirector.Pop();
     Game.Publisher.Publish(Events.Game.OnDestroy);
     Game.Publisher.UnSubscribe(Events.Game.OnNewRace, this.OnNewRaceListener);
     Game.Publisher.UnSubscribe(Events.Game.OnResetGame, this.OnResetGameListener);
