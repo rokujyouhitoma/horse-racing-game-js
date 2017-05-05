@@ -626,7 +626,7 @@ HorseFigureDirector.prototype.Start = function(){
         return new HorseFigure(Game.Model("HorseFigure").Set(row));
     });
     figures.forEach(function(figure){
-        this.figures[figure.model.id] = figure;
+        this.figures[figure.model["id"]] = figure;
         figure.Start();
     }, this);
 };
@@ -658,7 +658,7 @@ MonsterCoinDirector.prototype.Start = function(){
         return new MonsterCoin(Game.Model("MonsterCoin").Set(row));
     });
     coins.forEach(function(coin){
-        this.coins[coin.model.id] = coin;
+        this.coins[coin.model["id"]] = coin;
         coin.Start();
     }, this);
 };
@@ -690,7 +690,7 @@ MonsterFigureDirector.prototype.Start = function(){
         return new MonsterFigure(Game.Model("MonsterFigure").Set(row));
     });
     figures.forEach(function(figure){
-        this.figures[figure.model.id] = figure;
+        this.figures[figure.model["id"]] = figure;
         figure.Start();
     }, this);
 };
@@ -717,10 +717,10 @@ var StepCard = function(model){
 StepCard.prototype = new Card();
 
 StepCard.prototype.Play = function(race){
-    var target_id = this.model.target_id;
-    var step = this.model.step;
+    var target_id = this.model["target_id"];
+    var step = this.model["step"];
     race.gameBoard.racetrack.lanes.filter(function(lane){
-        return lane.runner.model.id === target_id;
+        return lane.runner.model["id"] === target_id;
     }).forEach(function(lane){
         if(!lane.IsGolePosition()){
             lane.position += step;
@@ -729,16 +729,16 @@ StepCard.prototype.Play = function(race){
 };
 
 StepCard.prototype.LogMessage = function(){
-    var target_id = this.model.target_id;
-    var step = this.model.step;
+    var target_id = this.model["target_id"];
+    var step = this.model["step"];
     var racetrack = Game.ServiceLocator.create(Game).race.gameBoard.racetrack;
     var figures = racetrack.lanes.filter(function(lane){
-        return lane.runner.model.id === target_id;
+        return lane.runner.model["id"] === target_id;
     }).map(function(lane){
         return lane.runner;
     });
     var target = figures.map(function(figure){
-        return figure.model.type;
+        return figure.model["type"];
     }).join(",");
     return [
         "[Step]:", target, " ", step,
@@ -754,8 +754,8 @@ var RankCard = function(model){
 RankCard.prototype = new Card();
 
 RankCard.prototype.Play = function(race){
-    var target_rank = this.model.target_rank;
-    var step = this.model.step;
+    var target_rank = this.model["target_rank"];
+    var step = this.model["step"];
     var ranks = race.Ranks();
     if(!(target_rank in ranks)){
         return;
@@ -770,8 +770,8 @@ RankCard.prototype.Play = function(race){
 };
 
 RankCard.prototype.LogMessage = function(){
-    var target_rank = this.model.target_rank;
-    var step = this.model.step;
+    var target_rank = this.model["target_rank"];
+    var step = this.model["step"];
     return [
         "[Rank]:", target_rank, " ", step,
     ].join("");
@@ -843,7 +843,7 @@ DashCard.prototype.Play = function(race){
 
 DashCard.prototype.LogMessage = function(){
     //TODO: xxx
-    var target_rank = this.model.target_rank;
+    var target_rank = this.model["target_rank"];
     return [
         "[Dash]:", target_rank,
     ].join("");
@@ -879,7 +879,7 @@ PlayCard.CardType = {
 };
 
 PlayCard.prototype.GetCard = function(){
-    var detail_id = this.model.detail_id;
+    var detail_id = this.model["detail_id"];
     var name = this.GetCardName();
     var repositoryDirector = Game.ServiceLocator.create(RepositoryDirector);
     var repository = repositoryDirector.Get(name);
@@ -887,7 +887,7 @@ PlayCard.prototype.GetCard = function(){
 };
 
 PlayCard.prototype.GetCardName = function(){
-    var card_type = this.model.card_type;
+    var card_type = this.model["card_type"];
     switch(card_type){
     case PlayCard.CardType.StepCard:
         return "StepCard";
@@ -992,7 +992,7 @@ GameBoard.prototype = new GameObject();
 
 GameBoard.prototype.Start = function(){
     var master = Game.ServiceLocator.create(MasterData);
-    var length = this.race.model.len;
+    var length = this.race.model["len"];
     this.racetrack = new Racetrack(master.Get("HorseFigure").map(function(row){
         return new HorseFigure(Game.Model("HorseFigure").Set(row));
     }), length);
@@ -1024,7 +1024,7 @@ Race.prototype.Apply = function(card){
 
 Race.prototype.Ranks = function(){
     var lanes = this.gameBoard.racetrack.lanes;
-    var len = this.model.len;
+    var len = this.model["len"];
     var sorted = lanes.slice().sort(function(a, b){
         return a.position - b.position;
     }).reverse();
@@ -1121,14 +1121,14 @@ RaceDirector.prototype.UpdateState = function(){
 RaceDirector.prototype.OnPlacingFirst = function(){
     //TODO: xxx
     console.log(this.orderOfFinish.slice(0, 1).map(function(figure){
-        return figure.model.type;
+        return figure.model["type"];
     }));
 };
 
 RaceDirector.prototype.OnPlacingSecond = function(){
     //TODO: xxx
     console.log(this.orderOfFinish.slice(0, 2).map(function(figure){
-        return figure.model.type;
+        return figure.model["type"];
     }));
 };
 
@@ -1210,7 +1210,7 @@ RepositoryDirector.prototype.Start = function(){
         Game.ServiceLocator.create(MasterData).Get(modelName).forEach(function(row){
             var model = Game.Model(modelName).Set(row);
             var entity = Game.Entity(modelName, model);
-            this.repository.Find(modelName).Store(model.id, entity);
+            this.repository.Find(modelName).Store(model["id"], entity);
         }, this);
     }, this);
 };
@@ -1405,7 +1405,7 @@ LaneRenderer.prototype = new Renderer();
 LaneRenderer.prototype.Render = function(dictionary){
     Renderer.prototype.Render.call(this, arguments);
     var lane = dictionary["lane"];
-    var color = lane.runner.model.color;
+    var color = lane.runner.model["color"];
     return [
         this.ToArray(lane).reverse().join(""),
         ["<span style='background-color:#", color, ";'>", lane.number, "</span>"].join(""),
@@ -1414,9 +1414,10 @@ LaneRenderer.prototype.Render = function(dictionary){
 };
 
 LaneRenderer.prototype.ToArray = function(lane){
-    var array = new Array(lane.len + 1);
-    for(var i=0; i < lane.len + 1; i++){
-        array[i] = (lane.position === i) ? LaneRenderer.CurrentPosition : LaneRenderer.EmptyPosition;
+    var array = [];
+    var length = lane.len;
+    for(var i=0; i < length + 1; i++){
+        array.push((lane.position === i) ? LaneRenderer.CurrentPosition : LaneRenderer.EmptyPosition);
     }
     return array;
 };
