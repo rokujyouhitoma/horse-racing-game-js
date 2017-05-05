@@ -524,65 +524,65 @@ var MasterData = function(){
     };
 
     this.meta = {
-        HorseFigure: {},
-        MonsterCoin: {},
-        MonsterFigure: {},
-        Race: {},
-        PlayCard: {
-            relationships: [
+        "HorseFigure": {},
+        "MonsterCoin": {},
+        "MonsterFigure": {},
+        "Race": {},
+        "PlayCard": {
+            "relationships": [
                 {
-                    filters: [
+                    "filters": [
                         {
-                            condition: "Equal",
-                            name: "card_type",
-                            value: 1,
+                            "condition": "Equal",
+                            "name": "card_type",
+                            "value": 1,
                         },
                     ],
-                    from: {
-                        name: "detail_id",
+                    "from": {
+                        "name": "detail_id",
                     },
-                    to: {
-                        object: "StepCard",
-                        name: "id",
+                    "to": {
+                        "object": "StepCard",
+                        "name": "id",
                     },
                 },
                 {
-                    filters: [
+                    "filters": [
                         {
-                            condition: "equal",
-                            name: "card_type",
-                            value: 2,
+                            "condition": "equal",
+                            "name": "card_type",
+                            "value": 2,
                         },
                     ],
-                    from: {
-                        name: "detail_id",
+                    "from": {
+                        "name": "detail_id",
                     },
-                    to: {
-                        object: "RankCard",
-                        name: "id",
+                    "to": {
+                        "object": "RankCard",
+                        "name": "id",
                     },
                 },
                 {
-                    filters: [
+                    "filters": [
                         {
-                            condition: "equal",
-                            name: "card_type",
-                            value: 3,
+                            "condition": "equal",
+                            "name": "card_type",
+                            "value": 3,
                         },
                     ],
-                    from: {
-                        name: "detail_id",
+                    "from": {
+                        "name": "detail_id",
                     },
-                    to: {
-                        object: "RankCard",
-                        name: "id",
+                    "to": {
+                        "object": "RankCard",
+                        "name": "id",
                     },
                 },
             ],
         },
-        StepCard: {},
-        RankCard: {},
-        DashCard: {},
+        "StepCard": {},
+        "RankCard": {},
+        "DashCard": {},
     };
 };
 
@@ -598,8 +598,8 @@ MasterData.prototype.GetMeta = function(key){
         names: names,
         types: types,
     };
-    if(this.meta[key] && this.meta[key].relationships){
-        meta["relationships"] = this.meta[key].relationships;
+    if(this.meta[key] && this.meta[key]["relationships"]){
+        meta["relationships"] = this.meta[key]["relationships"];
     }
     return meta;
 };
@@ -1646,8 +1646,8 @@ RelationshipChecker.Conditions = {
 
 RelationshipChecker.prototype.Check = function(modelName){
     var masterData = Game.ServiceLocator.create(MasterData);
-    var meta = masterData.GetMeta(modelName)
-    if(!("relationships" in meta)){
+    var meta = masterData.GetMeta(modelName);
+    if(!(meta["relationships"])){
         return;
     }
     var relationships = meta["relationships"];
