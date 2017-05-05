@@ -924,7 +924,7 @@ PlayCardDirector.prototype.Start = function(){
 };
 
 PlayCardDirector.prototype.OnPlayCard = function(e){
-    var card = e.payload["card"];
+    var card = e.payload.card;
     var race = Game.ServiceLocator.create(Game).race;
     race.Apply(card);
 };
@@ -1506,20 +1506,14 @@ GameScene.prototype.OnResume = function(){
 /**
  * @constructor
  */
-var DebugButton = function(text, onClickText){
-    this.text = text;
-    this.onClickText = onClickText;
+var DebugButton = function(label){
+    this.label = label;
 };
-DebugButton.prototype = new Renderer();
 
-DebugButton.prototype.Render = function(dictionary){
-    return [
-        "<button onClick='",
-        this.onClickText,
-        "'>",
-        this.text,
-        "</button>",
-    ].join("");
+DebugButton.prototype.DOM = function(){
+    var button = document.createElement("button");
+    button.innerText = this.label;
+    return button;
 };
 
 /**
@@ -1549,18 +1543,21 @@ DebugMenu.prototype.Start = function(){
         this.dom = dom;
     }
     var game = Game.ServiceLocator.create(Game);
-    // TODO: innerHTMLは手抜き。createElementによるDOM操作が望ましい
-    this.dom.innerHTML = this.Render({});
-};
-
-DebugMenu.prototype.Render = function(dictionary){
-    return [
-        new DebugButton("Play Card", "(function(){Game.Publisher.Publish(Events.Debug.OnPlayCard);})()").Render({}),
-        new DebugButton("Play RankCard", "(function(){Game.Publisher.Publish(Events.Debug.OnPlayRankCard);})()").Render({}),
-        new DebugButton("Play DashCard", "(function(){Game.Publisher.Publish(Events.Debug.OnPlayDashCard);})()").Render({}),
-        new DebugButton("Reset Game", "(function(){Game.Publisher.Publish(Events.Debug.OnResetGame);})()").Render({}),
-        new DebugButton("Check Relationship", "(function(){Game.Publisher.Publish(Events.Debug.OnCheckRelationship);})()").Render({}),
-    ].join("<br />");
+    var buttons = [
+        ["Play Card", function(){
+            Game.Publisher.Publish(Events.Debug.OnPlayCard);
+        }],
+        ["Play RankCard", function(){Game.Publisher.Publish(Events.Debug.OnPlayRankCard);}],
+        ["Play DashCard", function(){Game.Publisher.Publish(Events.Debug.OnPlayDashCard);}],
+        ["Reset Game", function(){Game.Publisher.Publish(Events.Debug.OnResetGame);}],
+        ["Check Relationship", function(){Game.Publisher.Publish(Events.Debug.OnCheckRelationship);}],
+    ].map(function(value){
+        var button = (new DebugButton(value[0])).DOM();
+        button.addEventListener("click", value[1]);
+        return button;
+    }).forEach(function(dom){
+        this.dom.appendChild(dom);
+    }, this);
 };
 
 DebugMenu.prototype.OnPlayCard = function(e){
