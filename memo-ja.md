@@ -231,6 +231,7 @@ SceneDirectorはSceneの
  - DOMLevel2インスパイヤのEvent(Event, EventTarget, EventListener)はすばらしい
  - Fisher-Yates shuffleはすばらしい
  - ServiceLocator(もっとふさわしい名称有るきがするが)は良い仕組み
+ - フルスクラッチのJSコード書く上では、ClosureCompilerは素晴らしい
 
 ### Problem
 

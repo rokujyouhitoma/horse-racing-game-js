@@ -1,16 +1,22 @@
 "use strict";
 
-var Event = function(type, target, payload){
+/**
+ * @constructor
+ */
+var REvent = function(type, target, payload){
     this.type = type;
     this.target = target;
     this.payload = payload;
 };
 
-var EventTarget = function(){
+/**
+ * @constructor
+ */
+var REventTarget = function(){
     this.eventListeners = {};
 };
 
-EventTarget.prototype.addEventListener = function(type, listener, receiver){
+REventTarget.prototype.addEventListener = function(type, listener, receiver){
     if(!(type in this.eventListeners)){
         this.eventListeners[type] = [];
     }
@@ -30,7 +36,7 @@ EventTarget.prototype.addEventListener = function(type, listener, receiver){
     });
 };
 
-EventTarget.prototype.removeEventListener = function(type, listener, receiver){
+REventTarget.prototype.removeEventListener = function(type, listener, receiver){
     if(!(type in this.eventListeners)){
         return;
     }
@@ -53,11 +59,11 @@ EventTarget.prototype.removeEventListener = function(type, listener, receiver){
 };
 
 /**
- * @param {string} type The Event type.
+ * @param {string|REvent} type The Event type.
  * @param {Object|null} receiver The receiver object.
  * @param {Object|null} payload The payload object.
  */
-EventTarget.prototype.dispatchEvent = function(type, receiver, payload){
+REventTarget.prototype.dispatchEvent = function(type, receiver, payload){
     if(!(type in this.eventListeners)){
         return;
     }
@@ -68,26 +74,32 @@ EventTarget.prototype.dispatchEvent = function(type, receiver, payload){
         if (eventListener.object == this &&
             eventListener.type == type &&
             (!receiver || receiver === eventListener.receiver)){
-            if(type instanceof Event){
+            if(type instanceof REvent){
                 type.target = this;
                 type.payload = payload;
                 eventListener.wrapper(type);
             } else {
-                eventListener.wrapper(new Event(type, this, payload));
+                eventListener.wrapper(new REvent(type, this, payload));
             }
         }
         ++counter;
     }
 };
 
-var EventListener = function(callback){
+/**
+ * @constructor
+ */
+var REventListener = function(callback){
     this.callback = callback;
 };
 
-EventListener.prototype.handleEvent = function(event){
+REventListener.prototype.handleEvent = function(event){
     this.callback(event);
 };
 
+/**
+ * @constructor
+ */
 var ServiceLocator = function(container){
     this.container = container;
 };
@@ -114,6 +126,9 @@ Utility.FisherYatesShuffle = function(array){
     return result;
 };
 
+/**
+ * @constructor
+ */
 var Xorshift = function(){
     this.seed(Date.now());
 };
@@ -137,6 +152,9 @@ Xorshift.prototype.rand = function(){
     return this.w; /* 0 to 0xFFFFFFFF / 2 */
 };
 
+/**
+ * @constructor
+ */
 var GameObject = function(){
     this.objects = [];
 };
@@ -159,6 +177,9 @@ GameObject.prototype.Destroy = function(){
     }, this);
 };
 
+/**
+ * @constructor
+ */
 var Engine = function(objects){
     this.objects = objects;
     this.count = 0;
@@ -194,6 +215,9 @@ Engine.prototype.Update = function(deltaTime){
     }, this);
 };
 
+/**
+ * @constructor
+ */
 var Scene = function(){
     this.state = Scene.State.Initial;
 };
@@ -209,6 +233,9 @@ Scene.prototype.OnExit = function(){};
 Scene.prototype.OnPause = function(){};
 Scene.prototype.OnResume = function(){};
 
+/**
+ * @constructor
+ */
 var SceneDirector = function(){
     this.scenes = [];
 };
@@ -325,6 +352,9 @@ SceneDirector.prototype.ResumeScenes = function(){
     }, this);
 };
 
+/**
+ * @constructor
+ */
 var Model = function(meta){
     this.meta = meta;
 };
@@ -348,6 +378,9 @@ Model.Cast = function(type, string){
     }
 };
 
+/**
+ * @constructor
+ */
 var MasterData = function(){
     this.stub = {
         "HorseFigure": [
@@ -571,18 +604,24 @@ MasterData.prototype.GetMeta = function(key){
     return meta;
 };
 
+/**
+ * @constructor
+ */
 var HorseFigure = function(model){
     this.model = model;
 };
 HorseFigure.prototype = new GameObject();
 
+/**
+ * @constructor
+ */
 var HorseFigureDirector = function(){
     this.figures = {};
 };
 HorseFigureDirector.prototype = new GameObject();
 
 HorseFigureDirector.prototype.Start = function(){
-    GameObject.prototype.Start.call(this, arguments);
+    GameObject.prototype.Start.call(this);
     var figures = Game.ServiceLocator.create(MasterData).Get("HorseFigure").map(function(row){
         return new HorseFigure(Game.Model("HorseFigure").Set(row));
     });
@@ -593,22 +632,28 @@ HorseFigureDirector.prototype.Start = function(){
 };
 
 HorseFigureDirector.prototype.Destroy = function(){
-    GameObject.prototype.Destroy.call(this, arguments);
+    GameObject.prototype.Destroy.call(this);
     this.figure = {};
 };
 
+/**
+ * @constructor
+ */
 var MonsterCoin = function(model){
     this.model = model;
 };
 MonsterCoin.prototype = new GameObject();
 
+/**
+ * @constructor
+ */
 var MonsterCoinDirector = function(){
     this.coins = {};
 };
 MonsterCoinDirector.prototype = new GameObject();
 
 MonsterCoinDirector.prototype.Start = function(){
-    GameObject.prototype.Start.call(this, arguments);
+    GameObject.prototype.Start.call(this);
     var coins = Game.ServiceLocator.create(MasterData).Get("MonsterCoin").map(function(row){
         return new MonsterCoin(Game.Model("MonsterCoin").Set(row));
     });
@@ -619,22 +664,28 @@ MonsterCoinDirector.prototype.Start = function(){
 };
 
 MonsterCoinDirector.prototype.Destroy = function(){
-    GameObject.prototype.Destroy.call(this, arguments);
+    GameObject.prototype.Destroy.call(this);
     this.coins = {};
 };
 
+/**
+ * @constructor
+ */
 var MonsterFigure = function(model){
     this.model = model;
 };
 MonsterFigure.prototype = new GameObject();
 
+/**
+ * @constructor
+ */
 var MonsterFigureDirector = function(){
     this.figures = {};
 };
 MonsterFigureDirector.prototype = new GameObject();
 
 MonsterFigureDirector.prototype.Start = function(){
-    GameObject.prototype.Start.call(this, arguments);
+    GameObject.prototype.Start.call(this);
     var figures = Game.ServiceLocator.create(MasterData).Get("MonsterFigure").map(function(row){
         return new MonsterFigure(Game.Model("MonsterFigure").Set(row));
     });
@@ -645,15 +696,21 @@ MonsterFigureDirector.prototype.Start = function(){
 };
 
 MonsterFigureDirector.prototype.Destroy = function(){
-    GameObject.prototype.Destroy.call(this, arguments);
+    GameObject.prototype.Destroy.call(this);
     this.figures = {};
 };
 
+/**
+ * @constructor
+ */
 var Card = function(){};
 Card.prototype = new GameObject();
 Card.prototype.Play = function(racetrack){};
 Card.prototype.LogMessage = function(){};
 
+/**
+ * @constructor
+ */
 var StepCard = function(model){
     this.model = model;
 };
@@ -688,6 +745,9 @@ StepCard.prototype.LogMessage = function(){
     ].join("");
 };
 
+/**
+ * @constructor
+ */
 var RankCard = function(model){
     this.model = model;
 };
@@ -709,7 +769,7 @@ RankCard.prototype.Play = function(race){
     }
 };
 
-RankCard.prototype.LogMessage = function(race){
+RankCard.prototype.LogMessage = function(){
     var target_rank = this.model.target_rank;
     var step = this.model.step;
     return [
@@ -717,6 +777,9 @@ RankCard.prototype.LogMessage = function(race){
     ].join("");
 };
 
+/**
+ * @constructor
+ */
 var DashCardTypeBoost = function(){};
 DashCardTypeBoost.prototype = new Card();
 DashCardTypeBoost.prototype.Play = function(race){
@@ -735,6 +798,9 @@ DashCardTypeBoost.prototype.Play = function(race){
     first.position += step;
 };
 
+/**
+ * @constructor
+ */
 var DashCardTypeCatchUp = function(){};
 DashCardTypeCatchUp.prototype = new Card();
 DashCardTypeCatchUp.prototype.Play = function(race){
@@ -753,12 +819,19 @@ DashCardTypeCatchUp.prototype.Play = function(race){
     second.position += step;
 };
 
+/**
+ * @constructor
+ */
 var DashCard = function(model){
     this.model = model;
-    this.behavior = this.GetBehavior();
+    var dashType = model["dash_type"];
+    this.behavior = this.GetBehavior(dashType);
 };
 DashCard.prototype = new Card();
 
+/**
+ * @enum {number}
+ */
 DashCard.DashType = {
     Boost: 1,
     CatchUp: 2,
@@ -768,7 +841,7 @@ DashCard.prototype.Play = function(race){
     this.behavior.Play(race);
 };
 
-DashCard.prototype.LogMessage = function(race){
+DashCard.prototype.LogMessage = function(){
     //TODO: xxx
     var target_rank = this.model.target_rank;
     return [
@@ -776,25 +849,29 @@ DashCard.prototype.LogMessage = function(race){
     ].join("");
 };
 
-DashCard.prototype.GetBehavior = function(){
-    var dashType = this.model.dash_type;
+DashCard.prototype.GetBehavior = function(dashType){
     switch(dashType){
     case DashCard.DashType.Boost:
         return new DashCardTypeBoost();
     case DashCard.DashType.CatchUp:
         return new DashCardTypeCatchUp();
     default:
-        throw new Error("Not support DashCard.DashType");
+        throw new Error("Not support DashCard.DashType:" + dashType);
     }
-    console.log(this.model);
 };
 
+/**
+ * @constructor
+ */
 var PlayCard = function(model){
     this.model = model;
     this.card = this.GetCard();
 };
 PlayCard.prototype = new Card();
 
+/**
+ * @enum {number}
+ */
 PlayCard.CardType = {
     StepCard: 1,
     RankCard: 2,
@@ -829,6 +906,9 @@ PlayCard.prototype.LogMessage = function(){
     return this.card.LogMessage();
 };
 
+/**
+ * @constructor
+ */
 var PlayCardDirector = function(){
     this.playCards = [];
     this.position = 0;
@@ -860,6 +940,9 @@ PlayCardDirector.prototype.NextCard = function(){
     return card;
 };
 
+/**
+ * @constructor
+ */
 var Lane = function(index, number, runner, len){
     this.index = index;
     this.number = number;
@@ -879,6 +962,9 @@ Lane.prototype.IsGolePosition = function(){
     return this.len < this.position;
 };
 
+/**
+ * @constructor
+ */
 var Racetrack = function(runners, len){
     this.runners = runners;
     this.len = len;
@@ -892,12 +978,15 @@ Racetrack.prototype.Start = function(){
         return new Lane(index, number, runner, this.len);
     }.bind(this));
     this.objects.concat(this.lanes);
-    GameObject.prototype.Start.call(this, arguments);
+    GameObject.prototype.Start.call(this);
 };
 
+/**
+ * @constructor
+ */
 var GameBoard = function(race){
     this.race = race;
-    this.racetrack;
+    this.racetrack = null;
 };
 GameBoard.prototype = new GameObject();
 
@@ -910,9 +999,12 @@ GameBoard.prototype.Start = function(){
     this.objects = [
         this.racetrack,
     ];
-    GameObject.prototype.Start.call(this, arguments);
+    GameObject.prototype.Start.call(this);
 };
 
+/**
+ * @constructor
+ */
 var Race = function(model){
     this.model = model;
     this.gameBoard = new GameBoard(this);
@@ -923,7 +1015,7 @@ Race.prototype.Start = function(){
     this.objects = [
         this.gameBoard,
     ];
-    GameObject.prototype.Start.call(this, arguments);
+    GameObject.prototype.Start.call(this);
 };
 
 Race.prototype.Apply = function(card){
@@ -961,6 +1053,9 @@ Race.prototype.Ranks = function(){
     return ranks;
 };
 
+/**
+ * @constructor
+ */
 var RaceDirector = function(){
     this.OnPlacingFirstListener = this.OnPlacingFirst.bind(this);
     this.OnPlacingSecondListener = this.OnPlacingSecond.bind(this);
@@ -974,7 +1069,7 @@ RaceDirector.State = {
 };
 
 RaceDirector.prototype.Start = function(){
-    GameObject.prototype.Start.call(this, arguments);
+    GameObject.prototype.Start.call(this);
     Game.Publisher.Subscribe(Events.Race.OnPlacingFirst, this.OnPlacingFirstListener);
     Game.Publisher.Subscribe(Events.Race.OnPlacingSecond, this.OnPlacingSecondListener);
     this.orderOfFinish = [];
@@ -982,7 +1077,7 @@ RaceDirector.prototype.Start = function(){
 };
 
 RaceDirector.prototype.Destroy = function(){ 
-    GameObject.prototype.Destroy.call(this, arguments);
+    GameObject.prototype.Destroy.call(this);
     Game.Publisher.UnSubscribe(Events.Race.OnPlacingFirst, this.OnPlacingFirstListener);
     Game.Publisher.UnSubscribe(Events.Race.OnPlacingSecond, this.OnPlacingSecondListener);
     this.orderOfFinish = [];
@@ -1037,13 +1132,16 @@ RaceDirector.prototype.OnPlacingSecond = function(){
     }));
 };
 
+/**
+ * @constructor
+ */
 var Publisher = function(){
     this.targets = {};
 };
 
 Publisher.prototype.GetOrCreateTarget = function(key){
     if(!(key in this.targets)){
-        this.targets[key] = new EventTarget();
+        this.targets[key] = new REventTarget();
     }
     return this.targets[key];
 };
@@ -1062,8 +1160,11 @@ Publisher.prototype.Publish = function(type, payload, subscriber){
     this.GetOrCreateTarget(type).dispatchEvent(type, subscriber, payload);
 };
 
-var Repository = function(obj){
-    this.storage = obj || {};
+/**
+ * @constructor
+ */
+var Repository = function(){
+    this.storage = {};
 };
 
 Repository.prototype.Store = function(key, value){
@@ -1078,13 +1179,19 @@ Repository.prototype.All = function(){
     return Object.values(this.storage);
 };
 
+/**
+ * @constructor
+ */
 var RepositoryDirector = function(){
-    this.repository = new Repository({
-        "StepCard": new Repository(),
-        "RankCard": new Repository(),
-        "DashCard": new Repository(),
-        "PlayCard": new Repository(),
-    });
+    this.repository = new Repository();
+    [
+        ["StepCard", new Repository()],
+        ["RankCard", new Repository()],
+        ["DashCard", new Repository()],
+        ["PlayCard", new Repository()],
+    ].forEach(function(value){
+        this.repository.Store(value[0], value[1]);
+    }, this);
 };
 RepositoryDirector.prototype = new GameObject();
 
@@ -1108,6 +1215,9 @@ RepositoryDirector.prototype.Start = function(){
     }, this);
 };
 
+/**
+ * @constructor
+ */
 var Game = function(){
     this.fps = new FPS();
     this.objects = [
@@ -1125,7 +1235,7 @@ var Game = function(){
 Game.prototype = new GameObject();
 
 Game.prototype.Start = function(){
-    GameObject.prototype.Start.call(this, arguments);
+    GameObject.prototype.Start.call(this);
     Game.Publisher.Publish(Events.Game.OnStart);
     Game.SceneDirector.Push(new GameScene("Debug"));
     Game.Publisher.Subscribe(Events.Game.OnNewRace, this.OnNewRaceListener);
@@ -1134,7 +1244,7 @@ Game.prototype.Start = function(){
 };
 
 Game.prototype.Destroy = function(){ 
-    GameObject.prototype.Destroy.call(this, arguments);
+    GameObject.prototype.Destroy.call(this);
     Game.Publisher.Publish(Events.Game.OnDestroy);
     Game.Publisher.UnSubscribe(Events.Game.OnNewRace, this.OnNewRaceListener);
     Game.Publisher.UnSubscribe(Events.Game.OnResetGame, this.OnResetGameListener);
@@ -1211,6 +1321,9 @@ var Events = {
     },
 };
 
+/**
+ * @constructor
+ */
 var FPS = function(){
     var engine = Game.ServiceLocator.create(Engine);
     this.baseTime = engine.lastUpdate;
@@ -1228,12 +1341,18 @@ FPS.prototype.Update = function(deltaTime){
     }
 };
 
+/**
+ * @constructor
+ */
 var Renderer = function(){};
 Renderer.prototype = new GameObject();
 Renderer.prototype.Render = function(dictionary){};
 
+/**
+ * @constructor
+ */
 var FPSRenderer = function(){
-    this.dom;
+    this.dom = null;
     this.events = [
         [Events.Game.OnUpdate, this.OnUpdate.bind(this)],
         [Events.GameScene.OnEnter, this.OnEnter.bind(this)],
@@ -1277,6 +1396,9 @@ FPSRenderer.prototype.Render = function(dictionary){
     this.dom.children[1].innerText = dictionary["fps"];
 };
 
+/**
+ * @constructor
+ */
 var LaneRenderer = function(){};
 LaneRenderer.prototype = new Renderer();
 
@@ -1302,13 +1424,16 @@ LaneRenderer.prototype.ToArray = function(lane){
 LaneRenderer.CurrentPosition = "\uD83C\uDFC7"; //Unicode Character 'HORSE RACING' (U+1F3C7)
 LaneRenderer.EmptyPosition = "_";
 
+/**
+ * @constructor
+ */
 var RacetrackRenderer = function(){
-    this.dom;
+    this.dom = null;
 };
 RacetrackRenderer.prototype = new Renderer();
 
 RacetrackRenderer.prototype.Start = function(){
-    Renderer.prototype.Start.call(this, arguments);
+    Renderer.prototype.Start.call(this);
     var elements = document.getElementsByTagName("body");
     if(elements.length > 0){
         var body = elements[0];
@@ -1352,6 +1477,9 @@ RacetrackRenderer.prototype.Render = function(dictionary){
     return text;
 };
 
+/**
+ * @constructor
+ */
 var GameScene = function(name){
     var views = {
         "Debug": function(){
@@ -1374,6 +1502,9 @@ GameScene.prototype.OnResume = function(){
     Game.Publisher.Publish(Events.GameScene.OnResume);
 };
 
+/**
+ * @constructor
+ */
 var DebugButton = function(text, onClickText){
     this.text = text;
     this.onClickText = onClickText;
@@ -1390,13 +1521,16 @@ DebugButton.prototype.Render = function(dictionary){
     ].join("");
 };
 
+/**
+ * @constructor
+ */
 var DebugMenu = function(){
-    this.dom;
+    this.dom = null;
 };
 DebugMenu.prototype = new Renderer();
 
 DebugMenu.prototype.Start = function(){
-    Renderer.prototype.Start.call(this, arguments);
+    Renderer.prototype.Start.call(this);
     Game.Publisher.Subscribe(Events.Debug.OnPlayCard, this.OnPlayCard.bind(this));
     Game.Publisher.Subscribe(Events.Debug.OnPlayRankCard, this.OnPlayRankCard.bind(this));
     Game.Publisher.Subscribe(Events.Debug.OnPlayDashCard, this.OnPlayDashCard.bind(this));
@@ -1420,11 +1554,11 @@ DebugMenu.prototype.Start = function(){
 
 DebugMenu.prototype.Render = function(dictionary){
     return [
-        new DebugButton("Play Card", "(function(){Game.Publisher.Publish(Events.Debug.OnPlayCard);})()").Render(),
-        new DebugButton("Play RankCard", "(function(){Game.Publisher.Publish(Events.Debug.OnPlayRankCard);})()").Render(),
-        new DebugButton("Play DashCard", "(function(){Game.Publisher.Publish(Events.Debug.OnPlayDashCard);})()").Render(),
-        new DebugButton("Reset Game", "(function(){Game.Publisher.Publish(Events.Debug.OnResetGame);})()").Render(),
-        new DebugButton("Check Relationship", "(function(){Game.Publisher.Publish(Events.Debug.OnCheckRelationship);})()").Render(),
+        new DebugButton("Play Card", "(function(){Game.Publisher.Publish(Events.Debug.OnPlayCard);})()").Render({}),
+        new DebugButton("Play RankCard", "(function(){Game.Publisher.Publish(Events.Debug.OnPlayRankCard);})()").Render({}),
+        new DebugButton("Play DashCard", "(function(){Game.Publisher.Publish(Events.Debug.OnPlayDashCard);})()").Render({}),
+        new DebugButton("Reset Game", "(function(){Game.Publisher.Publish(Events.Debug.OnResetGame);})()").Render({}),
+        new DebugButton("Check Relationship", "(function(){Game.Publisher.Publish(Events.Debug.OnCheckRelationship);})()").Render({}),
     ].join("<br />");
 };
 
@@ -1489,7 +1623,10 @@ DebugMenu.prototype.OnCheckRelationship = function(e){
     ]);
 };
 
-// For debug.
+/**
+ * For debug.
+ * @constructor
+ */
 var DebugUIDirector = function(){
     this.objects = [
         new RacetrackRenderer(),
@@ -1498,7 +1635,10 @@ var DebugUIDirector = function(){
 };
 DebugUIDirector.prototype = new GameObject();
 
-// For debug.
+/**
+ * For debug.
+ * @constructor
+ */
 var RelationshipChecker = function(){};
 RelationshipChecker.prototype = new GameObject();
 
