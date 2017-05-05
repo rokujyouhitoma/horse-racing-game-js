@@ -137,10 +137,14 @@ Xorshift.MIN_VALUE = 0;
 Xorshift.MAX_VALUE = 0xffffffff / 2;
 
 Xorshift.prototype.seed = function(seed){
-    this.x = (seed & 0x66666666) >>> 0;
-    this.y = (seed ^ 0xffffffff) >>> 0;
+    this.x = (seed & 0x12345678) >>> 0;
+    this.y = (seed ^ 0x12345678) >>> 0;
     this.z = ((seed & 0x0000ffff << 16) | (seed >> 16) & 0x0000ffff) >>> 0;
     this.w = this.x ^ this.y;
+    // skip number of 16.
+    for(var i=0; i < 16; i++){
+        this.rand();
+    }
 };
 
 Xorshift.prototype.rand = function(){
@@ -149,7 +153,7 @@ Xorshift.prototype.rand = function(){
     this.y = this.z;
     this.z = this.w;
     this.w = (this.w ^ (this.w >> 19)) ^ (t ^ (t >> 8));
-    return this.w; /* 0 to 0xFFFFFFFF / 2 */
+    return this.w;
 };
 
 /**
