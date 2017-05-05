@@ -256,14 +256,20 @@ SceneDirector.prototype.Push = function(scene){
     this.PauseScenes();
 };
 
-SceneDirector.prototype.Pop = function(){
+/**
+ * @param {number|null} toDepth
+ */
+SceneDirector.prototype.Pop = function(toDepth){
     var current = this.CurrentScene();
     if(current == null){
         return null;
     }
-    this.scenes.pop();
-    this.TriggerExit(current);
-    this.ResumeScenes();
+    var count = Math.max(0, this.scenes.length - toDepth);
+    for(var i=0; i<count; i++){
+        this.scenes.pop();
+        this.TriggerExit(current);
+        this.ResumeScenes();
+    }
 };
 
 SceneDirector.prototype.TriggerEnter = function(scene){
@@ -1249,7 +1255,7 @@ Game.prototype.Start = function(){
 
 Game.prototype.Destroy = function(){ 
     GameObject.prototype.Destroy.call(this);
-    Game.SceneDirector.Pop();
+    Game.SceneDirector.Pop(0);
     Game.Publisher.Publish(Events.Game.OnDestroy);
     Game.Publisher.UnSubscribe(Events.Game.OnNewRace, this.OnNewRaceListener);
     Game.Publisher.UnSubscribe(Events.Game.OnResetGame, this.OnResetGameListener);
