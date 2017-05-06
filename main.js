@@ -256,19 +256,23 @@ SceneDirector.prototype.Push = function(scene){
     this.PauseScenes();
 };
 
-/**
- * @param {number|null} toDepth
- */
-SceneDirector.prototype.Pop = function(toDepth){
+SceneDirector.prototype.Pop = function(){
     var current = this.CurrentScene();
     if(current == null){
         return null;
     }
+    this.scenes.pop();
+    this.TriggerExit(current);
+    this.ResumeScenes();
+};
+
+/**
+ * @param {number|null} toDepth
+ */
+SceneDirector.prototype.ToDepth = function(toDepth){
     var count = Math.max(0, this.scenes.length - toDepth);
     for(var i=0; i<count; i++){
-        this.scenes.pop();
-        this.TriggerExit(current);
-        this.ResumeScenes();
+        this.Pop();
     }
 };
 
@@ -1255,7 +1259,7 @@ Game.prototype.Start = function(){
 
 Game.prototype.Destroy = function(){ 
     GameObject.prototype.Destroy.call(this);
-    Game.SceneDirector.Pop(0);
+    Game.SceneDirector.ToDepth(0);
     Game.Publisher.Publish(Events.Game.OnDestroy);
     Game.Publisher.UnSubscribe(Events.Game.OnNewRace, this.OnNewRaceListener);
     Game.Publisher.UnSubscribe(Events.Game.OnResetGame, this.OnResetGameListener);

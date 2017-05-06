@@ -75,6 +75,10 @@
 
 # History
 
+## 2017.5.6
+
+ - SceneDirector.ToDepth()を実装
+
 ## 2017.5.5
 
  - Closure Compilerを導入した（開発の長期化が予想されるので、強制ギブスが必要だった）
