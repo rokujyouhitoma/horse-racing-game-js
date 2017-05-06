@@ -880,12 +880,10 @@ var Game = function(){
 Game.prototype = new GameObject();
 
 Game.prototype.Start = function(){
-    console.log("Game.prototype.Start");
     GameObject.prototype.Start.call(this);
     Game.Publisher.Subscribe(Events.Game.OnStart, this.OnStart.bind(this), this);
     Game.Publisher.Subscribe(Events.Game.OnDestroy, this.OnDestroy.bind(this), this);
     Game.Publisher.Publish(Events.Game.OnStart);
-    Game.Publisher.Publish(Events.Game.OnNewRace); //TODO: xxx
 };
 
 Game.prototype.Destroy = function(){
@@ -899,10 +897,10 @@ Game.prototype.Update = function(deltaTime){
 };
 
 Game.prototype.OnStart = function(e){
-    Game.SceneDirector.Push(new GameScene("Debug"));
     this.events.forEach(function(event){
         Game.Publisher.Subscribe(event[0], event[1], this);
     }, this);
+    Game.Publisher.Publish(Events.Game.OnResetGame);
 };
 
 Game.prototype.OnDestroy = function(e){
@@ -922,7 +920,7 @@ Game.prototype.OnNewRace = function(e){
 };
 
 Game.prototype.OnResetGame = function(){
-    Game.Publisher.Publish(Events.Game.OnDestroy);
+    Game.SceneDirector.ToDepth(0);
     Game.SceneDirector.Push(new GameScene("Debug"));
     Game.Publisher.Publish(Events.Game.OnNewRace);
 };
@@ -1142,8 +1140,8 @@ RacetrackRenderer.prototype.Render = function(dictionary){
 var GameScene = function(name){
     var views = {
         "Debug": function(){
-            Game.Locator.create(DebugMenu);
-            Game.Locator.create(FPSRenderer);
+            new DebugMenu();
+            new FPSRenderer();
         },
     };
     views[name]();
@@ -1298,7 +1296,6 @@ DebugMenu.prototype.OnCheckRelationship = function(e){
 var DebugUIDirector = function(){
     this.objects = [
         new RacetrackRenderer(),
-//        Game.Locator.create(DebugMenu),
     ];
 };
 DebugUIDirector.prototype = new GameObject();
