@@ -77,6 +77,8 @@
 
 ## 2017.5.6
 
+ - GameオブジェクトのGameスタート関連の処理を見直し
+ - src/lib/event.jsのバグ修正
  - モジュールの整理。ディレクトリを分けて、htmlからの参照を整理し、CCのコンパイル設定を修正
  - SceneDirector.ToDepth()を実装
 
