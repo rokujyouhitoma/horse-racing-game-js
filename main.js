@@ -226,6 +226,9 @@ var Scene = function(){
     this.state = Scene.State.Initial;
 };
 
+/**
+ * @enum {string}
+ */
 Scene.State = {
     Initial: "Initial",
     Active: "Active",
