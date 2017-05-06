@@ -608,8 +608,8 @@ PlayCardDirector.prototype = new GameObject();
 PlayCardDirector.prototype.Start = function(){
     var repositoryDirector = Game.Locator.create(RepositoryDirector);
     var repository = repositoryDirector.Get("PlayCard");
-    var array = repository.All();
-    this.playCards = Utility.FisherYatesShuffle(array);
+    var playCards = repository.All();
+    this.playCards = Utility.FisherYatesShuffle(playCards);
     Game.Publisher.Subscribe(Events.Race.OnPlayCard, this.OnPlayCard.bind(this), this);
 };
 
