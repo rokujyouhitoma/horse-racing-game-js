@@ -9,23 +9,23 @@
 
 ## エンジン
 
- - [x] エンジンのメインループ
+ - [x] エンジンのメインループ(Engine)
  - [x] デバッグUIとしてエンジンのFPSを表示
  - [x] 基底クラスとなるゲームオブジェクトの定義
 
 ## コアライブラリs
 
- - [x] シーンとシーンを管理する仕組み => シーン(Scene)、シーンディレクター(SceneDirector)
- - [x] Observerパターンによるイベントシステム。DOM Level2参考
- - [x] ServiceLocator
- - [x] モデルオブジェクト
- - [x] データ集合に対するFindById系のクエリシステム => Repositoryオブジェクトで代用
+ - [x] シーンとシーンを管理する仕組み => シーン(Scene)、シーンディレクター(Scene, SceneDirector)
+ - [x] Observerパターンによるイベントシステム。DOM Level2参考(ExEvent, ExEventTarget, ExEventListener)
+ - [x] クラスを一度だけインスタンス化して、格納する仕組み(Locator)
+ - [x] モデルオブジェクト(Model)
+ - [x] データ集合に対するFindById系のクエリシステム => Repositoryオブジェクトで代用(Repository)
  - [x] レンダラーオブジェクト
  - [ ] レンダラーオブジェクトがどうしてもモデル、ディレクターオブジェクトと密結合してしまうので、疎結合に
  - [x] マスターデータのリレーションチェッカー(RelationshipChecker)
  - [ ] マスターデータのバリューチェッカー(ValueChecker)
- - [x] Utility/Fisher–Yates shuffle
- - [x] Xorshift(シードベースの乱数生成器ならなんでもいい) ただし、分布を未検証
+ - [x] Utility/Fisher–Yates shuffle(Utility.FisherYatesShuffle)
+ - [x] Xorshift(シードベースの乱数生成器ならなんでもいい) ただし、分布を未検証(Xorshift)
 
 ## ゲーム
 
@@ -77,6 +77,7 @@
 
 ## 2017.5.6
 
+ - モジュールの整理。ディレクトリを分けて、htmlからの参照を整理し、CCのコンパイル設定を修正
  - SceneDirector.ToDepth()を実装
 
 ## 2017.5.5
@@ -86,7 +87,7 @@
 
 ## 2017.5.4
 
-OB - GameSceneを追加
+ - GameSceneを追加
  - Scene, SceneDirectorを追加
 
 ## 2017.5.3

@@ -1,116 +1,5 @@
 "use strict";
 
-/**
- * @constructor
- */
-var REvent = function(type, target, payload){
-    this.type = type;
-    this.target = target;
-    this.payload = payload;
-};
-
-/**
- * @constructor
- */
-var REventTarget = function(){
-    this.eventListeners = {};
-};
-
-REventTarget.prototype.addEventListener = function(type, listener, receiver){
-    if(!(type in this.eventListeners)){
-        this.eventListeners[type] = [];
-    }
-    var wrapper = function(e) {
-        if (typeof listener.handleEvent != 'undefined') {
-            listener.handleEvent(e);
-        } else {
-            listener.call(this, e);
-        }
-    }.bind(this);
-    this.eventListeners[type].push({
-        object: this,
-        type: type,
-        listener: listener,
-        receiver: receiver,
-        wrapper: wrapper
-    });
-};
-
-REventTarget.prototype.removeEventListener = function(type, listener, receiver){
-    if(!(type in this.eventListeners)){
-        return;
-    }
-    var eventListeners = this.eventListeners[type];
-    var counter = 0;
-    while(counter < eventListeners.length){
-        var eventListener = eventListeners[counter];
-        if (eventListener.object == this &&
-            eventListener.type == type &&
-            eventListener.listener == listener &&
-            eventListener.receiver == receiver){
-            eventListeners.splice(counter, 1);
-            break;
-        }
-        else {
-            console.log("not match");
-        }
-        ++counter;
-    }
-};
-
-/**
- * @param {string|REvent} type The Event type.
- * @param {Object|null} receiver The receiver object.
- * @param {Object|null} payload The payload object.
- */
-REventTarget.prototype.dispatchEvent = function(type, receiver, payload){
-    if(!(type in this.eventListeners)){
-        return;
-    }
-    var eventListeners = this.eventListeners[type];
-    var counter = 0;
-    while(counter < eventListeners.length){
-        var eventListener = eventListeners[counter];
-        if (eventListener.object == this &&
-            eventListener.type == type &&
-            (!receiver || receiver === eventListener.receiver)){
-            if(type instanceof REvent){
-                type.target = this;
-                type.payload = payload;
-                eventListener.wrapper(type);
-            } else {
-                eventListener.wrapper(new REvent(type, this, payload));
-            }
-        }
-        ++counter;
-    }
-};
-
-/**
- * @constructor
- */
-var REventListener = function(callback){
-    this.callback = callback;
-};
-
-REventListener.prototype.handleEvent = function(event){
-    this.callback(event);
-};
-
-/**
- * @constructor
- */
-var ServiceLocator = function(container){
-    this.container = container;
-};
-
-ServiceLocator.prototype.create = function(obj){
-    if(!(obj in this.container)){
-        this.container[obj] = new obj();
-    }
-    return this.container[obj];
-};
-
 var Utility = {};
 
 Utility.FisherYatesShuffle = function(array){
@@ -124,249 +13,6 @@ Utility.FisherYatesShuffle = function(array){
         result[r] = tmp;
     }
     return result;
-};
-
-/**
- * @constructor
- */
-var Xorshift = function(){
-    this.seed(Date.now());
-};
-
-Xorshift.MIN_VALUE = 0;
-Xorshift.MAX_VALUE = 0xffffffff / 2;
-
-Xorshift.prototype.seed = function(seed){
-    this.x = (seed & 0x12345678) >>> 0;
-    this.y = (seed ^ 0x12345678) >>> 0;
-    this.z = ((seed & 0x0000ffff << 16) | (seed >> 16) & 0x0000ffff) >>> 0;
-    this.w = this.x ^ this.y;
-    // skip number of 16.
-    for(var i=0; i < 16; i++){
-        this.rand();
-    }
-};
-
-Xorshift.prototype.rand = function(){
-    var t = this.x ^ (this.x << 11);
-    this.x = this.y;
-    this.y = this.z;
-    this.z = this.w;
-    this.w = (this.w ^ (this.w >> 19)) ^ (t ^ (t >> 8));
-    return this.w;
-};
-
-/**
- * @constructor
- */
-var GameObject = function(){
-    this.objects = [];
-};
-
-GameObject.prototype.Start = function(){
-    this.objects.forEach(function(value, index, array){
-        value.Start();
-    }, this);
-};
-
-GameObject.prototype.Update = function(deltaTime){
-    this.objects.forEach(function(value, index, array){
-        value.Update(deltaTime);
-    }, this);
-};
-
-GameObject.prototype.Destroy = function(){
-    this.objects.forEach(function(value, index, array){
-        value.Destroy();
-    }, this);
-};
-
-/**
- * @constructor
- */
-var Engine = function(objects){
-    this.objects = objects;
-    this.count = 0;
-    this.FPS = 1000 / 60;
-    this.lastUpdate = Date.now();
-};
-
-Engine.prototype.Loop = function(){
-    console.log("Loop");
-    var loop = function(){
-        if(0 <= this.count){
-            setTimeout(loop, this.FPS);
-            this.count++;
-        }
-        var now = Date.now();
-        var deltaTime = (now - this.lastUpdate) / 1000;
-        this.lastUpdate = now;
-        this.Update(deltaTime);
-    }.bind(this);
-    loop();
-};
-
-Engine.prototype.Start = function(){
-    console.log("Start");
-    this.objects.forEach(function(value, index, array){
-        value.Start();
-    }, this);
-};
-
-Engine.prototype.Update = function(deltaTime){
-    this.objects.forEach(function(value, index, array){
-        value.Update(deltaTime);
-    }, this);
-};
-
-/**
- * @constructor
- */
-var Scene = function(){
-    this.state = Scene.State.Initial;
-};
-
-/**
- * @enum {string}
- */
-Scene.State = {
-    Initial: "Initial",
-    Active: "Active",
-    Paused: "Paused",
-};
-
-Scene.prototype.OnEnter = function(){};
-Scene.prototype.OnExit = function(){};
-Scene.prototype.OnPause = function(){};
-Scene.prototype.OnResume = function(){};
-
-/**
- * @constructor
- */
-var SceneDirector = function(){
-    this.scenes = [];
-};
-
-SceneDirector.prototype.CurrentScene = function(){
-    var scenes = this.scenes;
-    var length = scenes.length;
-    return (0 < length) ? scenes[length - 1] : null;
-};
-
-SceneDirector.prototype.Push = function(scene){
-    this.scenes.push(scene);
-    this.TriggerEnter(scene);
-    this.PauseScenes();
-};
-
-SceneDirector.prototype.Pop = function(){
-    var current = this.CurrentScene();
-    if(current == null){
-        return null;
-    }
-    this.scenes.pop();
-    this.TriggerExit(current);
-    this.ResumeScenes();
-};
-
-/**
- * @param {number|null} toDepth
- */
-SceneDirector.prototype.ToDepth = function(toDepth){
-    var count = Math.max(0, this.scenes.length - toDepth);
-    for(var i=0; i<count; i++){
-        this.Pop();
-    }
-};
-
-SceneDirector.prototype.TriggerEnter = function(scene){
-    switch(scene.state){
-    case Scene.State.Initial:
-        scene.state = Scene.State.Active;
-        scene.OnEnter();
-        break;
-    case Scene.State.Active:
-        console.error("Not support");
-        break;
-    case Scene.State.Paused:
-        console.error("Not support");
-        break;
-    default:
-        console.error("Not support");
-        break;
-    }
-};
-
-SceneDirector.prototype.TriggerExit = function(scene){
-    switch(scene.state){
-    case Scene.State.Initial:
-        console.error("Not support");
-        break;
-    case Scene.State.Active:
-        scene.State = Scene.State.Initial;
-        scene.OnExit();
-        break;
-    case Scene.State.Paused:
-        console.error("Not support");
-        break;
-    default:
-        console.error("Not support");
-        break;
-    }
-};
-
-SceneDirector.prototype.TriggerPause = function(scene){
-    switch(scene.state){
-    case Scene.State.Initial:
-        console.error("Not support");
-        break;
-    case Scene.State.Active:
-        scene.state = Scene.State.Paused;
-        scene.OnPause();
-        break;
-    case Scene.State.Paused:
-        console.error("Not support");
-        break;
-    default:
-        console.error("Not support");
-        break;
-    }
-};
-
-SceneDirector.prototype.TriggerResume = function(scene){
-    switch(scene.state){
-    case Scene.State.Initial:
-        console.error("Not support");
-        break;
-    case Scene.State.Active:
-        console.error("Not support");
-        break;
-    case Scene.State.Paused:
-        scene.state = Scene.State.Active;
-        scene.OnResume();
-        break;
-    default:
-        console.error("Not support");
-        break;
-    }
-};
-
-SceneDirector.prototype.PauseScenes = function(){
-    var current = this.CurrentScene();
-    this.scenes.forEach(function(scene){
-        if(scene != current){
-            this.TriggerPause(scene);
-        }
-    }, this);
-};
-
-SceneDirector.prototype.ResumeScenes = function(){
-    var current = this.CurrentScene();
-    this.scenes.forEach(function(scene){
-        if(current != null){
-            this.TriggerResume(current);
-        }
-    }, this);
 };
 
 /**
@@ -624,6 +270,34 @@ MasterData.prototype.GetMeta = function(key){
 /**
  * @constructor
  */
+var Publisher = function(){
+    this.targets = {};
+};
+
+Publisher.prototype.GetOrCreateTarget = function(key){
+    if(!(key in this.targets)){
+        this.targets[key] = new ExEventTarget();
+    }
+    return this.targets[key];
+};
+
+Publisher.prototype.Subscribe = function(type, listener, subscriber){
+    this.GetOrCreateTarget(type).addEventListener(type, listener, subscriber);
+};
+
+Publisher.prototype.UnSubscribe = function(type, listener, subscriber){
+    //TODO: tiny memory leak issue. EventTarget not remove when it has not listeners.
+    this.GetOrCreateTarget(type).removeEventListener(type, listener, subscriber);
+};
+
+Publisher.prototype.Publish = function(type, payload, subscriber){
+//    console.log("[Event]: " + type);
+    this.GetOrCreateTarget(type).dispatchEvent(type, subscriber, payload);
+};
+
+/**
+ * @constructor
+ */
 var HorseFigure = function(model){
     this.model = model;
 };
@@ -639,7 +313,7 @@ HorseFigureDirector.prototype = new GameObject();
 
 HorseFigureDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this);
-    var figures = Game.ServiceLocator.create(MasterData).Get("HorseFigure").map(function(row){
+    var figures = Game.Locator.create(MasterData).Get("HorseFigure").map(function(row){
         return new HorseFigure(Game.Model("HorseFigure").Set(row));
     });
     figures.forEach(function(figure){
@@ -671,7 +345,7 @@ MonsterCoinDirector.prototype = new GameObject();
 
 MonsterCoinDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this);
-    var coins = Game.ServiceLocator.create(MasterData).Get("MonsterCoin").map(function(row){
+    var coins = Game.Locator.create(MasterData).Get("MonsterCoin").map(function(row){
         return new MonsterCoin(Game.Model("MonsterCoin").Set(row));
     });
     coins.forEach(function(coin){
@@ -703,7 +377,7 @@ MonsterFigureDirector.prototype = new GameObject();
 
 MonsterFigureDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this);
-    var figures = Game.ServiceLocator.create(MasterData).Get("MonsterFigure").map(function(row){
+    var figures = Game.Locator.create(MasterData).Get("MonsterFigure").map(function(row){
         return new MonsterFigure(Game.Model("MonsterFigure").Set(row));
     });
     figures.forEach(function(figure){
@@ -748,7 +422,7 @@ StepCard.prototype.Play = function(race){
 StepCard.prototype.LogMessage = function(){
     var target_id = this.model["target_id"];
     var step = this.model["step"];
-    var racetrack = Game.ServiceLocator.create(Game).race.gameBoard.racetrack;
+    var racetrack = Game.Locator.create(Game).race.gameBoard.racetrack;
     var figures = racetrack.lanes.filter(function(lane){
         return lane.runner.model["id"] === target_id;
     }).map(function(lane){
@@ -898,7 +572,7 @@ PlayCard.CardType = {
 PlayCard.prototype.GetCard = function(){
     var detail_id = this.model["detail_id"];
     var name = this.GetCardName();
-    var repositoryDirector = Game.ServiceLocator.create(RepositoryDirector);
+    var repositoryDirector = Game.Locator.create(RepositoryDirector);
     var repository = repositoryDirector.Get(name);
     return repository.Find(detail_id);
 };
@@ -933,7 +607,7 @@ var PlayCardDirector = function(){
 PlayCardDirector.prototype = new GameObject();
 
 PlayCardDirector.prototype.Start = function(){
-    var repositoryDirector = Game.ServiceLocator.create(RepositoryDirector);
+    var repositoryDirector = Game.Locator.create(RepositoryDirector);
     var repository = repositoryDirector.Get("PlayCard");
     var array = repository.All();
     this.playCards = Utility.FisherYatesShuffle(array);
@@ -942,7 +616,7 @@ PlayCardDirector.prototype.Start = function(){
 
 PlayCardDirector.prototype.OnPlayCard = function(e){
     var card = e.payload.card;
-    var race = Game.ServiceLocator.create(Game).race;
+    var race = Game.Locator.create(Game).race;
     race.Apply(card);
 };
 
@@ -1008,7 +682,7 @@ var GameBoard = function(race){
 GameBoard.prototype = new GameObject();
 
 GameBoard.prototype.Start = function(){
-    var master = Game.ServiceLocator.create(MasterData);
+    var master = Game.Locator.create(MasterData);
     var length = this.race.model["len"];
     this.racetrack = new Racetrack(master.Get("HorseFigure").map(function(row){
         return new HorseFigure(Game.Model("HorseFigure").Set(row));
@@ -1102,7 +776,7 @@ RaceDirector.prototype.Destroy = function(){
 };
 
 RaceDirector.prototype.Update = function(){
-    var game = Game.ServiceLocator.create(Game);
+    var game = Game.Locator.create(Game);
     //TODO: xxx
     if(!game.race){
         return;
@@ -1152,53 +826,6 @@ RaceDirector.prototype.OnPlacingSecond = function(){
 /**
  * @constructor
  */
-var Publisher = function(){
-    this.targets = {};
-};
-
-Publisher.prototype.GetOrCreateTarget = function(key){
-    if(!(key in this.targets)){
-        this.targets[key] = new REventTarget();
-    }
-    return this.targets[key];
-};
-
-Publisher.prototype.Subscribe = function(type, listener, subscriber){
-    this.GetOrCreateTarget(type).addEventListener(type, listener, subscriber);
-};
-
-Publisher.prototype.UnSubscribe = function(type, listener, subscriber){
-    //TODO: tiny memory leak issue. EventTarget not remove when it has not listeners.
-    this.GetOrCreateTarget(type).removeEventListener(type, listener, subscriber);
-};
-
-Publisher.prototype.Publish = function(type, payload, subscriber){
-//    console.log("[Event]: " + type);
-    this.GetOrCreateTarget(type).dispatchEvent(type, subscriber, payload);
-};
-
-/**
- * @constructor
- */
-var Repository = function(){
-    this.storage = {};
-};
-
-Repository.prototype.Store = function(key, value){
-    this.storage[key] = value;
-};
-
-Repository.prototype.Find = function(key){
-    return this.storage[key];
-};
-
-Repository.prototype.All = function(){
-    return Object.values(this.storage);
-};
-
-/**
- * @constructor
- */
 var RepositoryDirector = function(){
     this.repository = new Repository();
     [
@@ -1224,7 +851,7 @@ RepositoryDirector.prototype.Start = function(){
         "PlayCard",
     ];
     names.forEach(function(modelName){
-        Game.ServiceLocator.create(MasterData).Get(modelName).forEach(function(row){
+        Game.Locator.create(MasterData).Get(modelName).forEach(function(row){
             var model = Game.Model(modelName).Set(row);
             var entity = Game.Entity(modelName, model);
             this.repository.Find(modelName).Store(model["id"], entity);
@@ -1239,12 +866,12 @@ var Game = function(){
     this.fps = new FPS();
     this.objects = [
         this.fps,
-        Game.ServiceLocator.create(RepositoryDirector),
-        Game.ServiceLocator.create(HorseFigureDirector),
-        Game.ServiceLocator.create(MonsterCoinDirector),
-        Game.ServiceLocator.create(MonsterFigureDirector),
-        Game.ServiceLocator.create(RaceDirector),
-        Game.ServiceLocator.create(PlayCardDirector),
+        Game.Locator.create(RepositoryDirector),
+        Game.Locator.create(HorseFigureDirector),
+        Game.Locator.create(MonsterCoinDirector),
+        Game.Locator.create(MonsterFigureDirector),
+        Game.Locator.create(RaceDirector),
+        Game.Locator.create(PlayCardDirector),
     ];
     this.OnNewRaceListener = this.OnNewRace.bind(this);
     this.OnResetGameListener = this.OnResetGame.bind(this);
@@ -1274,7 +901,7 @@ Game.prototype.Update = function(deltaTime){
 };
 
 Game.prototype.OnNewRace = function(e){
-    var row = Game.ServiceLocator.create(MasterData).Get("Race")[0];
+    var row = Game.Locator.create(MasterData).Get("Race")[0];
     var model = Game.Model("Race").Set(row);
     var race = new Race(model);
     race.Start();
@@ -1287,13 +914,13 @@ Game.prototype.OnResetGame = function(){
     this.Start();
 };
 
-Game.ServiceLocatorContainer = {};
-Game.ServiceLocator = new ServiceLocator(Game.ServiceLocatorContainer);
+Game.LocatorContainer = {};
+Game.Locator = new Locator(Game.LocatorContainer);
 
-Game.Publisher = Game.ServiceLocator.create(Publisher);
+Game.Publisher = Game.Locator.create(Publisher);
 
 Game.Model = function(name){
-    var meta = Game.ServiceLocator.create(MasterData).GetMeta(name);
+    var meta = Game.Locator.create(MasterData).GetMeta(name);
     return new Model(meta);
 };
 
@@ -1307,7 +934,7 @@ Game.Entity = function(name, model){
     }[name])(model);
 };
 
-Game.SceneDirector = Game.ServiceLocator.create(SceneDirector);
+Game.SceneDirector = Game.Locator.create(SceneDirector);
 
 var Events = {
     Game: {
@@ -1343,7 +970,7 @@ var Events = {
  * @constructor
  */
 var FPS = function(){
-    var engine = Game.ServiceLocator.create(Engine);
+    var engine = Game.Locator.create(Engine);
     this.baseTime = engine.lastUpdate;
     this.baseCount = 0;
     this.currentFPS = 0;
@@ -1351,7 +978,7 @@ var FPS = function(){
 FPS.prototype = new GameObject();
 
 FPS.prototype.Update = function(deltaTime){
-    var engine = Game.ServiceLocator.create(Engine);
+    var engine = Game.Locator.create(Engine);
     if(1000 <= engine.lastUpdate - this.baseTime){
         this.currentFPS = ((engine.count - this.baseCount) * 1000) / (engine.lastUpdate - this.baseTime);
         this.baseTime = engine.lastUpdate;
@@ -1382,7 +1009,7 @@ var FPSRenderer = function(){
 };
 
 FPSRenderer.prototype.OnUpdate = function(e){
-    var fps = Math.floor(Game.ServiceLocator.create(Game).fps.currentFPS * 100) / 100;
+    var fps = Math.floor(Game.Locator.create(Game).fps.currentFPS * 100) / 100;
     this.Render({
         "fps": fps,
     });
@@ -1467,7 +1094,7 @@ RacetrackRenderer.prototype.Start = function(){
 
 RacetrackRenderer.prototype.Update = function(deltaTime){
     Renderer.prototype.Update.call(this, arguments);
-    var game = Game.ServiceLocator.create(Game);
+    var game = Game.Locator.create(Game);
     // TODO: xxx
     if(!game.race){
         return;
@@ -1560,7 +1187,7 @@ DebugMenu.prototype.Start = function(){
         body.appendChild(dom);
         this.dom = dom;
     }
-    var game = Game.ServiceLocator.create(Game);
+    var game = Game.Locator.create(Game);
     var buttons = [
         ["Play Card", function(){
             Game.Publisher.Publish(Events.Debug.OnPlayCard);
@@ -1579,7 +1206,7 @@ DebugMenu.prototype.Start = function(){
 };
 
 DebugMenu.prototype.OnPlayCard = function(e){
-    var playCardDirector = Game.ServiceLocator.create(PlayCardDirector);
+    var playCardDirector = Game.Locator.create(PlayCardDirector);
     var card = playCardDirector.NextCard();
     if(!card){
         console.log("404 Card Not found.");
@@ -1595,8 +1222,8 @@ DebugMenu.prototype.OnPlayCard = function(e){
 };
 
 DebugMenu.prototype.OnPlayRankCard = function(e){
-    var race = Game.ServiceLocator.create(Game).race;
-    var repositoryDirector = Game.ServiceLocator.create(RepositoryDirector);
+    var race = Game.Locator.create(Game).race;
+    var repositoryDirector = Game.Locator.create(RepositoryDirector);
     var name = "RankCard";
     var repository = repositoryDirector.Get(name);
     var detail_id = 1;
@@ -1606,8 +1233,8 @@ DebugMenu.prototype.OnPlayRankCard = function(e){
 };
 
 DebugMenu.prototype.OnPlayDashCard = function(e){
-    var race = Game.ServiceLocator.create(Game).race;
-    var repositoryDirector = Game.ServiceLocator.create(RepositoryDirector);
+    var race = Game.Locator.create(Game).race;
+    var repositoryDirector = Game.Locator.create(RepositoryDirector);
     var name = "DashCard";
     var repository = repositoryDirector.Get(name);
     var detail_id = 1 + 1;
@@ -1618,7 +1245,7 @@ DebugMenu.prototype.OnPlayDashCard = function(e){
 
 DebugMenu.prototype.OnMove = function(e){
     var index = e.payload["index"];
-    Game.ServiceLocator.create(Game).race.gameBoard.racetrack.lanes[index].position += 1;
+    Game.Locator.create(Game).race.gameBoard.racetrack.lanes[index].position += 1;
 };
 
 DebugMenu.prototype.OnResetGame = function(e){
@@ -1646,7 +1273,7 @@ DebugMenu.prototype.OnCheckRelationship = function(e){
 var DebugUIDirector = function(){
     this.objects = [
         new RacetrackRenderer(),
-        Game.ServiceLocator.create(DebugMenu),
+        Game.Locator.create(DebugMenu),
     ];
 };
 DebugUIDirector.prototype = new GameObject();
@@ -1663,7 +1290,7 @@ RelationshipChecker.Conditions = {
 };
 
 RelationshipChecker.prototype.Check = function(modelName){
-    var masterData = Game.ServiceLocator.create(MasterData);
+    var masterData = Game.Locator.create(MasterData);
     var meta = masterData.GetMeta(modelName);
     if(!(meta["relationships"])){
         return;
@@ -1751,10 +1378,10 @@ RelationshipChecker.prototype.CheckAll = function(modelNames){
 
 // main
 (window.onload = function(){
-    var engine = Game.ServiceLocator.create(Engine);
+    var engine = Game.Locator.create(Engine);
     engine.objects = [
-        Game.ServiceLocator.create(Game),
-        Game.ServiceLocator.create(DebugUIDirector), //For debug.
+        Game.Locator.create(Game),
+        Game.Locator.create(DebugUIDirector), //For debug.
     ];
     engine.Start();
     engine.Loop();
