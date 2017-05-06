@@ -47,21 +47,15 @@ ExEventTarget.prototype.removeEventListener = function(type, listener, receiver)
         return;
     }
     var eventListeners = this.eventListeners[type];
-    var counter = 0;
-    while(counter < eventListeners.length){
-        var eventListener = eventListeners[counter];
+    eventListeners = eventListeners.filter(function(eventListener){
         if (eventListener.object == this &&
             eventListener.type == type &&
             eventListener.listener == listener &&
-            (!receiver || receiver === eventListener.receiver)){
-            eventListeners.splice(counter, 1);
-            break;
+            (!receiver || receiver === eventListener.receiver)
+           ){
+            return false;
         }
-        else {
-            console.error("not match: " + type);
-        }
-        ++counter;
-    }
+    }, this);
 };
 
 /**
@@ -74,9 +68,7 @@ ExEventTarget.prototype.dispatchEvent = function(type, receiver, payload){
         return;
     }
     var eventListeners = this.eventListeners[type];
-    var counter = 0;
-    while(counter < eventListeners.length){
-        var eventListener = eventListeners[counter];
+    eventListeners.forEach(function(eventListener){
         if (eventListener.object == this &&
             eventListener.type == type &&
             (!receiver || receiver === eventListener.receiver)){
@@ -88,8 +80,7 @@ ExEventTarget.prototype.dispatchEvent = function(type, receiver, payload){
                 eventListener.wrapper(new ExEvent(type, this, payload));
             }
         }
-        ++counter;
-    }
+    }, this);
 };
 
 /**

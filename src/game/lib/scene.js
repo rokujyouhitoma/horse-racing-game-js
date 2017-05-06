@@ -84,7 +84,7 @@ SceneDirector.prototype.TriggerExit = function(scene){
         console.error("Not support");
         break;
     case Scene.State.Active:
-        scene.State = Scene.State.Initial;
+        scene.state = Scene.State.Initial;
         scene.OnExit();
         break;
     case Scene.State.Paused:

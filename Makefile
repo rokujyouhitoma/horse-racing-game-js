@@ -10,6 +10,6 @@ cc:
 	main.js \
 	--js_output_file compiled/main-compiled.js \
 	--compilation_level ADVANCED_OPTIMIZATIONS \
-	--debug \
+#	--debug \
 	--formatting=PRETTY_PRINT \
 #	--create_source_map compiled/compiled.js.map
