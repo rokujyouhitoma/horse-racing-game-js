@@ -47,7 +47,7 @@ ExEventTarget.prototype.removeEventListener = function(type, listener, receiver)
         return;
     }
     var eventListeners = this.eventListeners[type];
-    eventListeners = eventListeners.filter(function(eventListener){
+    this.eventListeners[type] = eventListeners.filter(function(eventListener){
         if (eventListener.object == this &&
             eventListener.type == type &&
             eventListener.listener == listener &&
