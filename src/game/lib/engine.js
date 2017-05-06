@@ -36,7 +36,6 @@ var Engine = function(objects){
 };
 
 Engine.prototype.Loop = function(){
-    console.log("Loop");
     var loop = function(){
         if(0 <= this.count){
             setTimeout(loop, this.FPS);
@@ -51,7 +50,6 @@ Engine.prototype.Loop = function(){
 };
 
 Engine.prototype.Start = function(){
-    console.log("Start");
     this.objects.forEach(function(value, index, array){
         value.Start();
     }, this);
