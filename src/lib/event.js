@@ -53,12 +53,12 @@ ExEventTarget.prototype.removeEventListener = function(type, listener, receiver)
         if (eventListener.object == this &&
             eventListener.type == type &&
             eventListener.listener == listener &&
-            eventListener.receiver == receiver){
+            (!receiver || receiver === eventListener.receiver)){
             eventListeners.splice(counter, 1);
             break;
         }
         else {
-            console.log("not match");
+            console.error("not match: " + type);
         }
         ++counter;
     }
