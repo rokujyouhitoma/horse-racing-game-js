@@ -8,7 +8,7 @@ var Xorshift = function(){
 };
 
 Xorshift.MIN_VALUE = 0;
-Xorshift.MAX_VALUE = 0xffffffff / 2;
+Xorshift.MAX_VALUE = (0xffffffff - 1) / 2;
 
 Xorshift.prototype.seed = function(seed){
     this.x = (seed & 0x12345678) >>> 0;
