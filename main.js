@@ -1142,8 +1142,8 @@ RacetrackRenderer.prototype.Render = function(dictionary){
 var GameScene = function(name){
     var views = {
         "Debug": function(){
-            new DebugMenu();
-            new FPSRenderer();
+            Game.Locator.create(DebugMenu);
+            Game.Locator.create(FPSRenderer);
         },
     };
     views[name]();
