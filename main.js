@@ -281,17 +281,17 @@ Publisher.prototype.GetOrCreateTarget = function(key){
     return this.targets[key];
 };
 
-Publisher.prototype.Subscribe = function(type, listener, subscriber){
-    this.GetOrCreateTarget(type).addEventListener(type, listener, subscriber);
+Publisher.prototype.Subscribe = function(type, listener, publisher){
+    this.GetOrCreateTarget(type).addEventListener(type, listener, publisher);
 };
 
-Publisher.prototype.UnSubscribe = function(type, listener, subscriber){
-    this.GetOrCreateTarget(type).removeEventListener(type, listener, subscriber);
+Publisher.prototype.UnSubscribe = function(type, listener, publisher){
+    this.GetOrCreateTarget(type).removeEventListener(type, listener, publisher);
 };
 
-Publisher.prototype.Publish = function(type, payload, subscriber){
+Publisher.prototype.Publish = function(type, payload, publisher){
 //    console.log("[Event]: " + type);
-    this.GetOrCreateTarget(type).dispatchEvent(type, subscriber, payload);
+    this.GetOrCreateTarget(type).dispatchEvent(type, publisher, payload);
 };
 
 /**
