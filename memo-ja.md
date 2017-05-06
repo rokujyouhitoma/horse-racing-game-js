@@ -75,6 +75,12 @@
 
 # History
 
+## 2017.5.7
+
+ - GameSceneのOnEnter/OnExit/OnPause/OnResume時は、publisherにGameSceneオブジェクトを指定
+ - 不要なロギングコードの削除 at engine.js
+ - fixed: ExEvent.removeEventListenerのバグ
+
 ## 2017.5.6
 
  - GameオブジェクトのGameスタート関連の処理を見直し
