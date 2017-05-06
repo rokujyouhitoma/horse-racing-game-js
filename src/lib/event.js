@@ -22,7 +22,7 @@ var ExEventTarget = function(){
     this.eventListeners = {};
 };
 
-ExEventTarget.prototype.addEventListener = function(type, listener, receiver){
+ExEventTarget.prototype.addEventListener = function(type, listener, publisher){
     if(!(type in this.eventListeners)){
         this.eventListeners[type] = [];
     }
@@ -37,12 +37,12 @@ ExEventTarget.prototype.addEventListener = function(type, listener, receiver){
         object: this,
         type: type,
         listener: listener,
-        receiver: receiver,
+        publisher: publisher,
         wrapper: wrapper
     });
 };
 
-ExEventTarget.prototype.removeEventListener = function(type, listener, receiver){
+ExEventTarget.prototype.removeEventListener = function(type, listener, publisher){
     if(!(type in this.eventListeners)){
         return;
     }
@@ -51,9 +51,8 @@ ExEventTarget.prototype.removeEventListener = function(type, listener, receiver)
         if (eventListener.object == this &&
             eventListener.type == type &&
             eventListener.listener == listener &&
-            (!receiver ||
-             eventListener.receiver == receiver)
-           ){
+            (!publisher ||
+             eventListener.publisher == publisher)){
             return false;
         } else {
             return true;
@@ -63,10 +62,10 @@ ExEventTarget.prototype.removeEventListener = function(type, listener, receiver)
 
 /**
  * @param {string|ExEvent} type The Event type.
- * @param {Object|null} receiver The receiver object.
+ * @param {Object|null} publisher The publisher object.
  * @param {Object|null} payload The payload object.
  */
-ExEventTarget.prototype.dispatchEvent = function(type, receiver, payload){
+ExEventTarget.prototype.dispatchEvent = function(type, publisher, payload){
     if(!(type in this.eventListeners)){
         return;
     }
@@ -74,9 +73,8 @@ ExEventTarget.prototype.dispatchEvent = function(type, receiver, payload){
     eventListeners.forEach(function(eventListener){
         if (eventListener.object == this &&
             eventListener.type == type &&
-            (!receiver ||
-             eventListener.receiver == receiver)
-           ){
+            (!publisher ||
+             eventListener.publisher == publisher)){
             if(type instanceof ExEvent){
                 type.target = this;
                 type.payload = payload;
