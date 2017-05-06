@@ -1142,8 +1142,8 @@ RacetrackRenderer.prototype.Render = function(dictionary){
 var GameScene = function(name){
     var views = {
         "Debug": function(){
-            Game.Locator.create(DebugMenu);
-            Game.Locator.create(FPSRenderer);
+            new DebugMenu();
+            new FPSRenderer();
         },
     };
     views[name]();
@@ -1209,10 +1209,10 @@ DebugMenu.prototype.OnEnter = function(e){
     }
     var game = Game.Locator.create(Game);
     var buttons = [
+        ["Reset Game", function(){Game.Publisher.Publish(Events.Debug.OnResetGame);}],
         ["Play Card", function(){Game.Publisher.Publish(Events.Debug.OnPlayCard);}],
         ["Play RankCard", function(){Game.Publisher.Publish(Events.Debug.OnPlayRankCard);}],
         ["Play DashCard", function(){Game.Publisher.Publish(Events.Debug.OnPlayDashCard);}],
-        ["Reset Game", function(){Game.Publisher.Publish(Events.Debug.OnResetGame);}],
         ["Check Relationship", function(){Game.Publisher.Publish(Events.Debug.OnCheckRelationship);}],
     ].map(function(value){
         var button = (new DebugButton(value[0])).DOM();
