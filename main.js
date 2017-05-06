@@ -1000,13 +1000,6 @@ FPS.prototype.Update = function(deltaTime){
 /**
  * @constructor
  */
-var Renderer = function(){};
-Renderer.prototype = new GameObject();
-Renderer.prototype.Render = function(dictionary){};
-
-/**
- * @constructor
- */
 var FPSRenderer = function(){
     this.dom = null;
     this.events = [
@@ -1056,10 +1049,8 @@ FPSRenderer.prototype.Render = function(dictionary){
  * @constructor
  */
 var LaneRenderer = function(){};
-LaneRenderer.prototype = new Renderer();
 
 LaneRenderer.prototype.Render = function(dictionary){
-    Renderer.prototype.Render.call(this, arguments);
     var lane = dictionary["lane"];
     var color = lane.runner.model["color"];
     return [
@@ -1086,25 +1077,17 @@ LaneRenderer.EmptyPosition = "_";
  */
 var RacetrackRenderer = function(){
     this.dom = null;
-};
-RacetrackRenderer.prototype = new Renderer();
-
-RacetrackRenderer.prototype.Start = function(){
-    Renderer.prototype.Start.call(this);
-    var elements = document.getElementsByTagName("body");
-    if(elements.length > 0){
-        var body = elements[0];
-        var h1 = document.createElement("h1");
-        h1.innerText = "Racetrack";
-        body.appendChild(h1);
-        var dom = document.createElement("div");
-        body.appendChild(dom);
-        this.dom = dom;
-    }
+    this.events = [
+        [Events.Game.OnUpdate, this.OnUpdate.bind(this)],
+        [Events.GameScene.OnEnter, this.OnEnter.bind(this)],
+        [Events.GameScene.OnExit, this.OnExit.bind(this)],
+    ];
+    this.events.forEach(function(event){
+        Game.Publisher.Subscribe(event[0], event[1], this);
+    }, this);
 };
 
-RacetrackRenderer.prototype.Update = function(deltaTime){
-    Renderer.prototype.Update.call(this, arguments);
+RacetrackRenderer.prototype.OnUpdate = function(e){
     var game = Game.Locator.create(Game);
     // TODO: xxx
     if(!game.race){
@@ -1116,8 +1099,27 @@ RacetrackRenderer.prototype.Update = function(deltaTime){
     });
 };
 
+RacetrackRenderer.prototype.OnEnter = function(){
+    var elements = document.getElementsByTagName("body");
+    if(elements.length > 0){
+        var body = elements[0];
+        var section = document.createElement("section");
+        var h1 = document.createElement("h1");
+        h1.innerText = "Racetrack";
+        section.appendChild(h1);
+        body.appendChild(section);
+        this.dom = section;
+    }
+};
+
+RacetrackRenderer.prototype.OnExit = function(){
+    this.dom.parentNode.removeChild(this.dom);
+    this.events.forEach(function(event){
+        Game.Publisher.UnSubscribe(event[0], event[1], this);
+    }, this);
+};
+
 RacetrackRenderer.prototype.Render = function(dictionary){
-    Renderer.prototype.Render.call(this, arguments);
     var laneRenderer = new LaneRenderer();
     var racetrack = dictionary["racetrack"];
     var lanes = racetrack.lanes;
@@ -1138,13 +1140,14 @@ RacetrackRenderer.prototype.Render = function(dictionary){
  * @constructor
  */
 var GameScene = function(name){
-    var views = {
+    var scenes = {
         "Debug": function(){
-            new DebugMenu();
             new FPSRenderer();
+            new DebugMenu();
+            new RacetrackRenderer();
         },
     };
-    views[name]();
+    scenes[name]();
 };
 GameScene.prototype = new Scene();
 GameScene.prototype.OnEnter = function(){
@@ -1295,7 +1298,7 @@ DebugMenu.prototype.OnCheckRelationship = function(e){
  */
 var DebugUIDirector = function(){
     this.objects = [
-        new RacetrackRenderer(),
+//        new RacetrackRenderer(),
     ];
 };
 DebugUIDirector.prototype = new GameObject();
