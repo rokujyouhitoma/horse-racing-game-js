@@ -51,9 +51,12 @@ ExEventTarget.prototype.removeEventListener = function(type, listener, receiver)
         if (eventListener.object == this &&
             eventListener.type == type &&
             eventListener.listener == listener &&
-            (!receiver || receiver === eventListener.receiver)
+            (!receiver ||
+             eventListener.receiver == receiver)
            ){
             return false;
+        } else {
+            return true;
         }
     }, this);
 };
@@ -71,7 +74,9 @@ ExEventTarget.prototype.dispatchEvent = function(type, receiver, payload){
     eventListeners.forEach(function(eventListener){
         if (eventListener.object == this &&
             eventListener.type == type &&
-            (!receiver || receiver === eventListener.receiver)){
+            (!receiver ||
+             eventListener.receiver == receiver)
+           ){
             if(type instanceof ExEvent){
                 type.target = this;
                 type.payload = payload;
