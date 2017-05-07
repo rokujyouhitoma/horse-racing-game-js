@@ -1214,11 +1214,11 @@ DebugMenu.prototype.OnEnter = function(e){
     }
     var game = Game.Locator.create(Game);
     var buttons = [
-        ["Reset Game", function(){Game.Publisher.Publish(Events.Debug.OnResetGame);}],
-        ["Play Card", function(){Game.Publisher.Publish(Events.Debug.OnPlayCard);}],
-        ["Play RankCard", function(){Game.Publisher.Publish(Events.Debug.OnPlayRankCard);}],
-        ["Play DashCard", function(){Game.Publisher.Publish(Events.Debug.OnPlayDashCard);}],
-        ["Check Relationship", function(){Game.Publisher.Publish(Events.Debug.OnCheckRelationship);}],
+        ["Reset Game", function(){Game.Publisher.Publish(Events.Debug.OnResetGame, this);}],
+        ["Play Card", function(){Game.Publisher.Publish(Events.Debug.OnPlayCard, this);}],
+        ["Play RankCard", function(){Game.Publisher.Publish(Events.Debug.OnPlayRankCard, this);}],
+        ["Play DashCard", function(){Game.Publisher.Publish(Events.Debug.OnPlayDashCard, this);}],
+        ["Check Relationship", function(){Game.Publisher.Publish(Events.Debug.OnCheckRelationship, this);}],
     ].map(function(value){
         var button = (new DebugButton(value[0])).DOM();
         button.addEventListener("click", value[1]);
