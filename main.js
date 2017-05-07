@@ -1300,17 +1300,6 @@ DebugMenu.prototype.OnCheckRelationship = function(e){
  * For debug.
  * @constructor
  */
-var DebugUIDirector = function(){
-    this.objects = [
-//        new RacetrackRenderer(),
-    ];
-};
-DebugUIDirector.prototype = new GameObject();
-
-/**
- * For debug.
- * @constructor
- */
 var RelationshipChecker = function(){};
 RelationshipChecker.prototype = new GameObject();
 
@@ -1410,7 +1399,6 @@ RelationshipChecker.prototype.CheckAll = function(modelNames){
     var engine = Game.Locator.create(Engine);
     engine.objects = [
         Game.Locator.create(Game),
-        Game.Locator.create(DebugUIDirector), //For debug.
     ];
     engine.Start();
     engine.Loop();
