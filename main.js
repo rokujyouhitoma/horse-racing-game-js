@@ -289,7 +289,7 @@ Publisher.prototype.UnSubscribe = function(type, listener, publisher){
     this.GetOrCreateTarget(type).removeEventListener(type, listener, publisher);
 };
 
-Publisher.prototype.Publish = function(type, payload, publisher){
+Publisher.prototype.Publish = function(type, publisher, payload){
 //    console.log("[Event]: " + type);
     this.GetOrCreateTarget(type).dispatchEvent(type, publisher, payload);
 };
@@ -610,7 +610,7 @@ PlayCardDirector.prototype.Start = function(){
     var repository = repositoryDirector.Get("PlayCard");
     var playCards = repository.All();
     this.playCards = Utility.FisherYatesShuffle(playCards);
-    Game.Publisher.Subscribe(Events.Race.OnPlayCard, this.OnPlayCard.bind(this), this);
+    Game.Publisher.Subscribe(Events.Race.OnPlayCard, this.OnPlayCard.bind(this));
 };
 
 PlayCardDirector.prototype.OnPlayCard = function(e){
@@ -760,16 +760,16 @@ RaceDirector.State = {
 
 RaceDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this);
-    Game.Publisher.Subscribe(Events.Race.OnPlacingFirst, this.OnPlacingFirstListener, this);
-    Game.Publisher.Subscribe(Events.Race.OnPlacingSecond, this.OnPlacingSecondListener, this);
+    Game.Publisher.Subscribe(Events.Race.OnPlacingFirst, this.OnPlacingFirstListener);
+    Game.Publisher.Subscribe(Events.Race.OnPlacingSecond, this.OnPlacingSecondListener);
     this.orderOfFinish = [];
     this.state = RaceDirector.State.None;
 };
 
 RaceDirector.prototype.Destroy = function(){ 
     GameObject.prototype.Destroy.call(this);
-    Game.Publisher.UnSubscribe(Events.Race.OnPlacingFirst, this.OnPlacingFirstListener, this);
-    Game.Publisher.UnSubscribe(Events.Race.OnPlacingSecond, this.OnPlacingSecondListener, this);
+    Game.Publisher.UnSubscribe(Events.Race.OnPlacingFirst, this.OnPlacingFirstListener);
+    Game.Publisher.UnSubscribe(Events.Race.OnPlacingSecond, this.OnPlacingSecondListener);
     this.orderOfFinish = [];
     this.state = RaceDirector.State.None;
 };
@@ -797,11 +797,11 @@ RaceDirector.prototype.UpdateState = function(){
     switch(state){
     case RaceDirector.State.None:
         this.state = state | RaceDirector.State.First;
-        Game.Publisher.Publish(Events.Race.OnPlacingFirst);
+        Game.Publisher.Publish(Events.Race.OnPlacingFirst, this);
         break;
     case RaceDirector.State.First:
         this.state = state | RaceDirector.State.Second;
-        Game.Publisher.Publish(Events.Race.OnPlacingSecond);
+        Game.Publisher.Publish(Events.Race.OnPlacingSecond, this);
         break;
     case RaceDirector.State.Second:
         break;
@@ -873,34 +873,34 @@ var Game = function(){
         Game.Locator.create(PlayCardDirector),
     ];
     this.events = [
-        [Events.Game.OnNewRace, this.OnNewRace.bind(this), this],
-        [Events.Game.OnResetGame, this.OnResetGame.bind(this), this],
+        [Events.Game.OnNewRace, this.OnNewRace.bind(this), null],
+        [Events.Game.OnResetGame, this.OnResetGame.bind(this), null],
     ];
 };
 Game.prototype = new GameObject();
 
 Game.prototype.Start = function(){
     GameObject.prototype.Start.call(this);
-    Game.Publisher.Subscribe(Events.Game.OnStart, this.OnStart.bind(this), this);
-    Game.Publisher.Subscribe(Events.Game.OnDestroy, this.OnDestroy.bind(this), this);
-    Game.Publisher.Publish(Events.Game.OnStart);
+    Game.Publisher.Subscribe(Events.Game.OnStart, this.OnStart.bind(this));
+    Game.Publisher.Subscribe(Events.Game.OnDestroy, this.OnDestroy.bind(this));
+    Game.Publisher.Publish(Events.Game.OnStart, this);
 };
 
 Game.prototype.Destroy = function(){
     GameObject.prototype.Destroy.call(this);
-    Game.Publisher.Publish(Events.Game.OnDestroy);
+    Game.Publisher.Publish(Events.Game.OnDestroy, this);
 };
 
 Game.prototype.Update = function(deltaTime){
     GameObject.prototype.Update.call(this, arguments);
-    Game.Publisher.Publish(Events.Game.OnUpdate, {deltaTime: deltaTime});
+    Game.Publisher.Publish(Events.Game.OnUpdate, this, {deltaTime: deltaTime});
 };
 
 Game.prototype.OnStart = function(e){
     this.events.forEach(function(event){
         Game.Publisher.Subscribe(event[0], event[1], event[2]);
     });
-    Game.Publisher.Publish(Events.Game.OnResetGame);
+    Game.Publisher.Publish(Events.Game.OnResetGame, this);
 };
 
 Game.prototype.OnDestroy = function(e){
@@ -923,7 +923,7 @@ Game.prototype.OnResetGame = function(){
     Game.SceneDirector.ToDepth(0);
     Game.SceneDirector.Push(new GameScene("Debug"));
     Game.SceneDirector.Push(new GameScene("Race"));
-    Game.Publisher.Publish(Events.Game.OnNewRace);
+    Game.Publisher.Publish(Events.Game.OnNewRace, this);
 };
 
 Game.LocatorContainer = {};
@@ -1004,7 +1004,7 @@ FPS.prototype.Update = function(deltaTime){
 var FPSRenderer = function(scene){
     this.dom = null;
     this.events = [
-        [Events.Game.OnUpdate, this.OnUpdate.bind(this), this],
+        [Events.Game.OnUpdate, this.OnUpdate.bind(this), null],
         [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
         [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
     ];
@@ -1079,7 +1079,7 @@ LaneRenderer.EmptyPosition = "_";
 var RacetrackRenderer = function(scene){
     this.dom = null;
     this.events = [
-        [Events.Game.OnUpdate, this.OnUpdate.bind(this), this],
+        [Events.Game.OnUpdate, this.OnUpdate.bind(this), null],
         [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
         [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
     ];
@@ -1156,16 +1156,16 @@ var GameScene = function(name){
 };
 GameScene.prototype = new Scene();
 GameScene.prototype.OnEnter = function(){
-    Game.Publisher.Publish(Events.GameScene.OnEnter, {}, this);
+    Game.Publisher.Publish(Events.GameScene.OnEnter, this);
 };
 GameScene.prototype.OnExit = function(){
-    Game.Publisher.Publish(Events.GameScene.OnExit, {}, this);
+    Game.Publisher.Publish(Events.GameScene.OnExit, this);
 };
 GameScene.prototype.OnPause = function(){
-    Game.Publisher.Publish(Events.GameScene.OnPause, {}, this);
+    Game.Publisher.Publish(Events.GameScene.OnPause, this);
 };
 GameScene.prototype.OnResume = function(){
-    Game.Publisher.Publish(Events.GameScene.OnResume, {}, this);
+    Game.Publisher.Publish(Events.GameScene.OnResume, this);
 };
 
 /**
@@ -1189,13 +1189,12 @@ var DebugMenu = function(scene){
     this.events = [
         [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
         [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
-        //
-        [Events.Debug.OnPlayCard, this.OnPlayCard.bind(this), this],
-        [Events.Debug.OnPlayRankCard, this.OnPlayRankCard.bind(this), this],
-        [Events.Debug.OnPlayDashCard, this.OnPlayDashCard.bind(this), this],
-        [Events.Debug.OnMove, this.OnMove.bind(this), this],
-        [Events.Debug.OnResetGame, this.OnResetGame.bind(this), this],
-        [Events.Debug.OnCheckRelationship, this.OnCheckRelationship.bind(this), this],
+        [Events.Debug.OnPlayCard, this.OnPlayCard.bind(this), null],
+        [Events.Debug.OnPlayRankCard, this.OnPlayRankCard.bind(this), null],
+        [Events.Debug.OnPlayDashCard, this.OnPlayDashCard.bind(this), null],
+        [Events.Debug.OnMove, this.OnMove.bind(this), null],
+        [Events.Debug.OnResetGame, this.OnResetGame.bind(this), null],
+        [Events.Debug.OnCheckRelationship, this.OnCheckRelationship.bind(this), null],
     ];
     this.events.forEach(function(event){
         Game.Publisher.Subscribe(event[0], event[1], event[2]);
@@ -1243,7 +1242,7 @@ DebugMenu.prototype.OnPlayCard = function(e){
         console.log("404 Card Not found.");
         return;
     }
-    Game.Publisher.Publish(Events.Race.OnPlayCard, {card: card});
+    Game.Publisher.Publish(Events.Race.OnPlayCard, this, {card: card});
     var position = playCardDirector.position;
     console.log([
         position,
@@ -1280,7 +1279,7 @@ DebugMenu.prototype.OnMove = function(e){
 };
 
 DebugMenu.prototype.OnResetGame = function(e){
-    Game.Publisher.Publish(Events.Game.OnResetGame);
+    Game.Publisher.Publish(Events.Game.OnResetGame, this);
 };
 
 DebugMenu.prototype.OnCheckRelationship = function(e){

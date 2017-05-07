@@ -73,7 +73,7 @@ ExEventTarget.prototype.dispatchEvent = function(type, publisher, payload){
     eventListeners.forEach(function(eventListener){
         if (eventListener.object == this &&
             eventListener.type == type &&
-            (!publisher ||
+            (!(eventListener.publisher) ||
              eventListener.publisher == publisher)){
             if(type instanceof ExEvent){
                 type.target = this;

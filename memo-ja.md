@@ -77,9 +77,10 @@
 
 ## 2017.5.7
 
+ - ExEventTarget.dispatchEvent時の条件を修正。合わせてPublisher.Publishのインタフェースも回収。ユーザーコードも修正
  - GameSceneのOnEnter/OnExit/OnPause/OnResume時は、publisherにGameSceneオブジェクトを指定
  - 不要なロギングコードの削除 at engine.js
- - fixed: ExEvent.removeEventListenerのバグ
+ - fixed: ExEventTarget.removeEventListenerのバグ
 
 ## 2017.5.6
 
