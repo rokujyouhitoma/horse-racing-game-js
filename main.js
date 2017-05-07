@@ -975,13 +975,14 @@ GameDirector.prototype.OnDestroy = function(e){
 
 GameDirector.prototype.OnResetGame = function(){
     Game.SceneDirector.ToDepth(0);
-    Game.SceneDirector.Push(new GameScene("Debug"));
-    Game.Publisher.Publish(Events.GameDirector.OnNewRace, this);
+    Game.SceneDirector.Push(new GameScene("Title"));
 };
 
 GameDirector.prototype.OnNewRace = function(e){
     // TODO: xxx, priority high.
+    Game.SceneDirector.ToDepth(0);
     Game.SceneDirector.Push(new GameScene("Race"));
+    Game.SceneDirector.Push(new GameScene("Debug"));
     var row = Game.Locator.create(MasterData).Get("Race")[0];
     var model = Game.Model("Race").Set(row);
     var race = new Race(model);
@@ -1107,7 +1108,7 @@ RacetrackRenderer.prototype.OnUpdate = function(e){
         return;
     }
     // TODO: innerHTMLは手抜き。createElementによるDOM操作が望ましい
-    this.dom.innerHTML = this.Render({
+    this.dom.children[1].innerHTML = this.Render({
         "racetrack": game.race.gameBoard.racetrack,
     });
 };
@@ -1120,6 +1121,8 @@ RacetrackRenderer.prototype.OnEnter = function(){
         var h1 = document.createElement("h1");
         h1.innerText = "Racetrack";
         section.appendChild(h1);
+        var div = document.createElement("div");
+        section.appendChild(div);
         body.appendChild(section);
         this.dom = section;
     }
@@ -1149,19 +1152,63 @@ RacetrackRenderer.prototype.Render = function(dictionary){
     return text;
 };
 
+var TitleSceneUI = function(scene){
+    this.dom = null;
+    this.events = [
+        [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
+        [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
+    ];
+    this.events.forEach(function(event){
+        Game.Publisher.Subscribe(event[0], event[1], event[2]);
+    });
+    this.onClickListener = this.OnClick.bind(this);
+};
+
+TitleSceneUI.prototype.OnEnter = function(e){
+    var elements = document.getElementsByTagName("body");
+    if(elements.length > 0){
+        var body = elements[0];
+        var section = document.createElement("section");
+        var h1 = document.createElement("h1");
+        h1.innerText = "Horse racing game";
+        section.appendChild(h1);
+        var button = document.createElement("button");
+        button.innerText = "Start";
+        button.addEventListener("click", this.onClickListener);
+        section.appendChild(button);
+        body.appendChild(section);
+        this.dom = section;
+    }
+};
+
+TitleSceneUI.prototype.OnExit = function(e){
+    this.dom.children[1].removeEventListener("click", this.onClickListener);
+    this.dom.parentNode.removeChild(this.dom);
+    this.events.forEach(function(event){
+        Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
+    });
+};
+
+TitleSceneUI.prototype.OnClick = function(e){
+    Game.Publisher.Publish(Events.GameDirector.OnNewRace, this);
+};
+
 /**
  * @constructor
  */
 var GameScene = function(name){
     this.name = name;
     var scenes = {
+        "Title": function(scene){
+            new TitleSceneUI(scene);
+        },
+//        "Menu": function(scene){},
+        "Race": function(scene){
+            new RacetrackRenderer(scene);
+        },
         "Debug": function(scene){
             new FPSRenderer(scene);
             new DebugMenu(scene);
-//            new RacetrackRenderer(scene);
-        },
-        "Race": function(scene){
-            new RacetrackRenderer(scene);
         },
     };
     scenes[name](this);
