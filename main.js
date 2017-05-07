@@ -421,7 +421,7 @@ StepCard.prototype.Play = function(race){
 StepCard.prototype.LogMessage = function(){
     var target_id = this.model["target_id"];
     var step = this.model["step"];
-    var racetrack = Game.Locator.create(Game).race.gameBoard.racetrack;
+    var racetrack = Game.Locator.create(GameDirector).race.gameBoard.racetrack;
     var figures = racetrack.lanes.filter(function(lane){
         return lane.runner.model["id"] === target_id;
     }).map(function(lane){
@@ -615,7 +615,7 @@ PlayCardDirector.prototype.Start = function(){
 
 PlayCardDirector.prototype.OnPlayCard = function(e){
     var card = e.payload.card;
-    var race = Game.Locator.create(Game).race;
+    var race = Game.Locator.create(GameDirector).race;
     race.Apply(card);
 };
 
@@ -775,7 +775,7 @@ RaceDirector.prototype.Destroy = function(){
 };
 
 RaceDirector.prototype.Update = function(){
-    var game = Game.Locator.create(Game);
+    var game = Game.Locator.create(GameDirector);
     //TODO: xxx
     if(!game.race){
         return;
@@ -865,24 +865,13 @@ var Game = function(){
     this.fps = new FPS();
     this.objects = [
         this.fps,
-        Game.Locator.create(RepositoryDirector),
-        Game.Locator.create(HorseFigureDirector),
-        Game.Locator.create(MonsterCoinDirector),
-        Game.Locator.create(MonsterFigureDirector),
-        Game.Locator.create(RaceDirector),
-        Game.Locator.create(PlayCardDirector),
-    ];
-    this.events = [
-        [Events.Game.OnNewRace, this.OnNewRace.bind(this), null],
-        [Events.Game.OnResetGame, this.OnResetGame.bind(this), null],
+        Game.Locator.create(GameDirector),
     ];
 };
 Game.prototype = new GameObject();
 
 Game.prototype.Start = function(){
     GameObject.prototype.Start.call(this);
-    Game.Publisher.Subscribe(Events.Game.OnStart, this.OnStart.bind(this));
-    Game.Publisher.Subscribe(Events.Game.OnDestroy, this.OnDestroy.bind(this));
     Game.Publisher.Publish(Events.Game.OnStart, this);
 };
 
@@ -896,40 +885,12 @@ Game.prototype.Update = function(deltaTime){
     Game.Publisher.Publish(Events.Game.OnUpdate, this, {deltaTime: deltaTime});
 };
 
-Game.prototype.OnStart = function(e){
-    this.events.forEach(function(event){
-        Game.Publisher.Subscribe(event[0], event[1], event[2]);
-    });
-    Game.Publisher.Publish(Events.Game.OnResetGame, this);
-};
-
-Game.prototype.OnDestroy = function(e){
-    Game.SceneDirector.Pop();
-    this.events.forEach(function(event){
-        Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
-    });
-};
-
-Game.prototype.OnNewRace = function(e){
-    var row = Game.Locator.create(MasterData).Get("Race")[0];
-    var model = Game.Model("Race").Set(row);
-    var race = new Race(model);
-    race.Start();
-    this.objects.push(race);
-    this.race = race;
-};
-
-Game.prototype.OnResetGame = function(){
-    Game.SceneDirector.ToDepth(0);
-    Game.SceneDirector.Push(new GameScene("Debug"));
-    Game.SceneDirector.Push(new GameScene("Race"));
-    Game.Publisher.Publish(Events.Game.OnNewRace, this);
-};
-
 Game.LocatorContainer = {};
 Game.Locator = new Locator(Game.LocatorContainer);
 
 Game.Publisher = Game.Locator.create(Publisher);
+
+Game.SceneDirector = Game.Locator.create(SceneDirector);
 
 Game.Model = function(name){
     var meta = Game.Locator.create(MasterData).GetMeta(name);
@@ -946,21 +907,21 @@ Game.Entity = function(name, model){
     }[name])(model);
 };
 
-Game.SceneDirector = Game.Locator.create(SceneDirector);
-
 var Events = {
     Game: {
         OnStart: "Events.Game.OnStart",
         OnUpdate: "Events.Game.OnUpdate",
         OnDestroy: "Events.Game.OnDestroy",
-        OnNewRace: "Events.Game.OnNewRace",
-        OnResetGame: "Events.Game.OnResetGame",
     },
     GameScene: {
         OnEnter: "Events.GameScene.OnEnter",
         OnExit: "Events.GameScene.OnExit",
         OnPause: "Events.GameScene.OnPause",
         OnResume: "Events.GameScene.OnResume",
+    },
+    GameDirector: {
+        OnResetGame: "Events.GameDirector.OnResetGame",
+        OnNewRace: "Events.GameDirector.OnNewRace",
     },
     Race: {
         OnPlacingFirst: "Events.Race.OnPlacingFirst",
@@ -976,6 +937,57 @@ var Events = {
         OnCheckRelationship: "Events.Debug.OnCheckRelationship",
         OnResetGame: "Events.Debug.OnResetGame",
     },
+};
+
+/**
+ * @constructor
+ */
+var GameDirector = function(){
+    this.objects = [
+        Game.Locator.create(RepositoryDirector),
+        Game.Locator.create(HorseFigureDirector),
+        Game.Locator.create(MonsterCoinDirector),
+        Game.Locator.create(MonsterFigureDirector),
+        Game.Locator.create(RaceDirector),
+        Game.Locator.create(PlayCardDirector),
+    ];
+    this.events = [
+        [Events.GameDirector.OnNewRace, this.OnNewRace.bind(this), null],
+        [Events.GameDirector.OnResetGame, this.OnResetGame.bind(this), null],
+    ];
+    Game.Publisher.Subscribe(Events.Game.OnStart, this.OnStart.bind(this));
+    Game.Publisher.Subscribe(Events.Game.OnDestroy, this.OnDestroy.bind(this));
+};
+GameDirector.prototype = new GameObject();
+
+GameDirector.prototype.OnStart = function(e){
+    this.events.forEach(function(event){
+        Game.Publisher.Subscribe(event[0], event[1], event[2]);
+    });
+    Game.Publisher.Publish(Events.GameDirector.OnResetGame, this);
+};
+
+GameDirector.prototype.OnDestroy = function(e){
+    this.events.forEach(function(event){
+        Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
+    });
+};
+
+GameDirector.prototype.OnResetGame = function(){
+    Game.SceneDirector.ToDepth(0);
+    Game.SceneDirector.Push(new GameScene("Debug"));
+    Game.Publisher.Publish(Events.GameDirector.OnNewRace, this);
+};
+
+GameDirector.prototype.OnNewRace = function(e){
+    // TODO: xxx, priority high.
+    Game.SceneDirector.Push(new GameScene("Race"));
+    var row = Game.Locator.create(MasterData).Get("Race")[0];
+    var model = Game.Model("Race").Set(row);
+    var race = new Race(model);
+    race.Start();
+    this.objects.push(race);
+    this.race = race;
 };
 
 /**
@@ -1089,7 +1101,7 @@ var RacetrackRenderer = function(scene){
 };
 
 RacetrackRenderer.prototype.OnUpdate = function(e){
-    var game = Game.Locator.create(Game);
+    var game = Game.Locator.create(GameDirector);
     // TODO: xxx
     if(!game.race){
         return;
@@ -1212,7 +1224,6 @@ DebugMenu.prototype.OnEnter = function(e){
         body.appendChild(dom);
         this.dom = dom;
     }
-    var game = Game.Locator.create(Game);
     var buttons = [
         ["Reset Game", function(){Game.Publisher.Publish(Events.Debug.OnResetGame, this);}],
         ["Play Card", function(){Game.Publisher.Publish(Events.Debug.OnPlayCard, this);}],
@@ -1252,7 +1263,7 @@ DebugMenu.prototype.OnPlayCard = function(e){
 };
 
 DebugMenu.prototype.OnPlayRankCard = function(e){
-    var race = Game.Locator.create(Game).race;
+    var race = Game.Locator.create(GameDirector).race;
     var repositoryDirector = Game.Locator.create(RepositoryDirector);
     var name = "RankCard";
     var repository = repositoryDirector.Get(name);
@@ -1263,7 +1274,7 @@ DebugMenu.prototype.OnPlayRankCard = function(e){
 };
 
 DebugMenu.prototype.OnPlayDashCard = function(e){
-    var race = Game.Locator.create(Game).race;
+    var race = Game.Locator.create(GameDirector).race;
     var repositoryDirector = Game.Locator.create(RepositoryDirector);
     var name = "DashCard";
     var repository = repositoryDirector.Get(name);
@@ -1275,11 +1286,11 @@ DebugMenu.prototype.OnPlayDashCard = function(e){
 
 DebugMenu.prototype.OnMove = function(e){
     var index = e.payload["index"];
-    Game.Locator.create(Game).race.gameBoard.racetrack.lanes[index].position += 1;
+    Game.Locator.create(GameDirector).race.gameBoard.racetrack.lanes[index].position += 1;
 };
 
 DebugMenu.prototype.OnResetGame = function(e){
-    Game.Publisher.Publish(Events.Game.OnResetGame, this);
+    Game.Publisher.Publish(Events.GameDirector.OnResetGame, this);
 };
 
 DebugMenu.prototype.OnCheckRelationship = function(e){
