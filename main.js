@@ -1222,6 +1222,7 @@ TitleSceneUI.prototype.OnClick = function(e){
 
 /**
  * @constructor
+ * @param {string} name Scene name.
  */
 var GameScene = function(name){
     this.name = name;
