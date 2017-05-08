@@ -1172,7 +1172,7 @@ LaneRenderer.EmptyPosition = "_";
 /**
  * @constructor
  */
-var RacetrackRenderer = function(scene){
+var RacetrackUI = function(scene){
     this.dom = null;
     this.events = [
         [Events.Game.OnUpdate, this.OnUpdate.bind(this), null],
@@ -1184,7 +1184,7 @@ var RacetrackRenderer = function(scene){
     });
 };
 
-RacetrackRenderer.prototype.OnUpdate = function(e){
+RacetrackUI.prototype.OnUpdate = function(e){
     var game = Game.Locator.create(GameDirector);
     //TODO: xxx
     if(!game.race){
@@ -1196,7 +1196,7 @@ RacetrackRenderer.prototype.OnUpdate = function(e){
     });
 };
 
-RacetrackRenderer.prototype.OnEnter = function(){
+RacetrackUI.prototype.OnEnter = function(){
     var elements = document.getElementsByTagName("body");
     if(elements.length > 0){
         var body = elements[0];
@@ -1211,14 +1211,14 @@ RacetrackRenderer.prototype.OnEnter = function(){
     }
 };
 
-RacetrackRenderer.prototype.OnExit = function(e){
+RacetrackUI.prototype.OnExit = function(e){
     this.dom.parentNode.removeChild(this.dom);
     this.events.forEach(function(event){
         Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
     });
 };
 
-RacetrackRenderer.prototype.Render = function(dictionary){
+RacetrackUI.prototype.Render = function(dictionary){
     var laneRenderer = new LaneRenderer();
     var racetrack = dictionary["racetrack"];
     var lanes = racetrack.lanes;
@@ -1292,10 +1292,10 @@ var GameScene = function(name){
 //        "Menu": function(scene){},
         "Race": function(scene){
             new PlayCardDirector(scene);
-            new RacetrackRenderer(scene);
+            new RacetrackUI(scene);
+            new LogMessageUI(scene);
         },
         "Debug": function(scene){
-            new LogMessageUI(scene);
             new DebugMenu(scene);
             new FPSRenderer(scene);
         },
