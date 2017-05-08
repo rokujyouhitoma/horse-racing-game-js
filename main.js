@@ -27,8 +27,8 @@ var Model = function(meta){
 };
 
 Model.prototype.Set = function(value){
-    var names = this.meta["names"];
-    var types = this.meta["types"];
+    var names = this.meta.names;
+    var types = this.meta.types;
     for(var i = 0; i < names.length; i++){
         var type = types[i];
         this[names[i]] = Model.Cast(type, value[i]);
@@ -45,6 +45,9 @@ Model.Cast = function(type, string){
     }
 };
 
+/**
+ * @enum {string}
+ */
 Model.Types = {
     Int: "int",
     String: "string",
@@ -57,7 +60,7 @@ var Loader = function(){};
 
 /**
  * @param {string} key The key.
- * @return {Array<Object>} The rows.
+ * @return {Array<Array<string>>} The rows.
  */
 Loader.prototype.Load = function(key){};
 
@@ -210,10 +213,22 @@ var StubLoader = function(){
 
 /**
  * @param {string} key The key.
- * @return {Array<Object>} The rows.
+ * @return {Array<Array<string>>} The rows.
  */
 StubLoader.prototype.Load = function(key){
     return this.stub[key];
+};
+
+/**
+ * @constructor
+ * @param {Array<string>} names The columns name.
+ * @param {Array<string>} types The columns type.
+ * @param {Object=} opt_relationships The relationships definition.
+ */
+var MasterMeta = function(names, types, opt_relationships){
+    this.names = names;
+    this.types = types;
+    this.relationships = opt_relationships;
 };
 
 /**
@@ -284,6 +299,10 @@ var MasterData = function(){
     };
 };
 
+/**
+ * @param {string} key The Master name.
+ * @return {Array<Array<string>>} The raw row data.
+ */
 MasterData.prototype.Get = function(key){
     var rows = this.loader.Load(key);
     return rows.slice(2);
@@ -292,12 +311,11 @@ MasterData.prototype.Get = function(key){
 MasterData.prototype.GetMeta = function(key){
     var rows = this.loader.Load(key);
     var header = rows.slice(0, 2);
+    /** @type {Array<string>} */
     var names = header[0];
+    /** @type {Array<string>} */
     var types = header[1];
-    var meta = {
-        names: names,
-        types: types,
-    };
+    var meta = new MasterMeta(names, types);
     if(this.meta[key] && this.meta[key]["relationships"]){
         meta["relationships"] = this.meta[key]["relationships"];
     }
