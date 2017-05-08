@@ -1200,7 +1200,7 @@ TitleSceneUI.prototype.OnEnter = function(e){
         h1.innerText = "\uD83C\uDFC7 -> \uD83C\uDFAE";
         section.appendChild(h1);
         var button = document.createElement("button");
-        button.innerText = "Start";
+        button.innerText = "\uD83C\uDFAE Start \uD83C\uDFAE";
         button.addEventListener("click", this.onClickListener);
         section.appendChild(button);
         body.appendChild(section);
