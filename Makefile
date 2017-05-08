@@ -7,6 +7,7 @@ cc:
 	src/game/lib/scene.js \
 	src/game/lib/engine.js \
 	src/game/lib/repository.js \
+	src/game/lib/publisher.js \
 	main.js \
 	--js_output_file compiled/main-compiled.js \
 	--compilation_level ADVANCED_OPTIMIZATIONS \

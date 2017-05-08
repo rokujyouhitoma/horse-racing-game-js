@@ -77,6 +77,7 @@
 
 ## 2017.5.9
 
+ - main.jsで定義されているPublisherオブジェクトをsrc/game/lib/publisher.jsに分ける
  - MasterMetaオブジェクトを追加
  - CC向けのアノテーション追加
 
