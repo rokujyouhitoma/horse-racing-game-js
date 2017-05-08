@@ -4,10 +4,10 @@ var Utility = {};
 
 Utility.FisherYatesShuffle = function(array){
     // Fisher–Yates shuffle
-    var g = new Xorshift();
+    var random = new Xorshift();
     var result = array.slice();
     for(var i = array.length - 1; 0 < i; i--){
-        var r = Math.floor((g.rand() / Xorshift.MAX_VALUE) * (i + 1));
+        var r = Math.floor((random.rand() / Xorshift.MAX_VALUE) * (i + 1));
         var tmp = result[i];
         result[i] = result[r];
         result[r] = tmp;
@@ -1300,7 +1300,7 @@ LogMessageUI.prototype.OnEnter = function(e){
         body.appendChild(section);
         for(var i =0; i < 5; i++){
             var p = document.createElement("p");
-            p.innerText = "";
+            p.innerText = "\uD83C\uDFC7";
             this.messages.push(p);
             section.appendChild(p);
         }
