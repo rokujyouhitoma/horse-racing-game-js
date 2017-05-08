@@ -455,7 +455,7 @@ StepCard.prototype.LogMessage = function(){
         return figure.model["type"];
     }).join(",");
     return [
-        "[Step]:", target, " ", step,
+        "[Step]: ", target, " +", step,
     ].join("");
 };
 
@@ -487,7 +487,7 @@ RankCard.prototype.LogMessage = function(){
     var target_rank = this.model["target_rank"];
     var step = this.model["step"];
     return [
-        "[Rank]:", target_rank, " ", step,
+        "[Rank]: ", target_rank, " +", step,
     ].join("");
 };
 
@@ -556,10 +556,9 @@ DashCard.prototype.Play = function(race){
 };
 
 DashCard.prototype.LogMessage = function(){
-    //TODO: xxx
     var target_rank = this.model["target_rank"];
     return [
-        "[Dash]:", target_rank,
+        "[Dash]: ", target_rank,
     ].join("");
 };
 
@@ -833,17 +832,21 @@ RaceDirector.prototype.UpdateState = function(){
 };
 
 RaceDirector.prototype.OnPlacingFirst = function(){
-    //TODO: xxx
-    console.log(this.orderOfFinish.slice(0, 1).map(function(figure){
+    var placings = this.orderOfFinish.slice(0, 1).map(function(figure){
         return figure.model["type"];
-    }));
+    });
+    var first = placings[0];
+    Game.Log("The first: " + first);
 };
 
 RaceDirector.prototype.OnPlacingSecond = function(){
-    //TODO: xxx
-    console.log(this.orderOfFinish.slice(0, 2).map(function(figure){
+    var placings = this.orderOfFinish.slice(0, 2).map(function(figure){
         return figure.model["type"];
-    }));
+    });
+    var first = placings[0];
+    var second = placings[1];
+    Game.Log("The first: " + first);
+    Game.Log("The second: " + second);
 };
 
 /**
@@ -931,6 +934,11 @@ Game.Entity = function(name, model){
     }[name])(model);
 };
 
+Game.Log = function(message){
+    Game.Publisher.Publish(Events.GameDirector.OnLogMessage, this, {message: message});
+    console.log(message);
+};
+
 var Events = {
     Game: {
         OnStart: "Events.Game.OnStart",
@@ -946,6 +954,7 @@ var Events = {
     GameDirector: {
         OnResetGame: "Events.GameDirector.OnResetGame",
         OnNewRace: "Events.GameDirector.OnNewRace",
+        OnLogMessage: "Events.GameDirector.OnLogMessage",
     },
     Race: {
         OnPlacingFirst: "Events.Race.OnPlacingFirst",
@@ -976,6 +985,7 @@ var GameDirector = function(){
         Game.Locator.create(PlayCardDirector),
     ];
     this.events = [
+        [Events.GameDirector.OnLogMessage, this.OnLogMessage.bind(this), null],
         [Events.GameDirector.OnNewRace, this.OnNewRace.bind(this), null],
         [Events.GameDirector.OnResetGame, this.OnResetGame.bind(this), null],
     ];
@@ -997,13 +1007,19 @@ GameDirector.prototype.OnDestroy = function(e){
     });
 };
 
-GameDirector.prototype.OnResetGame = function(){
+GameDirector.prototype.OnLogMessage = function(e){
+    var message = e.payload["message"];
+//    console.log(message);
+    //TODO: xxx
+};
+
+GameDirector.prototype.OnResetGame = function(e){
     Game.SceneDirector.ToDepth(0);
     Game.SceneDirector.Push(new GameScene("Title"));
 };
 
 GameDirector.prototype.OnNewRace = function(e){
-    // TODO: xxx, priority high.
+    //TODO: xxx, priority high.
     Game.SceneDirector.ToDepth(0);
     Game.SceneDirector.Push(new GameScene("Race"));
     Game.SceneDirector.Push(new GameScene("Debug"));
@@ -1127,11 +1143,11 @@ var RacetrackRenderer = function(scene){
 
 RacetrackRenderer.prototype.OnUpdate = function(e){
     var game = Game.Locator.create(GameDirector);
-    // TODO: xxx
+    //TODO: xxx
     if(!game.race){
         return;
     }
-    // TODO: innerHTMLは手抜き。createElementによるDOM操作が望ましい
+    //TODO: innerHTMLは手抜き。createElementによるDOM操作が望ましい
     this.dom.children[1].innerHTML = this.Render({
         "racetrack": game.race.gameBoard.racetrack,
     });
@@ -1237,6 +1253,7 @@ var GameScene = function(name){
         "Debug": function(scene){
             new FPSRenderer(scene);
             new DebugMenu(scene);
+            new LogMessageUI(scene);
         },
     };
     scenes[name](this);
@@ -1253,6 +1270,57 @@ GameScene.prototype.OnPause = function(){
 };
 GameScene.prototype.OnResume = function(){
     Game.Publisher.Publish(Events.GameScene.OnResume, this);
+};
+
+/**
+ * @constructor
+ */
+var LogMessageUI = function(scene){
+    this.dom = [];
+    this.messages = [];
+    this.events = [
+        [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
+        [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
+        [Events.GameDirector.OnLogMessage, this.OnLogMessage.bind(this), null],
+    ];
+    this.events.forEach(function(event){
+        Game.Publisher.Subscribe(event[0], event[1], event[2]);
+    });
+};
+
+LogMessageUI.prototype.OnEnter = function(e){
+    var elements = document.getElementsByTagName("body");
+    if(elements.length > 0){
+        var body = elements[0];
+        var section = document.createElement("section");
+        section.className = "history";
+        var h1 = document.createElement("h1");
+        h1.innerText = "History";
+        section.appendChild(h1);
+        body.appendChild(section);
+        for(var i =0; i < 5; i++){
+            var p = document.createElement("p");
+            p.innerText = "";
+            this.messages.push(p);
+            section.appendChild(p);
+        }
+        this.dom = section;
+    }
+};
+
+LogMessageUI.prototype.OnExit = function(e){
+    this.dom.parentNode.removeChild(this.dom);
+    this.events.forEach(function(event){
+        Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
+    });
+};
+
+LogMessageUI.prototype.OnLogMessage = function(e){
+    var message = e.payload["message"];
+    for(var i = this.messages.length - 1; 0 < i; i--){
+        this.messages[i].innerText = this.messages[i - 1].innerText;
+    }
+    this.messages[0].innerText = message;
 };
 
 /**
@@ -1300,7 +1368,7 @@ DebugMenu.prototype.OnEnter = function(e){
         this.dom = dom;
     }
     var buttons = [
-        ["Reset Game", function(){Game.Publisher.Publish(Events.Debug.OnResetGame, this);}],
+        ["Reset \uD83C\uDFAE", function(){Game.Publisher.Publish(Events.Debug.OnResetGame, this);}],
         ["Play Card", function(){Game.Publisher.Publish(Events.Debug.OnPlayCard, this);}],
         ["Play RankCard", function(){Game.Publisher.Publish(Events.Debug.OnPlayRankCard, this);}],
         ["Play DashCard", function(){Game.Publisher.Publish(Events.Debug.OnPlayDashCard, this);}],
@@ -1325,13 +1393,16 @@ DebugMenu.prototype.OnPlayCard = function(e){
     var playCardDirector = Game.Locator.create(PlayCardDirector);
     var card = playCardDirector.NextCard();
     if(!card){
-        console.log("404 Card Not found.");
+        Game.Log("404 Card Not found.");
         return;
     }
     Game.Publisher.Publish(Events.Race.OnPlayCard, this, {card: card});
     var position = playCardDirector.position;
-    console.log([
+    Game.Log([
         position,
+        " ",
+        "card_id=",
+        card.model["id"],
         " ",
         card.LogMessage(),
     ].join(""));
@@ -1345,7 +1416,7 @@ DebugMenu.prototype.OnPlayRankCard = function(e){
     var detail_id = 1;
     var card = repository.Find(detail_id);
     race.Apply(card);
-    console.log(card.LogMessage());
+    Game.Log(card.LogMessage());
 };
 
 DebugMenu.prototype.OnPlayDashCard = function(e){
@@ -1356,7 +1427,7 @@ DebugMenu.prototype.OnPlayDashCard = function(e){
     var detail_id = 1 + 1;
     var card = repository.Find(detail_id);
     race.Apply(card);
-    console.log(card.LogMessage());
+    Game.Log(card.LogMessage());
 };
 
 DebugMenu.prototype.OnMove = function(e){
@@ -1458,7 +1529,7 @@ RelationshipChecker.prototype.Check = function(modelName){
             console.error(message)
         });
     } else {
-        console.log("RelationshipChecker: ok");
+        Game.Log("RelationshipChecker: ok");
     }
 };
 
