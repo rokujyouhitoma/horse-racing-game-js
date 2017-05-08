@@ -1176,6 +1176,9 @@ RacetrackRenderer.prototype.Render = function(dictionary){
     return text;
 };
 
+/**
+ * @constructor
+ */
 var TitleSceneUI = function(scene){
     this.dom = null;
     this.events = [
