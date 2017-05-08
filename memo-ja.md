@@ -77,6 +77,7 @@
 
 ## 2017.5.8
 
+ - fixed: SceneDirectorのバグ
  - fixed: PlayCardDirectorのバグ
  - LogMessageUI, Game.Logを追加
  - 適当にmain.cssでデザインをでっち上げる

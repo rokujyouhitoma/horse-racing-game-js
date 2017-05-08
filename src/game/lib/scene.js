@@ -106,7 +106,6 @@ SceneDirector.prototype.TriggerPause = function(scene){
         scene.OnPause();
         break;
     case Scene.State.Paused:
-        console.error("Not support");
         break;
     default:
         console.error("Not support");
@@ -120,7 +119,6 @@ SceneDirector.prototype.TriggerResume = function(scene){
         console.error("Not support");
         break;
     case Scene.State.Active:
-        console.error("Not support");
         break;
     case Scene.State.Paused:
         scene.state = Scene.State.Active;
