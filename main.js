@@ -635,40 +635,6 @@ PlayCard.prototype.LogMessage = function(){
 /**
  * @constructor
  */
-var PlayCardDirector = function(){
-    this.playCards = [];
-    this.position = 0;
-};
-PlayCardDirector.prototype = new GameObject();
-
-PlayCardDirector.prototype.Start = function(){
-    var repositoryDirector = Game.Locator.create(RepositoryDirector);
-    var repository = repositoryDirector.Get("PlayCard");
-    var playCards = repository.All();
-    this.playCards = Utility.FisherYatesShuffle(playCards);
-    Game.Publisher.Subscribe(Events.Race.OnPlayCard, this.OnPlayCard.bind(this));
-};
-
-PlayCardDirector.prototype.OnPlayCard = function(e){
-    var card = e.payload.card;
-    var race = Game.Locator.create(GameDirector).race;
-    race.Apply(card);
-};
-
-PlayCardDirector.prototype.NextCard = function(){
-    var length = this.playCards.length;
-    var position = this.position;
-    if(length < position){
-        return;
-    }
-    var card = this.playCards[position];
-    this.position++;
-    return card;
-};
-
-/**
- * @constructor
- */
 var Lane = function(index, number, runner, len){
     this.index = index;
     this.number = number;
@@ -995,7 +961,6 @@ var GameDirector = function(){
         Game.Locator.create(MonsterCoinDirector),
         Game.Locator.create(MonsterFigureDirector),
         Game.Locator.create(RaceDirector),
-        Game.Locator.create(PlayCardDirector),
     ];
     this.events = [
         [Events.GameDirector.OnLogMessage, this.OnLogMessage.bind(this), null],
@@ -1110,6 +1075,71 @@ FPSRenderer.prototype.OnExit = function(e){
 
 FPSRenderer.prototype.Render = function(dictionary){
     this.dom.children[1].innerText = dictionary["fps"];
+};
+
+/**
+ * @constructor
+ */
+var PlayCardDirector = function(scene){
+    this.playCards = [];
+    this.position = 0;
+    this.events = [
+        [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
+        [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
+    ];
+    this.events.forEach(function(event){
+        Game.Publisher.Subscribe(event[0], event[1], event[2]);
+    });
+    this.OnPlayCardListener = this.OnPlayCard.bind(this);
+};
+
+PlayCardDirector.prototype.OnEnter = function(e){
+    var repositoryDirector = Game.Locator.create(RepositoryDirector);
+    var repository = repositoryDirector.Get("PlayCard");
+    var playCards = repository.All();
+    this.playCards = Utility.FisherYatesShuffle(playCards);
+    this.position = 0;
+    Game.Publisher.Subscribe(Events.Race.OnPlayCard, this.OnPlayCardListener);
+};
+
+PlayCardDirector.prototype.OnExit = function(e){
+    this.playCards = [];
+    this.position = 0;
+    Game.Publisher.UnSubscribe(Events.Race.OnPlayCard, this.OnPlayCardListener);
+    this.events.forEach(function(event){
+        Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
+    });
+};
+
+PlayCardDirector.prototype.OnPlayCard = function(e){
+    console.log("OnPlayCard");
+    var card = this.NextCard();
+    if(!card){
+        Game.Log("404 Card Not found.");
+        return;
+    }
+    var race = Game.Locator.create(GameDirector).race;
+    race.Apply(card);
+    var position = this.position;
+    Game.Log([
+        position,
+        " ",
+        "card_id=",
+        card.model["id"],
+        " ",
+        card.LogMessage(),
+    ].join(""));
+};
+
+PlayCardDirector.prototype.NextCard = function(){
+    var length = this.playCards.length;
+    var position = this.position;
+    if(length < position){
+        return;
+    }
+    var card = this.playCards[position];
+    this.position++;
+    return card;
 };
 
 /**
@@ -1261,6 +1291,7 @@ var GameScene = function(name){
         },
 //        "Menu": function(scene){},
         "Race": function(scene){
+            new PlayCardDirector(scene);
             new RacetrackRenderer(scene);
         },
         "Debug": function(scene){
@@ -1403,22 +1434,7 @@ DebugMenu.prototype.OnExit = function(e){
 };
 
 DebugMenu.prototype.OnPlayCard = function(e){
-    var playCardDirector = Game.Locator.create(PlayCardDirector);
-    var card = playCardDirector.NextCard();
-    if(!card){
-        Game.Log("404 Card Not found.");
-        return;
-    }
-    Game.Publisher.Publish(Events.Race.OnPlayCard, this, {card: card});
-    var position = playCardDirector.position;
-    Game.Log([
-        position,
-        " ",
-        "card_id=",
-        card.model["id"],
-        " ",
-        card.LogMessage(),
-    ].join(""));
+    Game.Publisher.Publish(Events.Race.OnPlayCard, this);
 };
 
 DebugMenu.prototype.OnPlayRankCard = function(e){
