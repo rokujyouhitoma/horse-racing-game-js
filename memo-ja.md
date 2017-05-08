@@ -77,6 +77,7 @@
 
 ## 2017.5.8
 
+ - CC向けアノテーションをExEvent, ExEventTarget, ExEventListener, Locator, Xorshiftに適用
  - MasterDataにローダーオブジェクトの概念を追加。スタブデータはStubLoderから読み込む
  - Loader, StubLoaderを追加
  - タイトルシーンを追加
