@@ -998,7 +998,9 @@ GameDirector.prototype.OnResetGame = function(e){
 
 GameDirector.prototype.OnNewRace = function(e){
     //TODO: xxx, priority high.
+    Game.SceneDirector.Pop();
     Game.SceneDirector.ToDepth(0);
+    Game.SceneDirector.Push(new GameScene("Menu"));
     Game.SceneDirector.Push(new GameScene("Race"));
     Game.SceneDirector.Push(new GameScene("Debug"));
     var row = Game.Locator.create(MasterData).Get("Race")[0];
@@ -1288,7 +1290,9 @@ var GameScene = function(name){
         "Title": function(scene){
             new TitleSceneUI(scene);
         },
-//        "Menu": function(scene){},
+        "Menu": function(scene){
+            new MenuUI(scene);
+        },
         "Race": function(scene){
             new PlayCardDirector(scene);
             new RacetrackUI(scene);
@@ -1368,15 +1372,60 @@ LogMessageUI.prototype.OnLogMessage = function(e){
 
 /**
  * @constructor
+ * @param {string} label The label.
  */
-var DebugButton = function(label){
+var UIButton = function(label){
     this.label = label;
 };
 
-DebugButton.prototype.DOM = function(){
+/**
+ * @return {Element} The button element.
+ */
+UIButton.prototype.DOM = function(){
     var button = document.createElement("button");
     button.innerText = this.label;
     return button;
+};
+
+var MenuUI = function(scene){
+    this.dom = null;
+    this.events = [
+        [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
+        [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
+    ];
+    this.events.forEach(function(event){
+        Game.Publisher.Subscribe(event[0], event[1], event[2]);
+    });
+};
+
+MenuUI.prototype.OnEnter = function(e){
+    var elements = document.getElementsByTagName("body");
+    if(elements.length > 0){
+        var body = elements[0];
+        var section = document.createElement("section");
+        var h1 = document.createElement("h1");
+        h1.innerText = "Menu";
+        section.appendChild(h1);
+        body.appendChild(section);
+        this.dom = section;
+    }
+    var buttons = [
+        ["Play PlayCard Random", function(){Game.Publisher.Publish(Events.Debug.OnPlayCard, this);}],
+        ["Reset \uD83C\uDFAE", function(){Game.Publisher.Publish(Events.Debug.OnResetGame, this);}],
+    ].map(function(value){
+        var button = (new UIButton(value[0])).DOM();
+        button.addEventListener("click", value[1]);
+        return button;
+    }).forEach(function(dom){
+        this.dom.appendChild(dom);
+    }, this);
+};
+
+MenuUI.prototype.OnExit = function(e){
+    this.dom.parentNode.removeChild(this.dom);
+    this.events.forEach(function(event){
+        Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
+    });
 };
 
 /**
@@ -1417,7 +1466,7 @@ DebugMenu.prototype.OnEnter = function(e){
         ["Play DashCard", function(){Game.Publisher.Publish(Events.Debug.OnPlayDashCard, this);}],
         ["Check Relationship", function(){Game.Publisher.Publish(Events.Debug.OnCheckRelationship, this);}],
     ].map(function(value){
-        var button = (new DebugButton(value[0])).DOM();
+        var button = (new UIButton(value[0])).DOM();
         button.addEventListener("click", value[1]);
         return button;
     }).forEach(function(dom){

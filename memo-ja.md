@@ -77,6 +77,7 @@
 
 ## 2017.5.8
 
+ - MenuUIオブジェクトを追加
  - fixed: SceneDirectorのバグ
  - fixed: PlayCardDirectorのバグ
  - LogMessageUI, Game.Logを追加
