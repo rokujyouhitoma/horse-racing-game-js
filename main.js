@@ -1387,6 +1387,9 @@ UIButton.prototype.DOM = function(){
     return button;
 };
 
+/**
+ * @constructor
+ */
 var MenuUI = function(scene){
     this.dom = null;
     this.events = [
