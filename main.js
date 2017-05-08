@@ -2,17 +2,21 @@
 
 var Utility = {};
 
+/**
+ * @param {Array<Object>} array The array.
+ * @return {Array<Object>} The shuffled array.
+ */
 Utility.FisherYatesShuffle = function(array){
     // Fisher–Yates shuffle
     var random = new Xorshift();
-    var result = array.slice();
+    var shuffled = array.slice();
     for(var i = array.length - 1; 0 < i; i--){
         var r = Math.floor((random.rand() / Xorshift.MAX_VALUE) * (i + 1));
-        var tmp = result[i];
-        result[i] = result[r];
-        result[r] = tmp;
+        var tmp = shuffled[i];
+        shuffled[i] = shuffled[r];
+        shuffled[r] = tmp;
     }
-    return result;
+    return shuffled;
 };
 
 /**
@@ -25,7 +29,7 @@ var Model = function(meta){
 Model.prototype.Set = function(value){
     var names = this.meta["names"];
     var types = this.meta["types"];
-    for(var i=0; i < names.length; i++){
+    for(var i = 0; i < names.length; i++){
         var type = types[i];
         this[names[i]] = Model.Cast(type, value[i]);
     }
@@ -34,25 +38,32 @@ Model.prototype.Set = function(value){
 
 Model.Cast = function(type, string){
     switch(type){
-    case "int":
+    case Model.Types.Int:
         return parseInt(string, 10);
-    case "string":
+    case Model.Types.String:
         return string;
     }
 };
 
+Model.Types = {
+    Int: "int",
+    String: "string",
+};
+
 /**
- * @constructor
+ * @interface
  */
 var Loader = function(){};
 
 /**
  * @param {string} key The key.
+ * @return {Array<Object>} The rows.
  */
 Loader.prototype.Load = function(key){};
 
 /**
  * @constructor
+ * @implements {Loader}
  */
 var StubLoader = function(){
     this.stub = {
@@ -197,8 +208,10 @@ var StubLoader = function(){
     };
 };
 
-StubLoader.prototype = new Loader();
-
+/**
+ * @param {string} key The key.
+ * @return {Array<Object>} The rows.
+ */
 StubLoader.prototype.Load = function(key){
     return this.stub[key];
 };
