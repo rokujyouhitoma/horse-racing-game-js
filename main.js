@@ -1112,7 +1112,6 @@ PlayCardDirector.prototype.OnExit = function(e){
 };
 
 PlayCardDirector.prototype.OnPlayCard = function(e){
-    console.log("OnPlayCard");
     var card = this.NextCard();
     if(!card){
         Game.Log("404 Card Not found.");
