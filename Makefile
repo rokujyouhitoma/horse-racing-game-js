@@ -1,16 +1,23 @@
-cc:
-	java -jar tools/closure-compiler/closure-compiler-v20170423.jar \
-	--js \
-	src/lib/xorshift.js \
+
+JAVA = java
+
+CLOSURE_COMPIER = tools/closure-compiler/closure-compiler-v20170423.jar
+
+SOURCES = src/lib/xorshift.js \
 	src/lib/event.js \
 	src/lib/locator.js \
 	src/game/lib/scene.js \
 	src/game/lib/engine.js \
 	src/game/lib/repository.js \
 	src/game/lib/publisher.js \
-	main.js \
-	--js_output_file compiled/main-compiled.js \
+	main.js
+
+all: main-min.js
+
+main-min.js: $(SOURCES)
+	$(JAVA) -jar $(CLOSURE_COMPIER) \
 	--compilation_level ADVANCED_OPTIMIZATIONS \
-#	--debug \
-	--formatting=PRETTY_PRINT \
-#	--create_source_map compiled/compiled.js.map
+	--use_types_for_optimization \
+	--warning_level=VERBOSE \
+	--js_output_file $@ \
+	--js $(SOURCES) \
