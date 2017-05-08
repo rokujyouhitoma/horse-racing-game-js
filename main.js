@@ -1197,7 +1197,7 @@ TitleSceneUI.prototype.OnEnter = function(e){
         var body = elements[0];
         var section = document.createElement("section");
         var h1 = document.createElement("h1");
-        h1.innerText = "Horse racing game";
+        h1.innerText = "\uD83C\uDFC7 \uD83C\uDFAE";
         section.appendChild(h1);
         var button = document.createElement("button");
         button.innerText = "Start";
