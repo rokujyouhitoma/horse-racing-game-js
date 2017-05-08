@@ -935,7 +935,7 @@ Game.Entity = function(name, model){
 };
 
 Game.Log = function(message){
-    Game.Publisher.Publish(Events.GameDirector.OnLogMessage, this, {message: message});
+    Game.Publisher.Publish(Events.GameDirector.OnLogMessage, Game, {message: message});
     console.log(message);
 };
 
@@ -1168,7 +1168,7 @@ RacetrackRenderer.prototype.OnEnter = function(){
     }
 };
 
-RacetrackRenderer.prototype.OnExit = function(){
+RacetrackRenderer.prototype.OnExit = function(e){
     this.dom.parentNode.removeChild(this.dom);
     this.events.forEach(function(event){
         Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
@@ -1251,9 +1251,9 @@ var GameScene = function(name){
             new RacetrackRenderer(scene);
         },
         "Debug": function(scene){
-            new FPSRenderer(scene);
-            new DebugMenu(scene);
             new LogMessageUI(scene);
+            new DebugMenu(scene);
+            new FPSRenderer(scene);
         },
     };
     scenes[name](this);
@@ -1276,7 +1276,7 @@ GameScene.prototype.OnResume = function(){
  * @constructor
  */
 var LogMessageUI = function(scene){
-    this.dom = [];
+    this.dom = null;
     this.messages = [];
     this.events = [
         [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
@@ -1369,7 +1369,7 @@ DebugMenu.prototype.OnEnter = function(e){
     }
     var buttons = [
         ["Reset \uD83C\uDFAE", function(){Game.Publisher.Publish(Events.Debug.OnResetGame, this);}],
-        ["Play Card", function(){Game.Publisher.Publish(Events.Debug.OnPlayCard, this);}],
+        ["Play PlayCard", function(){Game.Publisher.Publish(Events.Debug.OnPlayCard, this);}],
         ["Play RankCard", function(){Game.Publisher.Publish(Events.Debug.OnPlayRankCard, this);}],
         ["Play DashCard", function(){Game.Publisher.Publish(Events.Debug.OnPlayDashCard, this);}],
         ["Check Relationship", function(){Game.Publisher.Publish(Events.Debug.OnCheckRelationship, this);}],
