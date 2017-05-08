@@ -44,7 +44,17 @@ Model.Cast = function(type, string){
 /**
  * @constructor
  */
-var MasterData = function(){
+var Loader = function(){};
+
+/**
+ * @param {string} key The key.
+ */
+Loader.prototype.Load = function(key){};
+
+/**
+ * @constructor
+ */
+var StubLoader = function(){
     this.stub = {
         "HorseFigure": [
             ["id", "type", "color"],
@@ -185,7 +195,19 @@ var MasterData = function(){
             ["2", "2", "2"],
         ],
     };
+};
 
+StubLoader.prototype = new Loader();
+
+StubLoader.prototype.Load = function(key){
+    return this.stub[key];
+};
+
+/**
+ * @constructor
+ */
+var MasterData = function(){
+    this.loader = new StubLoader();
     this.meta = {
         "HorseFigure": {},
         "MonsterCoin": {},
@@ -250,13 +272,15 @@ var MasterData = function(){
 };
 
 MasterData.prototype.Get = function(key){
-    return this.stub[key].slice(2);
+    var rows = this.loader.Load(key);
+    return rows.slice(2);
 };
 
 MasterData.prototype.GetMeta = function(key){
-    var tmp = this.stub[key].slice(0, 2);
-    var names = tmp[0];
-    var types = tmp[1];
+    var rows = this.loader.Load(key);
+    var header = rows.slice(0, 2);
+    var names = header[0];
+    var types = header[1];
     var meta = {
         names: names,
         types: types,
