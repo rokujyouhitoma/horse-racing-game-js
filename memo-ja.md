@@ -277,3 +277,7 @@ SceneDirectorはSceneの
 ### Try
 
  - あとn回作り直して(n=1は行ったほうがよい)抽象化すべきところを抽象化する。責務の切り分けを行う
+
+# Special Thanks
+
+ - [mizchi's blog GWの進捗としてRPG作った / redux-saga でメインループ処理、JSONSchemaからのコード生成](http://mizchi.hatenablog.com/entry/2017/05/08/013632) の記事が僕のやる気を飛躍的にアップさせる薬となった。謝謝だぜmizchiちゃん おかげでひとつ強くなれた
