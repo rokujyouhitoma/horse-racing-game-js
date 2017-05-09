@@ -129,7 +129,7 @@ var FPSRenderer = function(scene){
 };
 
 FPSRenderer.prototype.OnUpdate = function(e){
-    var fps = Math.floor(Game.Locator.create(Game).fps.currentFPS * 100) / 100;
+    var fps = Math.floor(Game.Locator.locate(Game).fps.currentFPS * 100) / 100;
     this.Render({
         "fps": fps,
     });
@@ -205,7 +205,7 @@ var RacetrackRenderer = function(scene){
 };
 
 RacetrackRenderer.prototype.OnUpdate = function(e){
-    var game = Game.Locator.create(GameDirector);
+    var game = Game.Locator.locate(GameDirector);
     //TODO: xxx
     if(!game.race){
         return;
@@ -360,8 +360,8 @@ DebugMenuRenderer.prototype.OnPlayCard = function(e){
 };
 
 DebugMenuRenderer.prototype.OnPlayRankCard = function(e){
-    var race = Game.Locator.create(GameDirector).race;
-    var repositoryDirector = Game.Locator.create(RepositoryDirector);
+    var race = Game.Locator.locate(GameDirector).race;
+    var repositoryDirector = Game.Locator.locate(RepositoryDirector);
     var name = "RankCard";
     var repository = repositoryDirector.Get(name);
     var detail_id = 1;
@@ -371,8 +371,8 @@ DebugMenuRenderer.prototype.OnPlayRankCard = function(e){
 };
 
 DebugMenuRenderer.prototype.OnPlayDashCard = function(e){
-    var race = Game.Locator.create(GameDirector).race;
-    var repositoryDirector = Game.Locator.create(RepositoryDirector);
+    var race = Game.Locator.locate(GameDirector).race;
+    var repositoryDirector = Game.Locator.locate(RepositoryDirector);
     var name = "DashCard";
     var repository = repositoryDirector.Get(name);
     var detail_id = 1 + 1;
@@ -383,7 +383,7 @@ DebugMenuRenderer.prototype.OnPlayDashCard = function(e){
 
 DebugMenuRenderer.prototype.OnMove = function(e){
     var index = e.payload["index"];
-    Game.Locator.create(GameDirector).race.gameBoard.racetrack.lanes[index].position += 1;
+    Game.Locator.locate(GameDirector).race.gameBoard.racetrack.lanes[index].position += 1;
 };
 
 DebugMenuRenderer.prototype.OnResetGame = function(e){

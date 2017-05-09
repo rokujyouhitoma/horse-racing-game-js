@@ -12,7 +12,7 @@ RelationshipChecker.Conditions = {
 };
 
 RelationshipChecker.prototype.Check = function(modelName){
-    var masterData = Game.Locator.create(MasterData);
+    var masterData = Game.Locator.locate(MasterData);
     var meta = masterData.GetMeta(modelName);
     if(!(meta["relationships"])){
         return;
