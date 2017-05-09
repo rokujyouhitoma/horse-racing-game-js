@@ -790,6 +790,11 @@ RankCard.prototype.LogMessage = function(){
 var DashCardTypeBoost = function(){};
 DashCardTypeBoost.prototype.Play = function(race){
     var ranks = race.Ranks();
+    // for defensive.
+    if(!(1 in ranks)){
+        //TODO: xxx
+        return;
+    }
     if(1 < ranks[1].length){
         //TODO: xxx
         return null;
@@ -813,6 +818,11 @@ DashCardTypeBoost.prototype.LogMessage = function(){};
 var DashCardTypeCatchUp = function(){};
 DashCardTypeCatchUp.prototype.Play = function(race){
     var ranks = race.Ranks();
+    // for defensive.
+    if(!(1 in ranks)){
+        //TODO: xxx
+        return;
+    }
     if(1 < ranks[1].length){
         //TODO: xxx
         return null;
