@@ -1,6 +1,15 @@
 "use strict";
 
 /**
+ * @interface
+ */
+var IScene = function(){};
+IScene.prototype.OnEnter = function(){};
+IScene.prototype.OnExit = function(){};
+IScene.prototype.OnPause = function(){};
+IScene.prototype.OnResume = function(){};
+
+/**
  * @constructor
  */
 var Scene = function(){

@@ -1320,6 +1320,8 @@ PlayCardDirector.prototype.Generator = function*(){
 /**
  * @constructor
  * @param {string} name Scene name.
+ * @implements {IScene}
+ * @extends {Scene}
  */
 var GameScene = function(name){
     this.name = name;
