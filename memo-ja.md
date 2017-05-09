@@ -77,6 +77,8 @@
 
 ## 2017.5.9
 
+ - CommandDirectorを追加
+ - Command Interface, SimpleCommandExecuter objectを追加
  - Makefileを整理
  - main.jsで定義されているPublisherオブジェクトをsrc/game/lib/publisher.jsに分ける
  - MasterMetaオブジェクトを追加

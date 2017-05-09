@@ -169,6 +169,54 @@ GameDirector.prototype.OnNewRace = function(e){
 /**
  * @constructor
  */
+var CommandDirector = function(){
+    /** type {Array<Command>} */
+    this.commands_ = [];
+    /** type {number} */
+    this.position_ = 0;
+    this.events = [
+        [Events.Game.OnUpdate, this.OnUpdate.bind(this), null],
+    ];
+    this.events.forEach(function(event){
+        Game.Publisher.Subscribe(event[0], event[1], event[2]);
+    });
+};
+
+CommandDirector.prototype.OnUpdate = function(e){
+    for(var command of this.Generator()){
+        command.Execute();
+    }
+};
+
+CommandDirector.prototype.Execute = function(command){
+    this.commands_.push(command);
+};
+
+CommandDirector.prototype.Undo = function(){
+    if(this.commands_.length <= 0){
+        return;
+    }
+    var command = this.commands_.pop();
+    command.Undo();
+    this.position_ -= 1
+};
+
+/**
+ * @return {!Iterator<Command>}
+ */
+CommandDirector.prototype.Generator = function*(){
+    var position = this.position_;
+    var commands = this.commands_;
+    var length = this.commands_.length;
+    for(var i = position; i < length; i++){
+        this.position_ += 1;
+        yield commands[i];
+    }
+};
+
+/**
+ * @constructor
+ */
 var Model = function(meta){
     /** @private */
     this.meta_ = meta;
