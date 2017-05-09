@@ -1049,6 +1049,7 @@ FPSRenderer.prototype.OnEnter = function(e){
     if(elements.length > 0){
         var body = elements[0];
         var section = document.createElement("section");
+        section.className = "fps";
         var h1 = document.createElement("h1");
         h1.innerText = "FPS";
         section.appendChild(h1);
@@ -1193,6 +1194,7 @@ RacetrackUI.prototype.OnEnter = function(){
     if(elements.length > 0){
         var body = elements[0];
         var section = document.createElement("section");
+        section.className = "racetrack";
         var h1 = document.createElement("h1");
         h1.innerText = "Racetrack";
         section.appendChild(h1);
@@ -1247,6 +1249,7 @@ TitleSceneUI.prototype.OnEnter = function(e){
     if(elements.length > 0){
         var body = elements[0];
         var section = document.createElement("section");
+        section.className = "";
         var h1 = document.createElement("h1");
         h1.innerText = "\uD83C\uDFC7 -> \uD83C\uDFAE";
         section.appendChild(h1);
@@ -1397,6 +1400,7 @@ MenuUI.prototype.OnEnter = function(e){
     if(elements.length > 0){
         var body = elements[0];
         var section = document.createElement("section");
+        section.className = "menu";
         var h1 = document.createElement("h1");
         h1.innerText = "Menu";
         section.appendChild(h1);
@@ -1446,12 +1450,13 @@ DebugMenu.prototype.OnEnter = function(e){
     var elements = document.getElementsByTagName("body");
     if(elements.length > 0){
         var body = elements[0];
-        var dom = document.createElement("section");
+        var section = document.createElement("section");
+        section.className = "debug_menu";
         var h1 = document.createElement("h1");
         h1.innerText = "Debug Menu";
-        dom.appendChild(h1);
-        body.appendChild(dom);
-        this.dom = dom;
+        section.appendChild(h1);
+        body.appendChild(section);
+        this.dom = section;
     }
     var buttons = [
         ["Reset \uD83C\uDFAE", function(){Game.Publisher.Publish(Events.Debug.OnResetGame, this);}],
