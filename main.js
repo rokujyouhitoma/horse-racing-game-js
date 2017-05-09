@@ -316,12 +316,15 @@ MasterData.prototype.Get = function(key){
  * @return {MasterMeta} The master meta object.
  */
 MasterData.prototype.GetMeta = function(key){
+    /** @type {Array<Array<string>>} */
     var rows = this.loader_.Load(key);
+    /** @type {Array<Array<string>>} */
     var header = rows.slice(0, 2);
     /** @type {Array<string>} */
     var names = header[0];
     /** @type {Array<string>} */
     var types = header[1];
+    /** @type {MasterMeta} */
     var meta = new MasterMeta(names, types);
     if(this.meta_[key] && this.meta_[key]["relationships"]){
         meta["relationships"] = this.meta_[key]["relationships"];
@@ -333,6 +336,7 @@ MasterData.prototype.GetMeta = function(key){
  * @constructor
  */
 var HorseFigure = function(model){
+    /** @type {Model} */
     this.model = model;
 };
 HorseFigure.prototype = new GameObject();
@@ -365,6 +369,7 @@ HorseFigureDirector.prototype.Destroy = function(){
  * @constructor
  */
 var MonsterCoin = function(model){
+    /** @type {Model} */
     this.model = model;
 };
 MonsterCoin.prototype = new GameObject();
@@ -397,6 +402,7 @@ MonsterCoinDirector.prototype.Destroy = function(){
  * @constructor
  */
 var MonsterFigure = function(model){
+    /** @type {Model} */
     this.model = model;
 };
 MonsterFigure.prototype = new GameObject();
@@ -437,6 +443,7 @@ Card.prototype.LogMessage = function(){};
  * @constructor
  */
 var StepCard = function(model){
+    /** @type {Model} */
     this.model = model;
 };
 StepCard.prototype = new Card();
@@ -474,6 +481,7 @@ StepCard.prototype.LogMessage = function(){
  * @constructor
  */
 var RankCard = function(model){
+    /** @type {Model} */
     this.model = model;
 };
 RankCard.prototype = new Card();
@@ -548,6 +556,7 @@ DashCardTypeCatchUp.prototype.Play = function(race){
  * @constructor
  */
 var DashCard = function(model){
+    /** @type {Model} */
     this.model = model;
     var dashType = model["dash_type"];
     this.behavior = this.GetBehavior(dashType);
@@ -588,6 +597,7 @@ DashCard.prototype.GetBehavior = function(dashType){
  * @constructor
  */
 var PlayCard = function(model){
+    /** @type {Model} */
     this.model = model;
     this.card = this.GetCard();
 };
@@ -696,7 +706,9 @@ GameBoard.prototype.Start = function(){
  * @constructor
  */
 var Race = function(model){
+    /** @type {Model} */
     this.model = model;
+    /** @type {GameBoard} */
     this.gameBoard = new GameBoard(this);
 };
 Race.prototype = new GameObject();
