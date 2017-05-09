@@ -10,6 +10,7 @@ SOURCES = src/lib/xorshift.js \
 	src/game/lib/engine.js \
 	src/game/lib/repository.js \
 	src/game/lib/publisher.js \
+	src/game/checker.js \
 	main.js
 
 all: main-min.js
