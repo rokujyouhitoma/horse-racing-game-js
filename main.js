@@ -22,6 +22,153 @@ Utility.FisherYatesShuffle = function(array){
 /**
  * @constructor
  */
+var Game = function(){
+    this.fps = new FPS();
+    this.objects = [
+        this.fps,
+        Game.Locator.create(GameDirector),
+    ];
+};
+Game.prototype = new GameObject();
+
+Game.prototype.Start = function(){
+    GameObject.prototype.Start.call(this);
+    Game.Publisher.Publish(Events.Game.OnStart, this);
+};
+
+Game.prototype.Destroy = function(){
+    GameObject.prototype.Destroy.call(this);
+    Game.Publisher.Publish(Events.Game.OnDestroy, this);
+};
+
+Game.prototype.Update = function(deltaTime){
+    GameObject.prototype.Update.call(this, arguments);
+    Game.Publisher.Publish(Events.Game.OnUpdate, this, {deltaTime: deltaTime});
+};
+
+Game.LocatorContainer = {};
+Game.Locator = new Locator(Game.LocatorContainer);
+
+Game.Publisher = Game.Locator.create(Publisher);
+
+Game.SceneDirector = Game.Locator.create(SceneDirector);
+
+Game.Model = function(name){
+    var meta = Game.Locator.create(MasterData).GetMeta(name);
+    return new Model(meta);
+};
+
+Game.Entity = function(name, model){
+    return new ({
+        "StepCard": StepCard,
+        "RankCard": RankCard,
+        "DashCard": DashCard,
+        "PlayCard": PlayCard,
+        //TODO: xxx
+    }[name])(model);
+};
+
+Game.Log = function(message){
+    Game.Publisher.Publish(Events.GameDirector.OnLogMessage, Game, {message: message});
+    console.log(message);
+};
+
+var Events = {
+    Game: {
+        OnStart: "Events.Game.OnStart",
+        OnUpdate: "Events.Game.OnUpdate",
+        OnDestroy: "Events.Game.OnDestroy",
+    },
+    GameScene: {
+        OnEnter: "Events.GameScene.OnEnter",
+        OnExit: "Events.GameScene.OnExit",
+        OnPause: "Events.GameScene.OnPause",
+        OnResume: "Events.GameScene.OnResume",
+    },
+    GameDirector: {
+        OnResetGame: "Events.GameDirector.OnResetGame",
+        OnNewRace: "Events.GameDirector.OnNewRace",
+        OnLogMessage: "Events.GameDirector.OnLogMessage",
+    },
+    Race: {
+        OnPlacingFirst: "Events.Race.OnPlacingFirst",
+        OnPlacingSecond: "Events.Race.OnPlacingSecond",
+        OnPlayCard: "Events.Race.OnPlayCard",
+    },
+    // For debug.
+    Debug: {
+        OnPlayCard: "Events.Debug.OnPlayCard",
+        OnPlayRankCard: "Events.Debug.OnPlayRankCard",
+        OnPlayDashCard: "Events.Debug.OnPlayDashCard",
+        OnMove: "Events.Debug.OnMove",
+        OnCheckRelationship: "Events.Debug.OnCheckRelationship",
+        OnResetGame: "Events.Debug.OnResetGame",
+    },
+};
+
+/**
+ * @constructor
+ */
+var GameDirector = function(){
+    this.objects = [
+        Game.Locator.create(RepositoryDirector),
+        Game.Locator.create(HorseFigureDirector),
+        Game.Locator.create(MonsterCoinDirector),
+        Game.Locator.create(MonsterFigureDirector),
+        Game.Locator.create(RaceDirector),
+    ];
+    this.events = [
+        [Events.GameDirector.OnLogMessage, this.OnLogMessage.bind(this), null],
+        [Events.GameDirector.OnNewRace, this.OnNewRace.bind(this), null],
+        [Events.GameDirector.OnResetGame, this.OnResetGame.bind(this), null],
+    ];
+    Game.Publisher.Subscribe(Events.Game.OnStart, this.OnStart.bind(this));
+    Game.Publisher.Subscribe(Events.Game.OnDestroy, this.OnDestroy.bind(this));
+};
+GameDirector.prototype = new GameObject();
+
+GameDirector.prototype.OnStart = function(e){
+    this.events.forEach(function(event){
+        Game.Publisher.Subscribe(event[0], event[1], event[2]);
+    });
+    Game.Publisher.Publish(Events.GameDirector.OnResetGame, this);
+};
+
+GameDirector.prototype.OnDestroy = function(e){
+    this.events.forEach(function(event){
+        Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
+    });
+};
+
+GameDirector.prototype.OnLogMessage = function(e){
+    var message = e.payload["message"];
+//    console.log(message);
+    //TODO: xxx
+};
+
+GameDirector.prototype.OnResetGame = function(e){
+    Game.SceneDirector.ToDepth(0);
+    Game.SceneDirector.Push(new GameScene("Title"));
+};
+
+GameDirector.prototype.OnNewRace = function(e){
+    //TODO: xxx, priority high.
+    Game.SceneDirector.Pop();
+    Game.SceneDirector.ToDepth(0);
+    Game.SceneDirector.Push(new GameScene("Menu"));
+    Game.SceneDirector.Push(new GameScene("Race"));
+    Game.SceneDirector.Push(new GameScene("Debug"));
+    var row = Game.Locator.create(MasterData).Get("Race")[0];
+    var model = Game.Model("Race").Set(row);
+    var race = new Race(model);
+    race.Start();
+    this.objects.push(race);
+    this.race = race;
+};
+
+/**
+ * @constructor
+ */
 var Model = function(meta){
     /** @private */
     this.meta_ = meta;
@@ -877,153 +1024,6 @@ RepositoryDirector.prototype.Start = function(){
 /**
  * @constructor
  */
-var Game = function(){
-    this.fps = new FPS();
-    this.objects = [
-        this.fps,
-        Game.Locator.create(GameDirector),
-    ];
-};
-Game.prototype = new GameObject();
-
-Game.prototype.Start = function(){
-    GameObject.prototype.Start.call(this);
-    Game.Publisher.Publish(Events.Game.OnStart, this);
-};
-
-Game.prototype.Destroy = function(){
-    GameObject.prototype.Destroy.call(this);
-    Game.Publisher.Publish(Events.Game.OnDestroy, this);
-};
-
-Game.prototype.Update = function(deltaTime){
-    GameObject.prototype.Update.call(this, arguments);
-    Game.Publisher.Publish(Events.Game.OnUpdate, this, {deltaTime: deltaTime});
-};
-
-Game.LocatorContainer = {};
-Game.Locator = new Locator(Game.LocatorContainer);
-
-Game.Publisher = Game.Locator.create(Publisher);
-
-Game.SceneDirector = Game.Locator.create(SceneDirector);
-
-Game.Model = function(name){
-    var meta = Game.Locator.create(MasterData).GetMeta(name);
-    return new Model(meta);
-};
-
-Game.Entity = function(name, model){
-    return new ({
-        "StepCard": StepCard,
-        "RankCard": RankCard,
-        "DashCard": DashCard,
-        "PlayCard": PlayCard,
-        //TODO: xxx
-    }[name])(model);
-};
-
-Game.Log = function(message){
-    Game.Publisher.Publish(Events.GameDirector.OnLogMessage, Game, {message: message});
-    console.log(message);
-};
-
-var Events = {
-    Game: {
-        OnStart: "Events.Game.OnStart",
-        OnUpdate: "Events.Game.OnUpdate",
-        OnDestroy: "Events.Game.OnDestroy",
-    },
-    GameScene: {
-        OnEnter: "Events.GameScene.OnEnter",
-        OnExit: "Events.GameScene.OnExit",
-        OnPause: "Events.GameScene.OnPause",
-        OnResume: "Events.GameScene.OnResume",
-    },
-    GameDirector: {
-        OnResetGame: "Events.GameDirector.OnResetGame",
-        OnNewRace: "Events.GameDirector.OnNewRace",
-        OnLogMessage: "Events.GameDirector.OnLogMessage",
-    },
-    Race: {
-        OnPlacingFirst: "Events.Race.OnPlacingFirst",
-        OnPlacingSecond: "Events.Race.OnPlacingSecond",
-        OnPlayCard: "Events.Race.OnPlayCard",
-    },
-    // For debug.
-    Debug: {
-        OnPlayCard: "Events.Debug.OnPlayCard",
-        OnPlayRankCard: "Events.Debug.OnPlayRankCard",
-        OnPlayDashCard: "Events.Debug.OnPlayDashCard",
-        OnMove: "Events.Debug.OnMove",
-        OnCheckRelationship: "Events.Debug.OnCheckRelationship",
-        OnResetGame: "Events.Debug.OnResetGame",
-    },
-};
-
-/**
- * @constructor
- */
-var GameDirector = function(){
-    this.objects = [
-        Game.Locator.create(RepositoryDirector),
-        Game.Locator.create(HorseFigureDirector),
-        Game.Locator.create(MonsterCoinDirector),
-        Game.Locator.create(MonsterFigureDirector),
-        Game.Locator.create(RaceDirector),
-    ];
-    this.events = [
-        [Events.GameDirector.OnLogMessage, this.OnLogMessage.bind(this), null],
-        [Events.GameDirector.OnNewRace, this.OnNewRace.bind(this), null],
-        [Events.GameDirector.OnResetGame, this.OnResetGame.bind(this), null],
-    ];
-    Game.Publisher.Subscribe(Events.Game.OnStart, this.OnStart.bind(this));
-    Game.Publisher.Subscribe(Events.Game.OnDestroy, this.OnDestroy.bind(this));
-};
-GameDirector.prototype = new GameObject();
-
-GameDirector.prototype.OnStart = function(e){
-    this.events.forEach(function(event){
-        Game.Publisher.Subscribe(event[0], event[1], event[2]);
-    });
-    Game.Publisher.Publish(Events.GameDirector.OnResetGame, this);
-};
-
-GameDirector.prototype.OnDestroy = function(e){
-    this.events.forEach(function(event){
-        Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
-    });
-};
-
-GameDirector.prototype.OnLogMessage = function(e){
-    var message = e.payload["message"];
-//    console.log(message);
-    //TODO: xxx
-};
-
-GameDirector.prototype.OnResetGame = function(e){
-    Game.SceneDirector.ToDepth(0);
-    Game.SceneDirector.Push(new GameScene("Title"));
-};
-
-GameDirector.prototype.OnNewRace = function(e){
-    //TODO: xxx, priority high.
-    Game.SceneDirector.Pop();
-    Game.SceneDirector.ToDepth(0);
-    Game.SceneDirector.Push(new GameScene("Menu"));
-    Game.SceneDirector.Push(new GameScene("Race"));
-    Game.SceneDirector.Push(new GameScene("Debug"));
-    var row = Game.Locator.create(MasterData).Get("Race")[0];
-    var model = Game.Model("Race").Set(row);
-    var race = new Race(model);
-    race.Start();
-    this.objects.push(race);
-    this.race = race;
-};
-
-/**
- * @constructor
- */
 var FPS = function(){
     var engine = Game.Locator.create(Engine);
     this.baseTime = engine.lastUpdate;
@@ -1039,55 +1039,6 @@ FPS.prototype.Update = function(deltaTime){
         this.baseTime = engine.lastUpdate;
         this.baseCount = engine.count;
     }
-};
-
-/**
- * @constructor
- */
-var FPSRenderer = function(scene){
-    this.dom = null;
-    this.events = [
-        [Events.Game.OnUpdate, this.OnUpdate.bind(this), null],
-        [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
-        [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
-    ];
-    this.events.forEach(function(event){
-        Game.Publisher.Subscribe(event[0], event[1], event[2]);
-    });
-};
-
-FPSRenderer.prototype.OnUpdate = function(e){
-    var fps = Math.floor(Game.Locator.create(Game).fps.currentFPS * 100) / 100;
-    this.Render({
-        "fps": fps,
-    });
-};
-
-FPSRenderer.prototype.OnEnter = function(e){
-    var elements = document.getElementsByTagName("body");
-    if(elements.length > 0){
-        var body = elements[0];
-        var section = document.createElement("section");
-        section.className = "fps";
-        var h1 = document.createElement("h1");
-        h1.innerText = "FPS";
-        section.appendChild(h1);
-        var p = document.createElement("p");
-        section.appendChild(p);
-        body.appendChild(section);
-        this.dom = section;
-    }
-};
-
-FPSRenderer.prototype.OnExit = function(e){
-    this.dom.parentNode.removeChild(this.dom);
-    this.events.forEach(function(event){
-        Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
-    });
-};
-
-FPSRenderer.prototype.Render = function(dictionary){
-    this.dom.children[1].innerText = dictionary["fps"];
 };
 
 /**
@@ -1156,163 +1107,24 @@ PlayCardDirector.prototype.NextCard = function(){
 
 /**
  * @constructor
- */
-var LaneRenderer = function(){};
-
-LaneRenderer.prototype.Render = function(dictionary){
-    var lane = dictionary["lane"];
-    var color = lane.runner.model["color"];
-    return [
-        this.ToArray(lane).reverse().join(""),
-        ["<span style='background-color:#", color, ";'>", lane.number, "</span>"].join(""),
-        lane.position,
-    ].join("|");
-};
-
-LaneRenderer.prototype.ToArray = function(lane){
-    var array = [];
-    var length = lane.len;
-    for(var i=0; i < length + 1; i++){
-        array.push((lane.position === i) ? LaneRenderer.CurrentPosition : LaneRenderer.EmptyPosition);
-    }
-    return array;
-};
-
-LaneRenderer.CurrentPosition = "\uD83C\uDFC7"; //Unicode Character 'HORSE RACING' (U+1F3C7)
-LaneRenderer.EmptyPosition = "_";
-
-/**
- * @constructor
- */
-var RacetrackUI = function(scene){
-    this.dom = null;
-    this.events = [
-        [Events.Game.OnUpdate, this.OnUpdate.bind(this), null],
-        [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
-        [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
-    ];
-    this.events.forEach(function(event){
-        Game.Publisher.Subscribe(event[0], event[1], event[2]);
-    });
-};
-
-RacetrackUI.prototype.OnUpdate = function(e){
-    var game = Game.Locator.create(GameDirector);
-    //TODO: xxx
-    if(!game.race){
-        return;
-    }
-    //TODO: innerHTMLは手抜き。createElementによるDOM操作が望ましい
-    this.dom.children[1].innerHTML = this.Render({
-        "racetrack": game.race.gameBoard.racetrack,
-    });
-};
-
-RacetrackUI.prototype.OnEnter = function(){
-    var elements = document.getElementsByTagName("body");
-    if(elements.length > 0){
-        var body = elements[0];
-        var section = document.createElement("section");
-        section.className = "racetrack";
-        var h1 = document.createElement("h1");
-        h1.innerText = "Racetrack";
-        section.appendChild(h1);
-        var div = document.createElement("div");
-        section.appendChild(div);
-        body.appendChild(section);
-        this.dom = section;
-    }
-};
-
-RacetrackUI.prototype.OnExit = function(e){
-    this.dom.parentNode.removeChild(this.dom);
-    this.events.forEach(function(event){
-        Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
-    });
-};
-
-RacetrackUI.prototype.Render = function(dictionary){
-    var laneRenderer = new LaneRenderer();
-    var racetrack = dictionary["racetrack"];
-    var lanes = racetrack.lanes;
-    var text = [
-        lanes.reduce(function(a, b, index){
-            if(index == 1){
-                return [a, b].map(function(lane){
-                    return laneRenderer.Render({"lane": lane});
-                }).join("<br />");
-            }
-            return [a, laneRenderer.Render({"lane": b})].join("<br />");
-        })
-    ].join("");
-    return text;
-};
-
-/**
- * @constructor
- */
-var TitleSceneUI = function(scene){
-    this.dom = null;
-    this.events = [
-        [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
-        [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
-    ];
-    this.events.forEach(function(event){
-        Game.Publisher.Subscribe(event[0], event[1], event[2]);
-    });
-    this.onClickListener = this.OnClick.bind(this);
-};
-
-TitleSceneUI.prototype.OnEnter = function(e){
-    var elements = document.getElementsByTagName("body");
-    if(elements.length > 0){
-        var body = elements[0];
-        var section = document.createElement("section");
-        section.className = "";
-        var h1 = document.createElement("h1");
-        h1.innerText = "\uD83C\uDFC7 -> \uD83C\uDFAE";
-        section.appendChild(h1);
-        var button = document.createElement("button");
-        button.innerText = "\uD83C\uDFAE Start \uD83C\uDFAE";
-        button.addEventListener("click", this.onClickListener);
-        section.appendChild(button);
-        body.appendChild(section);
-        this.dom = section;
-    }
-};
-
-TitleSceneUI.prototype.OnExit = function(e){
-    this.dom.children[1].removeEventListener("click", this.onClickListener);
-    this.dom.parentNode.removeChild(this.dom);
-    this.events.forEach(function(event){
-        Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
-    });
-};
-
-TitleSceneUI.prototype.OnClick = function(e){
-    Game.Publisher.Publish(Events.GameDirector.OnNewRace, this);
-};
-
-/**
- * @constructor
  * @param {string} name Scene name.
  */
 var GameScene = function(name){
     this.name = name;
     var scenes = {
         "Title": function(scene){
-            new TitleSceneUI(scene);
+            new TitleSceneRenderer(scene);
         },
         "Menu": function(scene){
-            new MenuUI(scene);
+            new MenuRenderer(scene);
         },
         "Race": function(scene){
             new PlayCardDirector(scene);
-            new RacetrackUI(scene);
-            new LogMessageUI(scene);
+            new RacetrackRenderer(scene);
+            new LogMessageRenderer(scene);
         },
         "Debug": function(scene){
-            new DebugMenu(scene);
+            new DebugMenuRenderer(scene);
             new FPSRenderer(scene);
         },
     };
@@ -1330,222 +1142,6 @@ GameScene.prototype.OnPause = function(){
 };
 GameScene.prototype.OnResume = function(){
     Game.Publisher.Publish(Events.GameScene.OnResume, this);
-};
-
-/**
- * @constructor
- */
-var LogMessageUI = function(scene){
-    this.dom = null;
-    this.messages = [];
-    this.events = [
-        [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
-        [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
-        [Events.GameDirector.OnLogMessage, this.OnLogMessage.bind(this), null],
-    ];
-    this.events.forEach(function(event){
-        Game.Publisher.Subscribe(event[0], event[1], event[2]);
-    });
-};
-
-LogMessageUI.prototype.OnEnter = function(e){
-    var elements = document.getElementsByTagName("body");
-    if(elements.length > 0){
-        var body = elements[0];
-        var section = document.createElement("section");
-        section.className = "history";
-        var h1 = document.createElement("h1");
-        h1.innerText = "History";
-        section.appendChild(h1);
-        body.appendChild(section);
-        for(var i =0; i < 5; i++){
-            var p = document.createElement("p");
-            p.innerText = "\uD83C\uDFC7";
-            this.messages.push(p);
-            section.appendChild(p);
-        }
-        this.dom = section;
-    }
-};
-
-LogMessageUI.prototype.OnExit = function(e){
-    this.dom.parentNode.removeChild(this.dom);
-    this.events.forEach(function(event){
-        Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
-    });
-};
-
-LogMessageUI.prototype.OnLogMessage = function(e){
-    var message = e.payload["message"];
-    for(var i = this.messages.length - 1; 0 < i; i--){
-        this.messages[i].innerText = this.messages[i - 1].innerText;
-    }
-    this.messages[0].innerText = message;
-};
-
-/**
- * @constructor
- * @param {string} label The label.
- */
-var UIButton = function(label){
-    this.label = label;
-};
-
-/**
- * @return {Element} The button element.
- */
-UIButton.prototype.DOM = function(){
-    var button = document.createElement("button");
-    button.innerText = this.label;
-    return button;
-};
-
-/**
- * @constructor
- */
-var MenuUI = function(scene){
-    this.dom = null;
-    this.events = [
-        [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
-        [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
-    ];
-    this.events.forEach(function(event){
-        Game.Publisher.Subscribe(event[0], event[1], event[2]);
-    });
-};
-
-MenuUI.prototype.OnEnter = function(e){
-    var elements = document.getElementsByTagName("body");
-    if(elements.length > 0){
-        var body = elements[0];
-        var section = document.createElement("section");
-        section.className = "menu";
-        var h1 = document.createElement("h1");
-        h1.innerText = "Menu";
-        section.appendChild(h1);
-        body.appendChild(section);
-        this.dom = section;
-    }
-    var buttons = [
-        ["Play PlayCard Random", function(){Game.Publisher.Publish(Events.Debug.OnPlayCard, this);}],
-        ["Reset \uD83C\uDFAE", function(){Game.Publisher.Publish(Events.Debug.OnResetGame, this);}],
-    ].map(function(value){
-        var button = (new UIButton(value[0])).DOM();
-        button.addEventListener("click", value[1]);
-        return button;
-    }).forEach(function(dom){
-        this.dom.appendChild(dom);
-    }, this);
-};
-
-MenuUI.prototype.OnExit = function(e){
-    this.dom.parentNode.removeChild(this.dom);
-    this.events.forEach(function(event){
-        Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
-    });
-};
-
-/**
- * @constructor
- */
-var DebugMenu = function(scene){
-    this.dom = null;
-    this.events = [
-        [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
-        [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
-        [Events.Debug.OnPlayCard, this.OnPlayCard.bind(this), null],
-        [Events.Debug.OnPlayRankCard, this.OnPlayRankCard.bind(this), null],
-        [Events.Debug.OnPlayDashCard, this.OnPlayDashCard.bind(this), null],
-        [Events.Debug.OnMove, this.OnMove.bind(this), null],
-        [Events.Debug.OnResetGame, this.OnResetGame.bind(this), null],
-        [Events.Debug.OnCheckRelationship, this.OnCheckRelationship.bind(this), null],
-    ];
-    this.events.forEach(function(event){
-        Game.Publisher.Subscribe(event[0], event[1], event[2]);
-    });
-};
-
-DebugMenu.prototype.OnEnter = function(e){
-    var elements = document.getElementsByTagName("body");
-    if(elements.length > 0){
-        var body = elements[0];
-        var section = document.createElement("section");
-        section.className = "debug_menu";
-        var h1 = document.createElement("h1");
-        h1.innerText = "Debug Menu";
-        section.appendChild(h1);
-        body.appendChild(section);
-        this.dom = section;
-    }
-    var buttons = [
-        ["Reset \uD83C\uDFAE", function(){Game.Publisher.Publish(Events.Debug.OnResetGame, this);}],
-        ["Play PlayCard", function(){Game.Publisher.Publish(Events.Debug.OnPlayCard, this);}],
-        ["Play RankCard", function(){Game.Publisher.Publish(Events.Debug.OnPlayRankCard, this);}],
-        ["Play DashCard", function(){Game.Publisher.Publish(Events.Debug.OnPlayDashCard, this);}],
-        ["Check Relationship", function(){Game.Publisher.Publish(Events.Debug.OnCheckRelationship, this);}],
-    ].map(function(value){
-        var button = (new UIButton(value[0])).DOM();
-        button.addEventListener("click", value[1]);
-        return button;
-    }).forEach(function(dom){
-        this.dom.appendChild(dom);
-    }, this);
-};
-
-DebugMenu.prototype.OnExit = function(e){
-    this.dom.parentNode.removeChild(this.dom);
-    this.events.forEach(function(event){
-        Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
-    });
-};
-
-DebugMenu.prototype.OnPlayCard = function(e){
-    Game.Publisher.Publish(Events.Race.OnPlayCard, this);
-};
-
-DebugMenu.prototype.OnPlayRankCard = function(e){
-    var race = Game.Locator.create(GameDirector).race;
-    var repositoryDirector = Game.Locator.create(RepositoryDirector);
-    var name = "RankCard";
-    var repository = repositoryDirector.Get(name);
-    var detail_id = 1;
-    var card = repository.Find(detail_id);
-    race.Apply(card);
-    Game.Log(card.LogMessage());
-};
-
-DebugMenu.prototype.OnPlayDashCard = function(e){
-    var race = Game.Locator.create(GameDirector).race;
-    var repositoryDirector = Game.Locator.create(RepositoryDirector);
-    var name = "DashCard";
-    var repository = repositoryDirector.Get(name);
-    var detail_id = 1 + 1;
-    var card = repository.Find(detail_id);
-    race.Apply(card);
-    Game.Log(card.LogMessage());
-};
-
-DebugMenu.prototype.OnMove = function(e){
-    var index = e.payload["index"];
-    Game.Locator.create(GameDirector).race.gameBoard.racetrack.lanes[index].position += 1;
-};
-
-DebugMenu.prototype.OnResetGame = function(e){
-    Game.Publisher.Publish(Events.GameDirector.OnResetGame, this);
-};
-
-DebugMenu.prototype.OnCheckRelationship = function(e){
-    var checker = new RelationshipChecker()
-    checker.CheckAll([
-        "HorseFigure",
-        "MonsterCoin",
-        "MonsterFigure",
-        "Race",
-        "PlayCard",
-        "StepCard",
-        "RankCard",
-        "DashCard",
-    ]);
 };
 
 // For debug.
