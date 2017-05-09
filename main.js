@@ -94,10 +94,12 @@ var Events = {
         OnPlacingFirst: "Events.Race.OnPlacingFirst",
         OnPlacingSecond: "Events.Race.OnPlacingSecond",
         OnPlayCard: "Events.Race.OnPlayCard",
+        OnUndoPlayCard: "Events.Race.OnUndoPlayCard", // For debug?
     },
     // For debug.
     Debug: {
         OnPlayCard: "Events.Debug.OnPlayCard",
+        OnUndoPlayCard: "Events.Debug.OnUndoPlayCard",
         OnPlayRankCard: "Events.Debug.OnPlayRankCard",
         OnPlayDashCard: "Events.Debug.OnPlayDashCard",
         OnMove: "Events.Debug.OnMove",
@@ -627,32 +629,88 @@ MonsterFigureDirector.prototype.Destroy = function(){
 };
 
 /**
- * @constructor
+ * @interface
  */
 var Card = function(){};
-Card.prototype = new GameObject();
+
+/**
+ * @param {Race} racetrack The racetrack.
+ * @return {?CardEffect} The object.
+ */
 Card.prototype.Play = function(racetrack){};
+
+/**
+ * @return {string} The message string.
+ */
 Card.prototype.LogMessage = function(){};
 
 /**
+ * @interface
+ */
+var CardEffect = function(){};
+
+/**
+ * 
+ */
+CardEffect.prototype.Apply = function(){};
+
+/**
+ * 
+ */
+CardEffect.prototype.UnApply = function(){};
+
+/**
  * @constructor
+ * @implements {CardEffect}
+ * @param {Race} race The race.
+ * @param {Lane} lane The lane.
+ * @param {number} step The stap.
+ */
+var StepCardEffect = function(race, lane, step){
+    this.race_ = race;
+    this.lane_ = lane;
+    this.step_ = step;
+};
+
+/**
+ * 
+ */
+StepCardEffect.prototype.Apply = function(){
+    var race = Game.Locator.locate(GameDirector).race;
+    if(race === this.race_){
+        this.lane_.position += this.step_;
+    }
+};
+
+StepCardEffect.prototype.UnApply = function(){
+    var race = Game.Locator.locate(GameDirector).race;
+    if(race === this.race_){
+        this.lane_.position -= this.step_;
+    }
+};
+
+/**
+ * @constructor
+ * @implements {Card}
  */
 var StepCard = function(model){
     /** @type {Model} */
     this.model = model;
 };
-StepCard.prototype = new Card();
 
 StepCard.prototype.Play = function(race){
     var target_id = this.model["target_id"];
     var step = this.model["step"];
-    race.gameBoard.racetrack.lanes.filter(function(lane){
+    var lanes = race.gameBoard.racetrack.lanes.filter(function(lane){
         return lane.runner.model["id"] === target_id;
-    }).forEach(function(lane){
-        if(!lane.IsGolePosition()){
-            lane.position += step;
-        }
+    }).filter(function(lane){
+        return !lane.IsGolePosition();
     });
+    var lane = lanes[0];
+    if(!lane){
+        return null;
+    }
+    return new StepCardEffect(race, lane, step);
 };
 
 StepCard.prototype.LogMessage = function(){
@@ -667,33 +725,32 @@ StepCard.prototype.LogMessage = function(){
     var target = figures.map(function(figure){
         return figure.model["type"];
     }).join(",");
-    return [
-        "[Step]: ", target, " +", step,
-    ].join("");
+    return ["[Step]: ", target, " +", step,].join("");
 };
 
 /**
  * @constructor
+ * @implements {Card}
  */
 var RankCard = function(model){
     /** @type {Model} */
     this.model = model;
 };
-RankCard.prototype = new Card();
 
 RankCard.prototype.Play = function(race){
     var target_rank = this.model["target_rank"];
     var step = this.model["step"];
     var ranks = race.Ranks();
     if(!(target_rank in ranks)){
-        return;
+        return null;
     }
     var lanes = ranks[target_rank];
     if(0 < lanes.length && lanes.length < 2){
         var lane = lanes[0];
-        lane.position += step;
+        return new StepCardEffect(race, lane, step);
     } else {
         //無効
+        return null;
     }
 };
 
@@ -707,48 +764,53 @@ RankCard.prototype.LogMessage = function(){
 
 /**
  * @constructor
+ * @implements {Card}
  */
 var DashCardTypeBoost = function(){};
-DashCardTypeBoost.prototype = new Card();
 DashCardTypeBoost.prototype.Play = function(race){
     var ranks = race.Ranks();
     if(1 < ranks[1].length){
         //TODO: xxx
-        return;
+        return null;
     }
     if(!(2 in ranks)){
         //TODO: xxx
-        return;
+        return null;
     }
     var first = ranks[1][0];
     var second = ranks[2][0];
     var step = (first.position - second.position) * 2;
-    first.position += step;
+    return new StepCardEffect(race, first, step);
 };
+
+DashCardTypeBoost.prototype.LogMessage = function(){};
 
 /**
  * @constructor
+ * @implements {Card}
  */
 var DashCardTypeCatchUp = function(){};
-DashCardTypeCatchUp.prototype = new Card();
 DashCardTypeCatchUp.prototype.Play = function(race){
     var ranks = race.Ranks();
     if(1 < ranks[1].length){
         //TODO: xxx
-        return;
+        return null;
     }
     if(!(2 in ranks)){
         //TODO: xxx
-        return;
+        return null;
     }
     var first = ranks[1][0];
     var second = ranks[2][0];
     var step = (first.position - 1) - second.position;
-    second.position += step;
+    return new StepCardEffect(race, second, step);
 };
+
+DashCardTypeCatchUp.prototype.LogMessage = function(){};
 
 /**
  * @constructor
+ * @implements {Card}
  */
 var DashCard = function(model){
     /** @type {Model} */
@@ -756,7 +818,6 @@ var DashCard = function(model){
     var dashType = model["dash_type"];
     this.behavior = this.GetBehavior(dashType);
 };
-DashCard.prototype = new Card();
 
 /**
  * @enum {number}
@@ -767,7 +828,7 @@ DashCard.DashType = {
 };
 
 DashCard.prototype.Play = function(race){
-    this.behavior.Play(race);
+    return this.behavior.Play(race);
 };
 
 DashCard.prototype.LogMessage = function(){
@@ -790,13 +851,13 @@ DashCard.prototype.GetBehavior = function(dashType){
 
 /**
  * @constructor
+ * @implements {Card}
  */
 var PlayCard = function(model){
     /** @type {Model} */
     this.model = model;
     this.card = this.GetCard();
 };
-PlayCard.prototype = new Card();
 
 /**
  * @enum {number}
@@ -828,11 +889,53 @@ PlayCard.prototype.GetCardName = function(){
 };
 
 PlayCard.prototype.Play = function(race){
-    this.card.Play(race);
+    return this.card.Play(race);
 };
 
 PlayCard.prototype.LogMessage = function(){
     return this.card.LogMessage();
+};
+
+/**
+ * @constructor
+ * @implements {Command}
+ * @param {Race} race The race.
+ * @param {Card} card The card.
+ */
+var PlayCardCommand = function(race, card){
+    /** @type {Race} */
+    this.race_ = race;
+    /** @type {Card} */
+    this.card_ = card;
+    /** @type {?CardEffect} */
+    this.cardEffect_ = null;
+};
+
+PlayCardCommand.prototype.Execute = function(){
+    var race = this.race_;
+    var card = this.card_;
+    var cardEffect = race.Apply(card);
+    if(!cardEffect) {
+        return;
+    }
+    cardEffect.Apply();
+    this.cardEffect_ = cardEffect;
+    Game.Log([
+//        this.position, " ",
+        "card_id=",
+        card.model["id"],
+        " ",
+        card.LogMessage(),
+    ].join(""));
+};
+
+PlayCardCommand.prototype.Undo = function(){
+    var cardEffect = this.cardEffect_;
+    if(!cardEffect){
+        return;
+    }
+    cardEffect.UnApply();
+    Game.Log("[Debug] Undo.")
 };
 
 /**
@@ -916,7 +1019,7 @@ Race.prototype.Start = function(){
 };
 
 Race.prototype.Apply = function(card){
-    card.Play(this);
+    return card.Play(this);
 };
 
 Race.prototype.Ranks = function(){
@@ -1105,6 +1208,7 @@ var PlayCardDirector = function(scene){
         Game.Publisher.Subscribe(event[0], event[1], event[2]);
     });
     this.OnPlayCardListener = this.OnPlayCard.bind(this);
+    this.OnUndoPlayCardListener = this.OnUndoPlayCard.bind(this);
 };
 
 PlayCardDirector.prototype.OnEnter = function(e){
@@ -1114,12 +1218,14 @@ PlayCardDirector.prototype.OnEnter = function(e){
     this.playCards = Utility.FisherYatesShuffle(playCards);
     this.position = 0;
     Game.Publisher.Subscribe(Events.Race.OnPlayCard, this.OnPlayCardListener);
+    Game.Publisher.Subscribe(Events.Race.OnUndoPlayCard, this.OnUndoPlayCardListener);
 };
 
 PlayCardDirector.prototype.OnExit = function(e){
     this.playCards = [];
     this.position = 0;
     Game.Publisher.UnSubscribe(Events.Race.OnPlayCard, this.OnPlayCardListener);
+    Game.Publisher.UnSubscribe(Events.Race.OnUndoPlayCard, this.OnUndoPlayCardListener);
     this.events.forEach(function(event){
         Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
     });
@@ -1135,16 +1241,16 @@ PlayCardDirector.prototype.OnPlayCard = function(e){
         return;
     }
     var race = Game.Locator.locate(GameDirector).race;
-    race.Apply(card);
-    var position = this.position;
-    Game.Log([
-        position,
-        " ",
-        "card_id=",
-        card.model["id"],
-        " ",
-        card.LogMessage(),
-    ].join(""));
+    var command = new PlayCardCommand(race, card);
+    this.position += 1;
+    this.executer_.Execute(command);
+};
+
+PlayCardDirector.prototype.OnUndoPlayCard = function(e){
+    if(0 < this.position){
+        this.position -= 1;
+        this.executer_.Undo();
+    }
 };
 
 /**
@@ -1155,7 +1261,6 @@ PlayCardDirector.prototype.Generator = function*(){
     var playCards = this.playCards;
     var length = this.playCards.length;
     for(var i = position; i < length; i++){
-        this.position += 1;
         yield playCards[i];
     }
 };

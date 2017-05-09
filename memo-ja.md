@@ -77,7 +77,10 @@
 
 ## 2017.5.9
 
- - CommandDirectorを追加
+ - Undo機能の追加。レース中にプレイカードをUndoできる（ただ、ゴール判定周りは未サポート）
+ - CardEffectインタフェース、StepCardEffectを追加
+ - PlayCardCommandを追加
+ - CommandExecuterを追加
  - Command Interface, SimpleCommandExecuter objectを追加
  - Makefileを整理
  - main.jsで定義されているPublisherオブジェクトをsrc/game/lib/publisher.jsに分ける

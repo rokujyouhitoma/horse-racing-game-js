@@ -310,6 +310,7 @@ var DebugMenuRenderer = function(scene){
         [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
         [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
         [Events.Debug.OnPlayCard, this.OnPlayCard.bind(this), null],
+        [Events.Debug.OnUndoPlayCard, this.OnUndoPlayCard.bind(this), null],
         [Events.Debug.OnPlayRankCard, this.OnPlayRankCard.bind(this), null],
         [Events.Debug.OnPlayDashCard, this.OnPlayDashCard.bind(this), null],
         [Events.Debug.OnMove, this.OnMove.bind(this), null],
@@ -336,6 +337,7 @@ DebugMenuRenderer.prototype.OnEnter = function(e){
     var buttons = [
         ["Reset \uD83C\uDFAE", function(){Game.Publisher.Publish(Events.Debug.OnResetGame, this);}],
         ["Play PlayCard", function(){Game.Publisher.Publish(Events.Debug.OnPlayCard, this);}],
+        ["Play Undo PlayCard", function(){Game.Publisher.Publish(Events.Debug.OnUndoPlayCard, this);}],
         ["Play RankCard", function(){Game.Publisher.Publish(Events.Debug.OnPlayRankCard, this);}],
         ["Play DashCard", function(){Game.Publisher.Publish(Events.Debug.OnPlayDashCard, this);}],
         ["Check Relationship", function(){Game.Publisher.Publish(Events.Debug.OnCheckRelationship, this);}],
@@ -357,6 +359,10 @@ DebugMenuRenderer.prototype.OnExit = function(e){
 
 DebugMenuRenderer.prototype.OnPlayCard = function(e){
     Game.Publisher.Publish(Events.Race.OnPlayCard, this);
+};
+
+DebugMenuRenderer.prototype.OnUndoPlayCard = function(e){
+    Game.Publisher.Publish(Events.Race.OnUndoPlayCard, this);
 };
 
 DebugMenuRenderer.prototype.OnPlayRankCard = function(e){
