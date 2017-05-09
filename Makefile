@@ -20,4 +20,4 @@ main-min.js: $(SOURCES)
 	--use_types_for_optimization \
 	--warning_level=VERBOSE \
 	--js_output_file $@ \
-	--js $(SOURCES) \
+	--js $(SOURCES)

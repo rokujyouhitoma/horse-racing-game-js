@@ -3,11 +3,11 @@
 var Utility = {};
 
 /**
+ * Fisher–Yates shuffle
  * @param {Array<Object>} array The array.
  * @return {Array<Object>} The shuffled array.
  */
 Utility.FisherYatesShuffle = function(array){
-    // Fisher–Yates shuffle
     var random = new Xorshift();
     var shuffled = array.slice();
     for(var i = array.length - 1; 0 < i; i--){
@@ -23,12 +23,13 @@ Utility.FisherYatesShuffle = function(array){
  * @constructor
  */
 var Model = function(meta){
-    this.meta = meta;
+    /** @private */
+    this.meta_ = meta;
 };
 
 Model.prototype.Set = function(value){
-    var names = this.meta.names;
-    var types = this.meta.types;
+    var names = this.meta_.names;
+    var types = this.meta_.types;
     for(var i = 0; i < names.length; i++){
         var type = types[i];
         this[names[i]] = Model.Cast(type, value[i]);
@@ -235,8 +236,10 @@ var MasterMeta = function(names, types, opt_relationships){
  * @constructor
  */
 var MasterData = function(){
-    this.loader = new StubLoader();
-    this.meta = {
+    /** @private */
+    this.loader_ = new StubLoader();
+    /** @private */
+    this.meta_ = {
         "HorseFigure": {},
         "MonsterCoin": {},
         "MonsterFigure": {},
@@ -304,20 +307,24 @@ var MasterData = function(){
  * @return {Array<Array<string>>} The raw row data.
  */
 MasterData.prototype.Get = function(key){
-    var rows = this.loader.Load(key);
+    var rows = this.loader_.Load(key);
     return rows.slice(2);
 };
 
+/**
+ * @param {string} key The MasterMeta name.
+ * @return {MasterMeta} The master meta object.
+ */
 MasterData.prototype.GetMeta = function(key){
-    var rows = this.loader.Load(key);
+    var rows = this.loader_.Load(key);
     var header = rows.slice(0, 2);
     /** @type {Array<string>} */
     var names = header[0];
     /** @type {Array<string>} */
     var types = header[1];
     var meta = new MasterMeta(names, types);
-    if(this.meta[key] && this.meta[key]["relationships"]){
-        meta["relationships"] = this.meta[key]["relationships"];
+    if(this.meta_[key] && this.meta_[key]["relationships"]){
+        meta["relationships"] = this.meta_[key]["relationships"];
     }
     return meta;
 };
