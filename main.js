@@ -169,7 +169,7 @@ GameDirector.prototype.OnNewRace = function(e){
 /**
  * @constructor
  */
-var CommandDirector = function(){
+var CommandExecuter = function(){
     /** type {Array<Command>} */
     this.commands_ = [];
     /** type {number} */
@@ -182,17 +182,17 @@ var CommandDirector = function(){
     });
 };
 
-CommandDirector.prototype.OnUpdate = function(e){
+CommandExecuter.prototype.OnUpdate = function(e){
     for(var command of this.Generator()){
         command.Execute();
     }
 };
 
-CommandDirector.prototype.Execute = function(command){
+CommandExecuter.prototype.Execute = function(command){
     this.commands_.push(command);
 };
 
-CommandDirector.prototype.Undo = function(){
+CommandExecuter.prototype.Undo = function(){
     if(this.commands_.length <= 0){
         return;
     }
@@ -204,7 +204,7 @@ CommandDirector.prototype.Undo = function(){
 /**
  * @return {!Iterator<Command>}
  */
-CommandDirector.prototype.Generator = function*(){
+CommandExecuter.prototype.Generator = function*(){
     var position = this.position_;
     var commands = this.commands_;
     var length = this.commands_.length;
@@ -1093,6 +1093,8 @@ FPS.prototype.Update = function(deltaTime){
  * @constructor
  */
 var PlayCardDirector = function(scene){
+    /** @type {CommandExecuter} */
+    this.executer_ = new CommandExecuter();
     this.playCards = [];
     this.position = 0;
     this.events = [
