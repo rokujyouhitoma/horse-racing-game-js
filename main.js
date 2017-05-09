@@ -129,6 +129,9 @@ var GameDirector = function(){
 };
 GameDirector.prototype = new GameObject();
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 GameDirector.prototype.OnStart = function(e){
     this.events.forEach(function(event){
         Game.Publisher.Subscribe(event[0], event[1], event[2]);
@@ -136,23 +139,35 @@ GameDirector.prototype.OnStart = function(e){
     Game.Publisher.Publish(Events.GameDirector.OnResetGame, this);
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 GameDirector.prototype.OnDestroy = function(e){
     this.events.forEach(function(event){
         Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
     });
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 GameDirector.prototype.OnLogMessage = function(e){
     var message = e.payload["message"];
 //    console.log(message);
     //TODO: xxx
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 GameDirector.prototype.OnResetGame = function(e){
     Game.SceneDirector.ToDepth(0);
     Game.SceneDirector.Push(new GameScene("Title"));
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 GameDirector.prototype.OnNewRace = function(e){
     //TODO: xxx, priority high.
     Game.SceneDirector.Pop();
@@ -184,6 +199,9 @@ var CommandExecuter = function(){
     });
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 CommandExecuter.prototype.OnUpdate = function(e){
     for(var command of this.Generator()){
         command.Execute();
@@ -682,6 +700,9 @@ StepCardEffect.prototype.Apply = function(){
     }
 };
 
+/**
+ *
+ */
 StepCardEffect.prototype.UnApply = function(){
     var race = Game.Locator.locate(GameDirector).race;
     if(race === this.race_){
@@ -922,20 +943,27 @@ PlayCardCommand.prototype.Execute = function(){
     this.cardEffect_ = cardEffect;
     Game.Log([
 //        this.position, " ",
+        card.LogMessage(),
+        " ",
         "card_id=",
         card.model["id"],
-        " ",
-        card.LogMessage(),
     ].join(""));
 };
 
 PlayCardCommand.prototype.Undo = function(){
+    var card = this.card_;
     var cardEffect = this.cardEffect_;
     if(!cardEffect){
         return;
     }
     cardEffect.UnApply();
-    Game.Log("[Debug] Undo.")
+    Game.Log([
+        "[Debug] Undo: ",
+        card.LogMessage(),
+        " ",
+        "card_id=",
+        card.model["id"],
+    ].join(""))
 };
 
 /**
@@ -1022,6 +1050,9 @@ Race.prototype.Apply = function(card){
     return card.Play(this);
 };
 
+/**
+ * @return {Object} The ranks object. key=-1 means last, key=0 means goals.
+ */
 Race.prototype.Ranks = function(){
     var lanes = this.gameBoard.racetrack.lanes;
     var len = this.model["len"];
@@ -1062,6 +1093,9 @@ var RaceDirector = function(){
 };
 RaceDirector.prototype = new GameObject();
 
+/**
+ * @enum {number}
+ */
 RaceDirector.State = {
     None: 0b00, // Before race.
     First: 0b01, // official order of placing First.
@@ -1118,7 +1152,10 @@ RaceDirector.prototype.UpdateState = function(){
     }
 };
 
-RaceDirector.prototype.OnPlacingFirst = function(){
+/**
+ * @param {ExEvent} e The event object.
+ */
+RaceDirector.prototype.OnPlacingFirst = function(e){
     var placings = this.orderOfFinish.slice(0, 1).map(function(figure){
         return figure.model["type"];
     });
@@ -1126,7 +1163,10 @@ RaceDirector.prototype.OnPlacingFirst = function(){
     Game.Log("The first: " + first);
 };
 
-RaceDirector.prototype.OnPlacingSecond = function(){
+/**
+ * @param {ExEvent} e The event object.
+ */
+RaceDirector.prototype.OnPlacingSecond = function(e){
     var placings = this.orderOfFinish.slice(0, 2).map(function(figure){
         return figure.model["type"];
     });
@@ -1211,6 +1251,9 @@ var PlayCardDirector = function(scene){
     this.OnUndoPlayCardListener = this.OnUndoPlayCard.bind(this);
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 PlayCardDirector.prototype.OnEnter = function(e){
     var repositoryDirector = Game.Locator.locate(RepositoryDirector);
     var repository = repositoryDirector.Get("PlayCard");
@@ -1221,6 +1264,9 @@ PlayCardDirector.prototype.OnEnter = function(e){
     Game.Publisher.Subscribe(Events.Race.OnUndoPlayCard, this.OnUndoPlayCardListener);
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 PlayCardDirector.prototype.OnExit = function(e){
     this.playCards = [];
     this.position = 0;
@@ -1231,6 +1277,9 @@ PlayCardDirector.prototype.OnExit = function(e){
     });
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 PlayCardDirector.prototype.OnPlayCard = function(e){
     /** @type {Iterator<PlayCard>} */
     var g = this.Generator();
@@ -1246,6 +1295,9 @@ PlayCardDirector.prototype.OnPlayCard = function(e){
     this.executer_.Execute(command);
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 PlayCardDirector.prototype.OnUndoPlayCard = function(e){
     if(0 < this.position){
         this.position -= 1;

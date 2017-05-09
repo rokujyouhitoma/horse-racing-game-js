@@ -33,6 +33,9 @@ var LogMessageRenderer = function(scene){
     });
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 LogMessageRenderer.prototype.OnEnter = function(e){
     var elements = document.getElementsByTagName("body");
     if(elements.length > 0){
@@ -53,6 +56,9 @@ LogMessageRenderer.prototype.OnEnter = function(e){
     }
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 LogMessageRenderer.prototype.OnExit = function(e){
     this.dom.parentNode.removeChild(this.dom);
     this.events.forEach(function(event){
@@ -60,6 +66,9 @@ LogMessageRenderer.prototype.OnExit = function(e){
     });
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 LogMessageRenderer.prototype.OnLogMessage = function(e){
     var message = e.payload["message"];
     for(var i = this.messages.length - 1; 0 < i; i--){
@@ -82,6 +91,9 @@ var MenuRenderer = function(scene){
     });
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 MenuRenderer.prototype.OnEnter = function(e){
     var elements = document.getElementsByTagName("body");
     if(elements.length > 0){
@@ -106,6 +118,9 @@ MenuRenderer.prototype.OnEnter = function(e){
     }, this);
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 MenuRenderer.prototype.OnExit = function(e){
     this.dom.parentNode.removeChild(this.dom);
     this.events.forEach(function(event){
@@ -128,6 +143,9 @@ var FPSRenderer = function(scene){
     });
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 FPSRenderer.prototype.OnUpdate = function(e){
     var fps = Math.floor(Game.Locator.locate(Game).fps.currentFPS * 100) / 100;
     this.Render({
@@ -135,6 +153,9 @@ FPSRenderer.prototype.OnUpdate = function(e){
     });
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 FPSRenderer.prototype.OnEnter = function(e){
     var elements = document.getElementsByTagName("body");
     if(elements.length > 0){
@@ -151,6 +172,9 @@ FPSRenderer.prototype.OnEnter = function(e){
     }
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 FPSRenderer.prototype.OnExit = function(e){
     this.dom.parentNode.removeChild(this.dom);
     this.events.forEach(function(event){
@@ -204,6 +228,9 @@ var RacetrackRenderer = function(scene){
     });
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 RacetrackRenderer.prototype.OnUpdate = function(e){
     var game = Game.Locator.locate(GameDirector);
     //TODO: xxx
@@ -216,7 +243,10 @@ RacetrackRenderer.prototype.OnUpdate = function(e){
     });
 };
 
-RacetrackRenderer.prototype.OnEnter = function(){
+/**
+ * @param {ExEvent} e The event object.
+ */
+RacetrackRenderer.prototype.OnEnter = function(e){
     var elements = document.getElementsByTagName("body");
     if(elements.length > 0){
         var body = elements[0];
@@ -232,6 +262,9 @@ RacetrackRenderer.prototype.OnEnter = function(){
     }
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 RacetrackRenderer.prototype.OnExit = function(e){
     this.dom.parentNode.removeChild(this.dom);
     this.events.forEach(function(event){
@@ -271,6 +304,9 @@ var TitleSceneRenderer = function(scene){
     this.onClickListener = this.OnClick.bind(this);
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 TitleSceneRenderer.prototype.OnEnter = function(e){
     var elements = document.getElementsByTagName("body");
     if(elements.length > 0){
@@ -289,6 +325,9 @@ TitleSceneRenderer.prototype.OnEnter = function(e){
     }
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 TitleSceneRenderer.prototype.OnExit = function(e){
     this.dom.children[1].removeEventListener("click", this.onClickListener);
     this.dom.parentNode.removeChild(this.dom);
@@ -297,6 +336,9 @@ TitleSceneRenderer.prototype.OnExit = function(e){
     });
 };
 
+/**
+ * @param {Event} e Type event object.
+ */
 TitleSceneRenderer.prototype.OnClick = function(e){
     Game.Publisher.Publish(Events.GameDirector.OnNewRace, this);
 };
@@ -322,6 +364,9 @@ var DebugMenuRenderer = function(scene){
     });
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 DebugMenuRenderer.prototype.OnEnter = function(e){
     var elements = document.getElementsByTagName("body");
     if(elements.length > 0){
@@ -350,6 +395,9 @@ DebugMenuRenderer.prototype.OnEnter = function(e){
     }, this);
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 DebugMenuRenderer.prototype.OnExit = function(e){
     this.dom.parentNode.removeChild(this.dom);
     this.events.forEach(function(event){
@@ -357,14 +405,23 @@ DebugMenuRenderer.prototype.OnExit = function(e){
     });
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 DebugMenuRenderer.prototype.OnPlayCard = function(e){
     Game.Publisher.Publish(Events.Race.OnPlayCard, this);
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 DebugMenuRenderer.prototype.OnUndoPlayCard = function(e){
     Game.Publisher.Publish(Events.Race.OnUndoPlayCard, this);
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 DebugMenuRenderer.prototype.OnPlayRankCard = function(e){
     var race = Game.Locator.locate(GameDirector).race;
     var repositoryDirector = Game.Locator.locate(RepositoryDirector);
@@ -377,6 +434,9 @@ DebugMenuRenderer.prototype.OnPlayRankCard = function(e){
     Game.Log(card.LogMessage());
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 DebugMenuRenderer.prototype.OnPlayDashCard = function(e){
     var race = Game.Locator.locate(GameDirector).race;
     var repositoryDirector = Game.Locator.locate(RepositoryDirector);
@@ -389,15 +449,24 @@ DebugMenuRenderer.prototype.OnPlayDashCard = function(e){
     Game.Log(card.LogMessage());
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 DebugMenuRenderer.prototype.OnMove = function(e){
     var index = e.payload["index"];
     Game.Locator.locate(GameDirector).race.gameBoard.racetrack.lanes[index].position += 1;
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 DebugMenuRenderer.prototype.OnResetGame = function(e){
     Game.Publisher.Publish(Events.GameDirector.OnResetGame, this);
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 DebugMenuRenderer.prototype.OnCheckRelationship = function(e){
     var checker = new RelationshipChecker()
     checker.CheckAll([
