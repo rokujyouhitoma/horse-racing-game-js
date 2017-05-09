@@ -1126,7 +1126,10 @@ PlayCardDirector.prototype.OnExit = function(e){
 };
 
 PlayCardDirector.prototype.OnPlayCard = function(e){
-    var card = this.NextCard();
+    /** @type {Iterator<PlayCard>} */
+    var g = this.Generator();
+    /** @type {PlayCard} */
+    var card = g.next().value;
     if(!card){
         Game.Log("404 Card Not found.");
         return;
@@ -1144,15 +1147,17 @@ PlayCardDirector.prototype.OnPlayCard = function(e){
     ].join(""));
 };
 
-PlayCardDirector.prototype.NextCard = function(){
-    var length = this.playCards.length;
+/**
+ * @return {!Iterator<PlayCard>}
+ */
+PlayCardDirector.prototype.Generator = function*(){
     var position = this.position;
-    if(length < position){
-        return;
+    var playCards = this.playCards;
+    var length = this.playCards.length;
+    for(var i = position; i < length; i++){
+        this.position += 1;
+        yield playCards[i];
     }
-    var card = this.playCards[position];
-    this.position++;
-    return card;
 };
 
 /**
