@@ -372,7 +372,8 @@ DebugMenuRenderer.prototype.OnPlayRankCard = function(e){
     var repository = repositoryDirector.Get(name);
     var detail_id = 1;
     var card = repository.Find(detail_id);
-    race.Apply(card);
+    var cardEffect = race.Apply(card);
+    cardEffect.Apply();
     Game.Log(card.LogMessage());
 };
 
@@ -383,7 +384,8 @@ DebugMenuRenderer.prototype.OnPlayDashCard = function(e){
     var repository = repositoryDirector.Get(name);
     var detail_id = 1 + 1;
     var card = repository.Find(detail_id);
-    race.Apply(card);
+    var cardEffect = race.Apply(card);
+    cardEffect.Apply();
     Game.Log(card.LogMessage());
 };
 
