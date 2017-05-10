@@ -8,16 +8,17 @@ var Utility = {};
  * @return {Array<Object>} The shuffled array.
  */
 Utility.FisherYatesShuffle = function(array){
-    var random = new Xorshift();
     var shuffled = array.slice();
     for(var i = array.length - 1; 0 < i; i--){
-        var r = Math.floor((random.rand() / Xorshift.MAX_VALUE) * (i + 1));
+        var r = Math.floor((Utility.FisherYatesShuffle.Random.rand() / Xorshift.MAX_VALUE) * (i + 1));
         var tmp = shuffled[i];
         shuffled[i] = shuffled[r];
         shuffled[r] = tmp;
     }
     return shuffled;
 };
+
+Utility.FisherYatesShuffle.Random = new Xorshift();
 
 /**
  * @constructor

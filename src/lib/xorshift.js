@@ -24,7 +24,7 @@ Xorshift.MAX_VALUE = (0xffffffff - 1) / 2;
 
 /**
  * @param {number} seed The seed.
- * @return {Xorshft} The xorshift object.
+ * @return {Xorshift} The xorshift object.
  */
 Xorshift.prototype.seed = function(seed){
     this.seed_ = seed;
