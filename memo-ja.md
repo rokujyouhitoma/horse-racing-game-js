@@ -77,6 +77,8 @@
 
 ## 2017.5.10
 
+ - Add Game.DOMTaskExecuter for DOM操作タスクをOnLastUpdate時に行いたい場合
+ - Add FunctionCommand, BasicExecuter
  - Add IGameObject interface
  - Add GameObject.prototype.LastUpdate
  - CC向けのアノテーション追加

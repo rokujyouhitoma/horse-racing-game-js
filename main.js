@@ -30,6 +30,7 @@ var Game = function(){
         this.fps,
         Game.Locator.locate(GameDirector),
     ];
+    Game.Publisher.Subscribe(Events.Game.OnLastUpdate, this.OnLastUpdate.bind(this));
 };
 Game.prototype = new GameObject();
 
@@ -53,12 +54,18 @@ Game.prototype.Destroy = function(){
     Game.Publisher.Publish(Events.Game.OnDestroy, this);
 };
 
+Game.prototype.OnLastUpdate = function(e){
+    Game.DOMTaskExecuter.ExecuteAll();
+};
+
 Game.LocatorContainer = {};
 Game.Locator = new Locator(Game.LocatorContainer);
 
 Game.Publisher = Game.Locator.locate(Publisher);
 
 Game.SceneDirector = Game.Locator.locate(SceneDirector);
+
+Game.DOMTaskExecuter = new BasicExecuter();
 
 Game.Model = function(name){
     var meta = Game.Locator.locate(MasterData).GetMeta(name);
@@ -106,13 +113,14 @@ var Events = {
     },
     // For debug.
     Debug: {
+        OnResetGame: "Events.Debug.OnResetGame",
+        OnResetRace: "Events.Debug.OnResetRace",
         OnPlayCard: "Events.Debug.OnPlayCard",
         OnUndoPlayCard: "Events.Debug.OnUndoPlayCard",
         OnPlayRankCard: "Events.Debug.OnPlayRankCard",
         OnPlayDashCard: "Events.Debug.OnPlayDashCard",
         OnMove: "Events.Debug.OnMove",
         OnCheckRelationship: "Events.Debug.OnCheckRelationship",
-        OnResetGame: "Events.Debug.OnResetGame",
     },
 };
 
@@ -178,7 +186,6 @@ GameDirector.prototype.OnResetGame = function(e){
  */
 GameDirector.prototype.OnNewRace = function(e){
     //TODO: xxx, priority high.
-    Game.SceneDirector.Pop();
     Game.SceneDirector.ToDepth(0);
     Game.SceneDirector.Push(new GameScene("Menu"));
     Game.SceneDirector.Push(new GameScene("Race"));
@@ -195,7 +202,7 @@ GameDirector.prototype.OnNewRace = function(e){
  * @constructor
  */
 var CommandExecuter = function(){
-    /** type {Array<Command>} */
+    /** type {Array<ICommand>} */
     this.commands_ = [];
     /** type {number} */
     this.position_ = 0;
@@ -230,7 +237,7 @@ CommandExecuter.prototype.Undo = function(){
 };
 
 /**
- * @return {!Iterator<Command>}
+ * @return {!Iterator<ICommand>}
  */
 CommandExecuter.prototype.Generator = function*(){
     var position = this.position_;
@@ -936,7 +943,7 @@ PlayCard.prototype.LogMessage = function(){
 
 /**
  * @constructor
- * @implements {Command}
+ * @implements {ICommand}
  * @param {Race} race The race.
  * @param {Card} card The card.
  */
@@ -1344,22 +1351,30 @@ var GameScene = function(name){
     this.name = name;
     var scenes = {
         "Title": function(scene){
-            new TitleSceneRenderer(scene);
+            return [
+                new TitleSceneRenderer(scene)
+            ];
         },
         "Menu": function(scene){
-            new MenuRenderer(scene);
+            return [
+                new MenuRenderer(scene)
+            ];
         },
         "Race": function(scene){
-            new PlayCardDirector(scene);
-            new RacetrackRenderer(scene);
-            new LogMessageRenderer(scene);
+            return [
+                new PlayCardDirector(scene),
+                new RacetrackRenderer(scene),
+                new LogMessageRenderer(scene),
+            ];
         },
         "Debug": function(scene){
-            new DebugMenuRenderer(scene);
-            new FPSRenderer(scene);
+            return [
+                new DebugMenuRenderer(scene),
+                new FPSRenderer(scene),
+            ];
         },
     };
-    scenes[name](this);
+    this.objects = scenes[name](this);
 };
 GameScene.prototype = new Scene();
 GameScene.prototype.OnEnter = function(){
@@ -1391,6 +1406,7 @@ GameScene.prototype.OnResume = function(){
 // main
 (window.onload = function(){
     var engine = Game.Locator.locate(Engine);
+    engine.FPS = 1000 / 60;
     engine.objects = [
         Game.Locator.locate(Game),
     ];

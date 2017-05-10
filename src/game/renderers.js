@@ -45,7 +45,6 @@ LogMessageRenderer.prototype.OnEnter = function(e){
         var h1 = document.createElement("h1");
         h1.innerText = "History";
         section.appendChild(h1);
-        body.appendChild(section);
         for(var i =0; i < 5; i++){
             var p = document.createElement("p");
             p.innerText = "\uD83C\uDFC7";
@@ -53,6 +52,9 @@ LogMessageRenderer.prototype.OnEnter = function(e){
             section.appendChild(p);
         }
         this.dom = section;
+        Game.DOMTaskExecuter.Push(new FunctionCommand(function(){
+            body.appendChild(section);
+        }));
     }
 };
 
@@ -60,7 +62,9 @@ LogMessageRenderer.prototype.OnEnter = function(e){
  * @param {ExEvent} e The event object.
  */
 LogMessageRenderer.prototype.OnExit = function(e){
-    this.dom.parentNode.removeChild(this.dom);
+    Game.DOMTaskExecuter.Push(new FunctionCommand(function(){
+        this.dom.parentNode.removeChild(this.dom);
+    }.bind(this)));
     this.events.forEach(function(event){
         Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
     });
@@ -103,8 +107,10 @@ MenuRenderer.prototype.OnEnter = function(e){
         var h1 = document.createElement("h1");
         h1.innerText = "Menu";
         section.appendChild(h1);
-        body.appendChild(section);
         this.dom = section;
+        Game.DOMTaskExecuter.Push(new FunctionCommand(function(){
+            body.appendChild(section);
+        }));
     }
     var buttons = [
         ["Play PlayCard Random", function(){Game.Publisher.Publish(Events.Debug.OnPlayCard, this);}],
@@ -122,7 +128,9 @@ MenuRenderer.prototype.OnEnter = function(e){
  * @param {ExEvent} e The event object.
  */
 MenuRenderer.prototype.OnExit = function(e){
-    this.dom.parentNode.removeChild(this.dom);
+    Game.DOMTaskExecuter.Push(new FunctionCommand(function(){
+        this.dom.parentNode.removeChild(this.dom);
+    }.bind(this)));
     this.events.forEach(function(event){
         Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
     });
@@ -167,8 +175,10 @@ FPSRenderer.prototype.OnEnter = function(e){
         section.appendChild(h1);
         var p = document.createElement("p");
         section.appendChild(p);
-        body.appendChild(section);
         this.dom = section;
+        Game.DOMTaskExecuter.Push(new FunctionCommand(function(){
+            body.appendChild(section);
+        }));
     }
 };
 
@@ -176,7 +186,9 @@ FPSRenderer.prototype.OnEnter = function(e){
  * @param {ExEvent} e The event object.
  */
 FPSRenderer.prototype.OnExit = function(e){
-    this.dom.parentNode.removeChild(this.dom);
+    Game.DOMTaskExecuter.Push(new FunctionCommand(function(){
+        this.dom.parentNode.removeChild(this.dom);
+    }.bind(this)));
     this.events.forEach(function(event){
         Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
     });
@@ -257,8 +269,10 @@ RacetrackRenderer.prototype.OnEnter = function(e){
         section.appendChild(h1);
         var div = document.createElement("div");
         section.appendChild(div);
-        body.appendChild(section);
         this.dom = section;
+        Game.DOMTaskExecuter.Push(new FunctionCommand(function(){
+            body.appendChild(section);
+        }));
     }
 };
 
@@ -266,7 +280,9 @@ RacetrackRenderer.prototype.OnEnter = function(e){
  * @param {ExEvent} e The event object.
  */
 RacetrackRenderer.prototype.OnExit = function(e){
-    this.dom.parentNode.removeChild(this.dom);
+    Game.DOMTaskExecuter.Push(new FunctionCommand(function(){
+        this.dom.parentNode.removeChild(this.dom);
+    }.bind(this)));
     this.events.forEach(function(event){
         Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
     });
@@ -317,11 +333,13 @@ TitleSceneRenderer.prototype.OnEnter = function(e){
         h1.innerText = "\uD83C\uDFC7 -> \uD83C\uDFAE";
         section.appendChild(h1);
         var button = document.createElement("button");
-        button.innerText = "\uD83C\uDFAE Start \uD83C\uDFAE";
+        button.innerText = "Start \uD83C\uDFC7";
         button.addEventListener("click", this.onClickListener);
         section.appendChild(button);
-        body.appendChild(section);
         this.dom = section;
+        Game.DOMTaskExecuter.Push(new FunctionCommand(function(){
+            body.appendChild(section);
+        }));
     }
 };
 
@@ -330,7 +348,9 @@ TitleSceneRenderer.prototype.OnEnter = function(e){
  */
 TitleSceneRenderer.prototype.OnExit = function(e){
     this.dom.children[1].removeEventListener("click", this.onClickListener);
-    this.dom.parentNode.removeChild(this.dom);
+    Game.DOMTaskExecuter.Push(new FunctionCommand(function(){
+        this.dom.parentNode.removeChild(this.dom);
+    }.bind(this)));
     this.events.forEach(function(event){
         Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
     });
@@ -351,12 +371,13 @@ var DebugMenuRenderer = function(scene){
     this.events = [
         [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
         [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
+        [Events.Debug.OnResetGame, this.OnResetGame.bind(this), null],
+        [Events.Debug.OnResetRace, this.OnResetRace.bind(this), null],
         [Events.Debug.OnPlayCard, this.OnPlayCard.bind(this), null],
         [Events.Debug.OnUndoPlayCard, this.OnUndoPlayCard.bind(this), null],
         [Events.Debug.OnPlayRankCard, this.OnPlayRankCard.bind(this), null],
         [Events.Debug.OnPlayDashCard, this.OnPlayDashCard.bind(this), null],
         [Events.Debug.OnMove, this.OnMove.bind(this), null],
-        [Events.Debug.OnResetGame, this.OnResetGame.bind(this), null],
         [Events.Debug.OnCheckRelationship, this.OnCheckRelationship.bind(this), null],
     ];
     this.events.forEach(function(event){
@@ -376,11 +397,14 @@ DebugMenuRenderer.prototype.OnEnter = function(e){
         var h1 = document.createElement("h1");
         h1.innerText = "Debug Menu";
         section.appendChild(h1);
-        body.appendChild(section);
         this.dom = section;
+        Game.DOMTaskExecuter.Push(new FunctionCommand(function(){
+            body.appendChild(section);
+        }));
     }
     var buttons = [
         ["Reset \uD83C\uDFAE", function(){Game.Publisher.Publish(Events.Debug.OnResetGame, this);}],
+        ["Reset \uD83C\uDFC7", function(){Game.Publisher.Publish(Events.Debug.OnResetRace, this);}],
         ["Play PlayCard", function(){Game.Publisher.Publish(Events.Debug.OnPlayCard, this);}],
         ["Play Undo PlayCard", function(){Game.Publisher.Publish(Events.Debug.OnUndoPlayCard, this);}],
         ["Play RankCard", function(){Game.Publisher.Publish(Events.Debug.OnPlayRankCard, this);}],
@@ -399,10 +423,26 @@ DebugMenuRenderer.prototype.OnEnter = function(e){
  * @param {ExEvent} e The event object.
  */
 DebugMenuRenderer.prototype.OnExit = function(e){
-    this.dom.parentNode.removeChild(this.dom);
+    Game.DOMTaskExecuter.Push(new FunctionCommand(function(){
+        this.dom.parentNode.removeChild(this.dom);
+    }.bind(this)));
     this.events.forEach(function(event){
         Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
     });
+};
+
+/**
+ * @param {ExEvent} e The event object.
+ */
+DebugMenuRenderer.prototype.OnResetGame = function(e){
+    Game.Publisher.Publish(Events.GameDirector.OnResetGame, this);
+};
+
+/**
+ * @param {ExEvent} e The event object.
+ */
+DebugMenuRenderer.prototype.OnResetRace = function(e){
+    Game.Publisher.Publish(Events.GameDirector.OnNewRace, this);
 };
 
 /**
@@ -455,13 +495,6 @@ DebugMenuRenderer.prototype.OnPlayDashCard = function(e){
 DebugMenuRenderer.prototype.OnMove = function(e){
     var index = e.payload["index"];
     Game.Locator.locate(GameDirector).race.gameBoard.racetrack.lanes[index].position += 1;
-};
-
-/**
- * @param {ExEvent} e The event object.
- */
-DebugMenuRenderer.prototype.OnResetGame = function(e){
-    Game.Publisher.Publish(Events.GameDirector.OnResetGame, this);
 };
 
 /**
