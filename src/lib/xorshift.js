@@ -12,6 +12,8 @@ var Xorshift = function(){
     this.z_ = 0;
     /** @private */
     this.z_ = 0;
+    /** @private */
+    this.seed_ = 0;
     this.seed(Date.now());
 };
 
@@ -22,8 +24,10 @@ Xorshift.MAX_VALUE = (0xffffffff - 1) / 2;
 
 /**
  * @param {number} seed The seed.
+ * @return {Xorshft} The xorshift object.
  */
 Xorshift.prototype.seed = function(seed){
+    this.seed_ = seed;
     this.x_ = (seed & 0x12345678) >>> 0;
     this.y_ = (seed ^ 0x12345678) >>> 0;
     this.z_ = ((seed & 0x0000ffff << 16) | (seed >> 16) & 0x0000ffff) >>> 0;
@@ -32,6 +36,7 @@ Xorshift.prototype.seed = function(seed){
     for(var i=0; i < 64; i++){
         this.rand();
     }
+    return this;
 };
 
 /**
