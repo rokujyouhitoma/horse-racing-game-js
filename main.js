@@ -21,6 +21,8 @@ Utility.FisherYatesShuffle = function(array){
 
 /**
  * @constructor
+ * @extends {GameObject}
+ * @implements {IGameObject}
  */
 var Game = function(){
     this.fps = new FPS();
@@ -36,14 +38,19 @@ Game.prototype.Start = function(){
     Game.Publisher.Publish(Events.Game.OnStart, this);
 };
 
+Game.prototype.Update = function(deltaTime){
+    GameObject.prototype.Update.call(this, deltaTime);
+    Game.Publisher.Publish(Events.Game.OnUpdate, this, {deltaTime: deltaTime});
+};
+
+Game.prototype.LastUpdate = function(deltaTime){
+    GameObject.prototype.LastUpdate.call(this, deltaTime);
+    Game.Publisher.Publish(Events.Game.OnLastUpdate, this, {deltaTime: deltaTime});
+};
+
 Game.prototype.Destroy = function(){
     GameObject.prototype.Destroy.call(this);
     Game.Publisher.Publish(Events.Game.OnDestroy, this);
-};
-
-Game.prototype.Update = function(deltaTime){
-    GameObject.prototype.Update.call(this, arguments);
-    Game.Publisher.Publish(Events.Game.OnUpdate, this, {deltaTime: deltaTime});
 };
 
 Game.LocatorContainer = {};
@@ -77,6 +84,7 @@ var Events = {
     Game: {
         OnStart: "Events.Game.OnStart",
         OnUpdate: "Events.Game.OnUpdate",
+        OnLastUpdate: "Events.Game.OnLastUpdate",
         OnDestroy: "Events.Game.OnDestroy",
     },
     GameScene: {
@@ -1366,6 +1374,19 @@ GameScene.prototype.OnPause = function(){
 GameScene.prototype.OnResume = function(){
     Game.Publisher.Publish(Events.GameScene.OnResume, this);
 };
+
+// TODO: xxx
+// For debug.
+(new RelationshipChecker()).CheckAll([
+    "HorseFigure",
+    "MonsterCoin",
+    "MonsterFigure",
+    "Race",
+    "PlayCard",
+    "StepCard",
+    "RankCard",
+    "DashCard",
+]);
 
 // main
 (window.onload = function(){

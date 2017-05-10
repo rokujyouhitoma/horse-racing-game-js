@@ -1,7 +1,33 @@
 "use strict";
 
 /**
+ * @interface
+ */
+var IGameObject = function(){};
+
+/**
+ *
+ */
+IGameObject.prototype.Start = function(){};
+
+/**
+ * @param {number} deltaTime The delta time.
+ */
+IGameObject.prototype.Update = function(deltaTime){};
+
+/**
+ * @param {number} deltaTime The delta time.
+ */
+IGameObject.prototype.LastUpdate = function(deltaTime){};
+
+/**
+ *
+ */
+IGameObject.prototype.Destroy = function(){};
+
+/**
  * @constructor
+ * @implements {IGameObject}
  */
 var GameObject = function(){
     this.objects = [];
@@ -10,19 +36,25 @@ var GameObject = function(){
 GameObject.prototype.Start = function(){
     this.objects.forEach(function(value, index, array){
         value.Start();
-    }, this);
+    });
 };
 
 GameObject.prototype.Update = function(deltaTime){
     this.objects.forEach(function(value, index, array){
         value.Update(deltaTime);
-    }, this);
+    });
+};
+
+GameObject.prototype.LastUpdate = function(deltaTime){
+    this.objects.forEach(function(value, index, array){
+        value.LastUpdate(deltaTime);
+    });
 };
 
 GameObject.prototype.Destroy = function(){
     this.objects.forEach(function(value, index, array){
         value.Destroy();
-    }, this);
+    });
 };
 
 /**
@@ -45,6 +77,7 @@ Engine.prototype.Loop = function(){
         var deltaTime = (now - this.lastUpdate) / 1000;
         this.lastUpdate = now;
         this.Update(deltaTime);
+        this.LastUpdate(deltaTime);
     }.bind(this);
     loop();
 };
@@ -52,11 +85,17 @@ Engine.prototype.Loop = function(){
 Engine.prototype.Start = function(){
     this.objects.forEach(function(value, index, array){
         value.Start();
-    }, this);
+    });
 };
 
 Engine.prototype.Update = function(deltaTime){
     this.objects.forEach(function(value, index, array){
         value.Update(deltaTime);
-    }, this);
+    });
+};
+
+Engine.prototype.LastUpdate = function(deltaTime){
+    this.objects.forEach(function(value, index, array){
+        value.LastUpdate(deltaTime);
+    });
 };

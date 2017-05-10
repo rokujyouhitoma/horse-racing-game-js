@@ -77,6 +77,8 @@
 
 ## 2017.5.10
 
+ - Add IGameObject interface
+ - Add GameObject.prototype.LastUpdate
  - CC向けのアノテーション追加
 
 ## 2017.5.9
