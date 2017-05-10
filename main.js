@@ -55,7 +55,7 @@ Game.prototype.Destroy = function(){
 };
 
 Game.prototype.OnLastUpdate = function(e){
-    Game.DOMTaskExecuter.ExecuteAll();
+    Game.LastUpdateTask.ExecuteAll();
 };
 
 Game.LocatorContainer = {};
@@ -65,7 +65,7 @@ Game.Publisher = Game.Locator.locate(Publisher);
 
 Game.SceneDirector = Game.Locator.locate(SceneDirector);
 
-Game.DOMTaskExecuter = new BasicExecuter();
+Game.LastUpdateTask = new BasicExecuter();
 
 Game.Model = function(name){
     var meta = Game.Locator.locate(MasterData).GetMeta(name);
