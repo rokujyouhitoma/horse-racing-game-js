@@ -1130,7 +1130,7 @@ RaceDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this);
     Game.Publisher.Subscribe(Events.Race.OnPlacingFirst, this.OnPlacingFirstListener);
     Game.Publisher.Subscribe(Events.Race.OnPlacingSecond, this.OnPlacingSecondListener);
-    this.orderOfFinish = [];
+    this.goals_ = [];
     this.state = RaceDirector.State.None;
 };
 
@@ -1138,7 +1138,7 @@ RaceDirector.prototype.Destroy = function(){
     GameObject.prototype.Destroy.call(this);
     Game.Publisher.UnSubscribe(Events.Race.OnPlacingFirst, this.OnPlacingFirstListener);
     Game.Publisher.UnSubscribe(Events.Race.OnPlacingSecond, this.OnPlacingSecondListener);
-    this.orderOfFinish = [];
+    this.goals_ = [];
     this.state = RaceDirector.State.None;
 };
 
@@ -1150,12 +1150,12 @@ RaceDirector.prototype.Update = function(){
     }
     var lanes = game.race.gameBoard.racetrack.lanes;
     var runners = lanes.filter(function(lane){
-        return !this.orderOfFinish.includes(lane.runner) && lane.IsGolePosition();
+        return !this.goals_.includes(lane.runner) && lane.IsGolePosition();
     }.bind(this)).map(function(lane){
         return lane.runner;
     });
     if(0 < runners.length){
-        this.orderOfFinish.push(runners[0]);
+        this.goals_.push(runners[0]);
         this.UpdateState();
     }
 };
@@ -1180,7 +1180,7 @@ RaceDirector.prototype.UpdateState = function(){
  * @param {ExEvent} e The event object.
  */
 RaceDirector.prototype.OnPlacingFirst = function(e){
-    var placings = this.orderOfFinish.slice(0, 1).map(function(figure){
+    var placings = this.goals_.slice(0, 1).map(function(figure){
         return figure.model["type"];
     });
     var first = placings[0];
@@ -1191,7 +1191,7 @@ RaceDirector.prototype.OnPlacingFirst = function(e){
  * @param {ExEvent} e The event object.
  */
 RaceDirector.prototype.OnPlacingSecond = function(e){
-    var placings = this.orderOfFinish.slice(0, 2).map(function(figure){
+    var placings = this.goals_.slice(0, 2).map(function(figure){
         return figure.model["type"];
     });
     var first = placings[0];
