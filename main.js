@@ -1367,18 +1367,6 @@ GameScene.prototype.OnResume = function(){
     Game.Publisher.Publish(Events.GameScene.OnResume, this);
 };
 
-// For debug.
-(new RelationshipChecker()).CheckAll([
-    "HorseFigure",
-    "MonsterCoin",
-    "MonsterFigure",
-    "Race",
-    "PlayCard",
-    "StepCard",
-    "RankCard",
-    "DashCard",
-]);
-
 // main
 (window.onload = function(){
     var engine = Game.Locator.locate(Engine);

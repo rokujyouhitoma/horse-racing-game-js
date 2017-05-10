@@ -85,3 +85,16 @@ RelationshipChecker.prototype.CheckAll = function(modelNames){
         this.Check(modelName);
     }, this);
 };
+
+// TODO: xxx
+// For debug.
+(new RelationshipChecker()).CheckAll([
+    "HorseFigure",
+    "MonsterCoin",
+    "MonsterFigure",
+    "Race",
+    "PlayCard",
+    "StepCard",
+    "RankCard",
+    "DashCard",
+]);
