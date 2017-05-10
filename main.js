@@ -1368,7 +1368,24 @@ RaceDirector.prototype.OnPlacingSecond = function(e){
  */
 var GameScene = function(name){
     this.name = name;
-    var scenes = {
+    var directors = {
+        "Title": function(scene){
+            return [];
+        },
+        "Menu": function(scene){
+            return [];
+        },
+        "Race": function(scene){
+            return [
+                new RaceDirector(scene),
+                new PlayCardDirector(scene),
+            ];
+        },
+        "Debug": function(scene){
+            return [];
+        },
+    };
+    var renderers = {
         "Title": function(scene){
             return [
                 new TitleSceneRenderer(scene)
@@ -1381,8 +1398,6 @@ var GameScene = function(name){
         },
         "Race": function(scene){
             return [
-                new RaceDirector(scene),
-                new PlayCardDirector(scene),
                 new RacetrackRenderer(scene),
                 new LogMessageRenderer(scene),
             ];
@@ -1394,7 +1409,8 @@ var GameScene = function(name){
             ];
         },
     };
-    this.objects = scenes[name](this);
+    this.directors = directors[name](this);
+    this.renderers = renderers[name](this);
 };
 GameScene.prototype = new Scene();
 GameScene.prototype.OnEnter = function(){
