@@ -50,13 +50,17 @@ SceneDirector.prototype.Push = function(scene){
 };
 
 SceneDirector.prototype.Pop = function(){
-    var current = this.CurrentScene();
-    if(current == null){
+    var last = this.CurrentScene();
+    if(last == null){
         return null;
     }
     this.scenes.pop();
-    this.TriggerExit(current);
-    this.ResumeScenes();
+    this.TriggerExit(last);
+    var current = this.CurrentScene();
+    if(current != null){
+        this.TriggerResume(current);
+    }
+    return last;
 };
 
 /**
@@ -115,6 +119,7 @@ SceneDirector.prototype.TriggerPause = function(scene){
         scene.OnPause();
         break;
     case Scene.State.Paused:
+        // pass
         break;
     default:
         console.error("Not support");
@@ -128,6 +133,7 @@ SceneDirector.prototype.TriggerResume = function(scene){
         console.error("Not support");
         break;
     case Scene.State.Active:
+        console.error("Not support");
         break;
     case Scene.State.Paused:
         scene.state = Scene.State.Active;
@@ -144,15 +150,6 @@ SceneDirector.prototype.PauseScenes = function(){
     this.scenes.forEach(function(scene){
         if(scene != current){
             this.TriggerPause(scene);
-        }
-    }, this);
-};
-
-SceneDirector.prototype.ResumeScenes = function(){
-    var current = this.CurrentScene();
-    this.scenes.forEach(function(scene){
-        if(current != null){
-            this.TriggerResume(current);
         }
     }, this);
 };

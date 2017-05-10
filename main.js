@@ -792,7 +792,7 @@ DashCardTypeBoost.prototype.Play = function(race){
     // for defensive.
     if(!(1 in ranks)){
         //TODO: xxx
-        return;
+        return null;
     }
     if(1 < ranks[1].length){
         //TODO: xxx
@@ -820,7 +820,7 @@ DashCardTypeCatchUp.prototype.Play = function(race){
     // for defensive.
     if(!(1 in ranks)){
         //TODO: xxx
-        return;
+        return null;
     }
     if(1 < ranks[1].length){
         //TODO: xxx
