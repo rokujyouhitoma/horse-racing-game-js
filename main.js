@@ -56,6 +56,7 @@ Game.prototype.Destroy = function(){
 };
 
 Game.prototype.OnLastUpdate = function(e){
+    // This is different from Start/Update/Destroy
     Game.LastUpdateTask.ExecuteAll();
 };
 
