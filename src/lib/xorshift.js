@@ -28,8 +28,8 @@ Xorshift.prototype.seed = function(seed){
     this.y_ = (seed ^ 0x12345678) >>> 0;
     this.z_ = ((seed & 0x0000ffff << 16) | (seed >> 16) & 0x0000ffff) >>> 0;
     this.w_ = this.x_ ^ this.y_;
-    // skip number of 16.
-    for(var i=0; i < 16; i++){
+    // skip number of 64.
+    for(var i=0; i < 64; i++){
         this.rand();
     }
 };
