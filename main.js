@@ -133,7 +133,6 @@ var GameDirector = function(){
         Game.Locator.locate(HorseFigureDirector),
         Game.Locator.locate(MonsterCoinDirector),
         Game.Locator.locate(MonsterFigureDirector),
-        Game.Locator.locate(RaceDirector),
     ];
     this.events = [
         [Events.GameDirector.OnLogMessage, this.OnLogMessage.bind(this), null],
@@ -1111,98 +1110,6 @@ Race.prototype.Ranks = function(){
 /**
  * @constructor
  */
-var RaceDirector = function(){
-    this.OnPlacingFirstListener = this.OnPlacingFirst.bind(this);
-    this.OnPlacingSecondListener = this.OnPlacingSecond.bind(this);
-};
-RaceDirector.prototype = new GameObject();
-
-/**
- * @enum {number}
- */
-RaceDirector.State = {
-    None: 0b00, // Before race.
-    First: 0b01, // official order of placing First.
-    Second: 0b10, // official order of placing Second.
-};
-
-RaceDirector.prototype.Start = function(){
-    GameObject.prototype.Start.call(this);
-    Game.Publisher.Subscribe(Events.Race.OnPlacingFirst, this.OnPlacingFirstListener);
-    Game.Publisher.Subscribe(Events.Race.OnPlacingSecond, this.OnPlacingSecondListener);
-    this.goals_ = [];
-    this.state = RaceDirector.State.None;
-};
-
-RaceDirector.prototype.Destroy = function(){ 
-    GameObject.prototype.Destroy.call(this);
-    Game.Publisher.UnSubscribe(Events.Race.OnPlacingFirst, this.OnPlacingFirstListener);
-    Game.Publisher.UnSubscribe(Events.Race.OnPlacingSecond, this.OnPlacingSecondListener);
-    this.goals_ = [];
-    this.state = RaceDirector.State.None;
-};
-
-RaceDirector.prototype.Update = function(){
-    var game = Game.Locator.locate(GameDirector);
-    //TODO: xxx
-    if(!game.race){
-        return;
-    }
-    var lanes = game.race.gameBoard.racetrack.lanes;
-    var runners = lanes.filter(function(lane){
-        return !this.goals_.includes(lane.runner) && lane.IsGolePosition();
-    }.bind(this)).map(function(lane){
-        return lane.runner;
-    });
-    if(0 < runners.length){
-        this.goals_.push(runners[0]);
-        this.UpdateState();
-    }
-};
-
-RaceDirector.prototype.UpdateState = function(){
-    var state = this.state;
-    switch(state){
-    case RaceDirector.State.None:
-        this.state = state | RaceDirector.State.First;
-        Game.Publisher.Publish(Events.Race.OnPlacingFirst, this);
-        break;
-    case RaceDirector.State.First:
-        this.state = state | RaceDirector.State.Second;
-        Game.Publisher.Publish(Events.Race.OnPlacingSecond, this);
-        break;
-    case RaceDirector.State.Second:
-        break;
-    }
-};
-
-/**
- * @param {ExEvent} e The event object.
- */
-RaceDirector.prototype.OnPlacingFirst = function(e){
-    var placings = this.goals_.slice(0, 1).map(function(figure){
-        return figure.model["type"];
-    });
-    var first = placings[0];
-    Game.Log("The first: " + first);
-};
-
-/**
- * @param {ExEvent} e The event object.
- */
-RaceDirector.prototype.OnPlacingSecond = function(e){
-    var placings = this.goals_.slice(0, 2).map(function(figure){
-        return figure.model["type"];
-    });
-    var first = placings[0];
-    var second = placings[1];
-    Game.Log("The first: " + first);
-    Game.Log("The second: " + second);
-};
-
-/**
- * @constructor
- */
 var RepositoryDirector = function(){
     this.repository = new Repository();
     [
@@ -1343,6 +1250,118 @@ PlayCardDirector.prototype.Generator = function*(){
 
 /**
  * @constructor
+ */
+var RaceDirector = function(scene){
+    this.events = [
+        [Events.Game.OnUpdate, this.OnUpdate.bind(this), null],
+        [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
+        [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
+    ];
+    this.events.forEach(function(event){
+        Game.Publisher.Subscribe(event[0], event[1], event[2]);
+    });
+    this.OnPlacingFirstListener = this.OnPlacingFirst.bind(this);
+    this.OnPlacingSecondListener = this.OnPlacingSecond.bind(this);
+};
+
+/**
+ * @enum {number}
+ */
+RaceDirector.State = {
+    None: 0b00, // Before race.
+    First: 0b01, // official order of placing First.
+    Second: 0b10, // official order of placing Second.
+};
+
+/**
+ * @param {ExEvent} e The event object.
+ */
+RaceDirector.prototype.OnUpdate = function(e){
+    var game = Game.Locator.locate(GameDirector);
+    //TODO: xxx
+    if(!game.race){
+        return;
+    }
+    var lanes = game.race.gameBoard.racetrack.lanes;
+    var runners = lanes.filter(function(lane){
+        return !this.goals_.includes(lane.runner) && lane.IsGolePosition();
+    }.bind(this)).map(function(lane){
+        return lane.runner;
+    });
+    if(0 < runners.length){
+        this.goals_.push(runners[0]);
+        this.UpdateState();
+    }
+};
+
+/**
+ * @param {ExEvent} e The event object.
+ */
+RaceDirector.prototype.OnEnter = function(e){
+    Game.Publisher.Subscribe(Events.Race.OnPlacingFirst, this.OnPlacingFirstListener);
+    Game.Publisher.Subscribe(Events.Race.OnPlacingSecond, this.OnPlacingSecondListener);
+    this.goals_ = [];
+    this.state = RaceDirector.State.None;
+};
+
+/**
+ * @param {ExEvent} e The event object.
+ */
+RaceDirector.prototype.OnExit = function(e){
+    Game.Publisher.UnSubscribe(Events.Race.OnPlacingFirst, this.OnPlacingFirstListener);
+    Game.Publisher.UnSubscribe(Events.Race.OnPlacingSecond, this.OnPlacingSecondListener);
+    this.events.forEach(function(event){
+        Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
+    });
+    this.goals_ = [];
+    this.state = RaceDirector.State.None;
+};
+
+/**
+ *
+ */
+RaceDirector.prototype.UpdateState = function(){
+    var state = this.state;
+    switch(state){
+    case RaceDirector.State.None:
+        this.state = state | RaceDirector.State.First;
+        Game.Publisher.Publish(Events.Race.OnPlacingFirst, this);
+        break;
+    case RaceDirector.State.First:
+        this.state = state | RaceDirector.State.Second;
+        Game.Publisher.Publish(Events.Race.OnPlacingSecond, this);
+        break;
+    case RaceDirector.State.Second:
+        break;
+    }
+};
+
+/**
+ * @param {ExEvent} e The event object.
+ */
+RaceDirector.prototype.OnPlacingFirst = function(e){
+    var placings = this.goals_.slice(0, 1).map(function(figure){
+        return figure.model["type"];
+    });
+    var first = placings[0];
+    Game.Log("The first: " + first);
+};
+
+/**
+ * @param {ExEvent} e The event object.
+ */
+RaceDirector.prototype.OnPlacingSecond = function(e){
+    var placings = this.goals_.slice(0, 2).map(function(figure){
+        return figure.model["type"];
+    });
+    var first = placings[0];
+    var second = placings[1];
+    Game.Log("The first: " + first);
+    Game.Log("The second: " + second);
+};
+
+/**
+ * @constructor
  * @param {string} name Scene name.
  * @implements {IScene}
  * @extends {Scene}
@@ -1362,6 +1381,7 @@ var GameScene = function(name){
         },
         "Race": function(scene){
             return [
+                new RaceDirector(scene),
                 new PlayCardDirector(scene),
                 new RacetrackRenderer(scene),
                 new LogMessageRenderer(scene),
