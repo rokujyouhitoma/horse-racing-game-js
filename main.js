@@ -770,7 +770,6 @@ RankCard.prototype.Play = function(race){
         var lane = lanes[0];
         return new StepCardEffect(race, lane, step);
     } else {
-        //無効
         return null;
     }
 };
