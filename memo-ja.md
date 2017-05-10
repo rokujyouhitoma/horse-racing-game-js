@@ -75,6 +75,10 @@
 
 # History
 
+## 2017.5.11
+
+ - Xorshiftのseed値は内部で保持する。デバッグ目的
+
 ## 2017.5.10
 
  - Add Game.DOMTaskExecuter for DOM操作タスクをOnLastUpdate時に行いたい場合
@@ -299,3 +303,82 @@ SceneDirectorはSceneの
 # Special Thanks
 
  - [mizchi's blog GWの進捗としてRPG作った / redux-saga でメインループ処理、JSONSchemaからのコード生成](http://mizchi.hatenablog.com/entry/2017/05/08/013632) の記事が僕のやる気を飛躍的にアップさせる薬となった。謝謝だぜmizchiちゃん おかげでひとつ強くなれた
+
+# 不具合
+
+## 仕様バグ？
+
+元の仕様はプレイカードを使い切った場合に1,2位が必ず決まるとのレベルデザインがなされているとのこと。
+だが、下記の順番でカードが実行された際には、1位は決定するが、2位は決定せず。
+
+もしかして、仕様バグ？...どうやら実装バグのような...
+
+Note: 乱数生成器のシードを取得し忘れた...。
+
+card_id=57
+[Step]: Purple +3 card_id=38
+main.js:87 [Step]: Green +5 card_id=23
+main.js:87 [Step]: Blue +5 card_id=32
+
+48?
+
+main.js:87 [Step]: Purple +4 card_id=41
+main.js:87 [Step]: Blue +4 card_id=29
+main.js:87 [Rank]: 2 +5 card_id=49
+main.js:87 [Step]: Purple +3 card_id=37
+main.js:87 [Step]: Green +5 card_id=24
+main.js:87 [Step]: Green +4 card_id=21
+main.js:87 [Rank]: 1 +10 card_id=47
+main.js:87 [Step]: Orange +5 card_id=11
+main.js:87 [Rank]: 2 +10 card_id=50
+main.js:87 [Step]: Green +4 card_id=19
+main.js:87 [Step]: Orange +5 card_id=12
+main.js:87 [Step]: Blue +4 card_id=30
+main.js:87 [Step]: Blue +6 card_id=35
+main.js:87 [Step]: Blue +6 card_id=34
+main.js:87 [Step]: Red +9 card_id=5
+
+51?
+
+main.js:87 [Step]: Green +4 card_id=20
+main.js:87 [Step]: Red +5 card_id=3
+main.js:87 [Step]: Blue +4 card_id=28
+main.js:87 [Step]: Red +9 card_id=4
+main.js:87 [Step]: Purple +5 card_id=43
+main.js:87 [Rank]: 3 +10 card_id=53
+main.js:87 [Rank]: 4 +5 card_id=55
+main.js:87 [Step]: Blue +5 card_id=31
+main.js:87 [Rank]: 1 +5 card_id=46
+main.js:87 [Step]: Orange +8 card_id=17
+main.js:87 [Step]: Green +5 card_id=22
+main.js:87 [Step]: Green +7 card_id=25
+main.js:87 [Step]: Red +5 card_id=2
+main.js:87 [Step]: Purple +5 card_id=44
+main.js:87 [Step]: Purple +4 card_id=42
+main.js:87 [Step]: Purple +3 card_id=39
+main.js:87 [Step]: Orange +6 card_id=13
+main.js:87 [Dash]: 2 card_id=60
+main.js:87 [Step]: Purple +5 card_id=45
+main.js:87 [Step]: Red +10 card_id=7
+main.js:87 [Step]: Red +10 card_id=9
+main.js:87 [Step]: Red +9 card_id=6
+main.js:87 [Dash]: 1 card_id=59
+main.js:87 [Step]: Orange +8 card_id=16
+main.js:87 [Step]: Orange +8 card_id=18
+main.js:87 [Step]: Orange +5 card_id=10
+main.js:87 [Step]: Green +7 card_id=27
+main.js:87 [Step]: Purple +4 card_id=40
+main.js:87 [Step]: Blue +6 card_id=36
+main.js:87 [Step]: Orange +6 card_id=14
+
+54?
+56?
+1?
+
+main.js:87 [Step]: Blue +5 card_id=33
+main.js:87 [Step]: Orange +6 card_id=15
+main.js:87 [Rank]: 3 +5 card_id=52
+main.js:87 [Step]: Green +7 card_id=26
+
+> Game.SceneDirector.scenes[1].directors[1].playCards.map(function(v){return v.model.id;})
+[57, 38, 23, 32, 48, 41, 58, 29, 49, 37, 24, 21, 47, 11, 50, 19, 12, 30, 35, 34, 5, 51, 20, 3, 28, 4, 43, 53, 55, 31, 46, 17, 22, 25, 2, 44, 42, 39, 13, 60, 45, 7, 9, 6, 59, 16, 18, 10, 27, 40, 36, 14, 54, 56, 1, 8, 33, 15, 52, 26]
