@@ -113,8 +113,8 @@ MenuRenderer.prototype.OnEnter = function(e){
         }));
     }
     var buttons = [
-        ["Play PlayCard Random", function(){Game.Publisher.Publish(Events.Debug.OnPlayCard, this);}],
-        ["Reset \uD83C\uDFAE", function(){Game.Publisher.Publish(Events.Debug.OnResetGame, this);}],
+        ["Play PlayCard Random", function(){Game.Publisher.Publish(Events.Race.OnPlayCard, this);}],
+        ["Reset \uD83C\uDFAE", function(){Game.Publisher.Publish(Events.GameDirector.OnResetGame, this);}],
     ].map(function(value){
         var button = (new UIButton(value[0])).DOM();
         button.addEventListener("click", value[1]);
