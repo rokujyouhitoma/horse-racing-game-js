@@ -31,7 +31,7 @@ var Game = function(){
         this.fps,
         Game.Locator.locate(GameDirector),
     ];
-    Game.Publisher.Subscribe(Events.Game.OnLastUpdate, this.OnLastUpdate.bind(this));
+    Game.Publisher.Subscribe(Events.Game.OnRender, this.OnRender.bind(this));
 };
 Game.prototype = new GameObject();
 
@@ -45,9 +45,13 @@ Game.prototype.Update = function(){
     Game.Publisher.Publish(Events.Game.OnUpdate, this);
 };
 
-Game.prototype.LastUpdate = function(delta){
-    GameObject.prototype.LastUpdate.call(this, delta);
-    Game.Publisher.Publish(Events.Game.OnLastUpdate, this, {delta: delta});
+Game.prototype.LastUpdate = function(){
+    GameObject.prototype.LastUpdate.call(this);
+};
+
+Game.prototype.Render = function(delta){
+    GameObject.prototype.Render.call(this, delta);
+    Game.Publisher.Publish(Events.Game.OnRender, this, {delta: delta});
 };
 
 Game.prototype.Destroy = function(){
@@ -55,9 +59,9 @@ Game.prototype.Destroy = function(){
     Game.Publisher.Publish(Events.Game.OnDestroy, this);
 };
 
-Game.prototype.OnLastUpdate = function(e){
-    // This is different from Start/Update/Destroy
-    Game.LastUpdateTask.ExecuteAll();
+Game.prototype.OnRender = function(e){
+    // This is different from Start/Update/LastUpdate/Destroy
+    Game.RenderCommandExecuter.ExecuteAll();
 };
 
 Game.LocatorContainer = {};
@@ -67,7 +71,7 @@ Game.Publisher = Game.Locator.locate(Publisher);
 
 Game.SceneDirector = Game.Locator.locate(SceneDirector);
 
-Game.LastUpdateTask = new BasicExecuter();
+Game.RenderCommandExecuter = new BasicExecuter();
 
 Game.Model = function(name){
     var meta = Game.Locator.locate(MasterData).GetMeta(name);
@@ -94,6 +98,7 @@ var Events = {
         OnStart: "Events.Game.OnStart",
         OnUpdate: "Events.Game.OnUpdate",
         OnLastUpdate: "Events.Game.OnLastUpdate",
+        OnRender: "Events.Game.OnRender",
         OnDestroy: "Events.Game.OnDestroy",
     },
     GameScene: {
@@ -1468,7 +1473,6 @@ GameScene.prototype.OnResume = function(){
     engine.objects = [
         Game.Locator.locate(Game),
     ];
-    engine.Start();
     engine.Loop();
     console.log(engine);
 });

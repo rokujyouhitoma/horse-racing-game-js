@@ -52,7 +52,7 @@ LogMessageRenderer.prototype.OnEnter = function(e){
             section.appendChild(p);
         }
         this.dom = section;
-        Game.LastUpdateTask.Push(new FunctionCommand(function(){
+        Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
             body.appendChild(section);
         }));
     }
@@ -62,7 +62,7 @@ LogMessageRenderer.prototype.OnEnter = function(e){
  * @param {ExEvent} e The event object.
  */
 LogMessageRenderer.prototype.OnExit = function(e){
-    Game.LastUpdateTask.Push(new FunctionCommand(function(){
+    Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
         this.dom.parentNode.removeChild(this.dom);
     }.bind(this)));
     this.events.forEach(function(event){
@@ -108,7 +108,7 @@ MenuRenderer.prototype.OnEnter = function(e){
         h1.innerText = "Menu";
         section.appendChild(h1);
         this.dom = section;
-        Game.LastUpdateTask.Push(new FunctionCommand(function(){
+        Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
             body.appendChild(section);
         }));
     }
@@ -128,7 +128,7 @@ MenuRenderer.prototype.OnEnter = function(e){
  * @param {ExEvent} e The event object.
  */
 MenuRenderer.prototype.OnExit = function(e){
-    Game.LastUpdateTask.Push(new FunctionCommand(function(){
+    Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
         this.dom.parentNode.removeChild(this.dom);
     }.bind(this)));
     this.events.forEach(function(event){
@@ -176,7 +176,7 @@ FPSRenderer.prototype.OnEnter = function(e){
         var p = document.createElement("p");
         section.appendChild(p);
         this.dom = section;
-        Game.LastUpdateTask.Push(new FunctionCommand(function(){
+        Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
             body.appendChild(section);
         }));
     }
@@ -186,7 +186,7 @@ FPSRenderer.prototype.OnEnter = function(e){
  * @param {ExEvent} e The event object.
  */
 FPSRenderer.prototype.OnExit = function(e){
-    Game.LastUpdateTask.Push(new FunctionCommand(function(){
+    Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
         this.dom.parentNode.removeChild(this.dom);
     }.bind(this)));
     this.events.forEach(function(event){
@@ -270,7 +270,7 @@ RacetrackRenderer.prototype.OnEnter = function(e){
         var div = document.createElement("div");
         section.appendChild(div);
         this.dom = section;
-        Game.LastUpdateTask.Push(new FunctionCommand(function(){
+        Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
             body.appendChild(section);
         }));
     }
@@ -280,7 +280,7 @@ RacetrackRenderer.prototype.OnEnter = function(e){
  * @param {ExEvent} e The event object.
  */
 RacetrackRenderer.prototype.OnExit = function(e){
-    Game.LastUpdateTask.Push(new FunctionCommand(function(){
+    Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
         this.dom.parentNode.removeChild(this.dom);
     }.bind(this)));
     this.events.forEach(function(event){
@@ -337,7 +337,7 @@ TitleSceneRenderer.prototype.OnEnter = function(e){
         button.addEventListener("click", this.onClickListener);
         section.appendChild(button);
         this.dom = section;
-        Game.LastUpdateTask.Push(new FunctionCommand(function(){
+        Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
             body.appendChild(section);
         }));
     }
@@ -348,7 +348,7 @@ TitleSceneRenderer.prototype.OnEnter = function(e){
  */
 TitleSceneRenderer.prototype.OnExit = function(e){
     this.dom.children[1].removeEventListener("click", this.onClickListener);
-    Game.LastUpdateTask.Push(new FunctionCommand(function(){
+    Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
         this.dom.parentNode.removeChild(this.dom);
     }.bind(this)));
     this.events.forEach(function(event){
@@ -398,7 +398,7 @@ DebugMenuRenderer.prototype.OnEnter = function(e){
         h1.innerText = "Debug Menu";
         section.appendChild(h1);
         this.dom = section;
-        Game.LastUpdateTask.Push(new FunctionCommand(function(){
+        Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
             body.appendChild(section);
         }));
     }
@@ -423,7 +423,7 @@ DebugMenuRenderer.prototype.OnEnter = function(e){
  * @param {ExEvent} e The event object.
  */
 DebugMenuRenderer.prototype.OnExit = function(e){
-    Game.LastUpdateTask.Push(new FunctionCommand(function(){
+    Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
         this.dom.parentNode.removeChild(this.dom);
     }.bind(this)));
     this.events.forEach(function(event){
