@@ -669,7 +669,7 @@ var Card = function(){};
 
 /**
  * @param {Race} racetrack The racetrack.
- * @return {?CardEffect} The object.
+ * @return {?ICardEffect} The object.
  */
 Card.prototype.Play = function(racetrack){};
 
@@ -681,21 +681,30 @@ Card.prototype.LogMessage = function(){};
 /**
  * @interface
  */
-var CardEffect = function(){};
+var ICardEffect = function(){};
 
 /**
  * 
  */
-CardEffect.prototype.Apply = function(){};
+ICardEffect.prototype.Apply = function(){};
 
 /**
  * 
  */
-CardEffect.prototype.UnApply = function(){};
+ICardEffect.prototype.UnApply = function(){};
 
 /**
  * @constructor
- * @implements {CardEffect}
+ * @implements {ICardEffect}
+ */
+var NoneCardEffect = function(){};
+
+NoneCardEffect.prototype.Apply = function(){};
+NoneCardEffect.prototype.UnApply = function(){};
+
+/**
+ * @constructor
+ * @implements {ICardEffect}
  * @param {Race} race The race.
  * @param {Lane} lane The lane.
  * @param {number} step The stap.
@@ -735,6 +744,10 @@ var StepCard = function(model){
     this.model = model;
 };
 
+/**
+ * @param {Race} race The race object.
+ * @return {ICardEffect} The card effect object.
+ */
 StepCard.prototype.Play = function(race){
     var target_id = this.model["target_id"];
     var step = this.model["step"];
@@ -745,7 +758,7 @@ StepCard.prototype.Play = function(race){
     });
     var lane = lanes[0];
     if(!lane){
-        return null;
+        return new NoneCardEffect();
     }
     return new StepCardEffect(race, lane, step);
 };
@@ -774,19 +787,23 @@ var RankCard = function(model){
     this.model = model;
 };
 
+/**
+ * @param {Race} race The race object.
+ * @return {ICardEffect} The card effect object.
+ */
 RankCard.prototype.Play = function(race){
     var target_rank = this.model["target_rank"];
     var step = this.model["step"];
     var ranks = race.Ranks();
     if(!(target_rank in ranks)){
-        return null;
+        return new NoneCardEffect();
     }
     var lanes = ranks[target_rank];
     if(0 < lanes.length && lanes.length < 2){
         var lane = lanes[0];
         return new StepCardEffect(race, lane, step);
     } else {
-        return null;
+        return new NoneCardEffect();
     }
 };
 
@@ -803,20 +820,22 @@ RankCard.prototype.LogMessage = function(){
  * @implements {Card}
  */
 var DashCardTypeBoost = function(){};
+
+/**
+ * @param {Race} race The race object.
+ * @return {ICardEffect} The card effect object.
+ */
 DashCardTypeBoost.prototype.Play = function(race){
     var ranks = race.Ranks();
     // for defensive.
     if(!(1 in ranks)){
-        //TODO: xxx
-        return null;
+        return new NoneCardEffect();
     }
     if(1 < ranks[1].length){
-        //TODO: xxx
-        return null;
+        return new NoneCardEffect();
     }
     if(!(2 in ranks)){
-        //TODO: xxx
-        return null;
+        return new NoneCardEffect();
     }
     var first = ranks[1][0];
     var second = ranks[2][0];
@@ -831,20 +850,22 @@ DashCardTypeBoost.prototype.LogMessage = function(){};
  * @implements {Card}
  */
 var DashCardTypeCatchUp = function(){};
+
+/**
+ * @param {Race} race The race object.
+ * @return {ICardEffect} The card effect object.
+ */
 DashCardTypeCatchUp.prototype.Play = function(race){
     var ranks = race.Ranks();
     // for defensive.
     if(!(1 in ranks)){
-        //TODO: xxx
-        return null;
+        return new NoneCardEffect();
     }
     if(1 < ranks[1].length){
-        //TODO: xxx
-        return null;
+        return new NoneCardEffect();
     }
     if(!(2 in ranks)){
-        //TODO: xxx
-        return null;
+        return new NoneCardEffect();
     }
     var first = ranks[1][0];
     var second = ranks[2][0];
@@ -953,7 +974,7 @@ var PlayCardCommand = function(race, card){
     this.race_ = race;
     /** @type {Card} */
     this.card_ = card;
-    /** @type {?CardEffect} */
+    /** @type {?ICardEffect} */
     this.cardEffect_ = null;
 };
 
@@ -961,9 +982,6 @@ PlayCardCommand.prototype.Execute = function(){
     var race = this.race_;
     var card = this.card_;
     var cardEffect = race.Apply(card);
-    if(!cardEffect) {
-        return;
-    }
     cardEffect.Apply();
     this.cardEffect_ = cardEffect;
     Game.Log([

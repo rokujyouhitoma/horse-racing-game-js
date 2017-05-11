@@ -77,6 +77,7 @@
 
 ## 2017.5.11
 
+ - Add NoneCardEffect object
  - Xorshiftのseed値は内部で保持する。デバッグ目的
 
 ## 2017.5.10
