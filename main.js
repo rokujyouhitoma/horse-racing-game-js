@@ -1,25 +1,5 @@
 "use strict";
 
-var Utility = {};
-
-/**
- * Fisher–Yates shuffle
- * @param {Array<Object>} array The array.
- * @return {Array<Object>} The shuffled array.
- */
-Utility.FisherYatesShuffle = function(array){
-    var shuffled = array.slice();
-    for(var i = array.length - 1; 0 < i; i--){
-        var r = Math.floor((Utility.FisherYatesShuffle.Xorshift.rand() / Xorshift.MAX_VALUE) * (i + 1));
-        var tmp = shuffled[i];
-        shuffled[i] = shuffled[r];
-        shuffled[r] = tmp;
-    }
-    return shuffled;
-};
-
-Utility.FisherYatesShuffle.Xorshift = new Xorshift();
-
 /**
  * @constructor
  * @extends {GameObject}
@@ -990,7 +970,6 @@ PlayCardCommand.prototype.Execute = function(){
     cardEffect.Apply();
     this.cardEffect_ = cardEffect;
     Game.Log([
-//        this.position, " ",
         "card_id=",
         card.model["id"],
         " ",
@@ -1209,6 +1188,8 @@ var PlayCardDirector = function(scene){
     this.OnUndoPlayCardListener = this.OnUndoPlayCard.bind(this);
 };
 
+PlayCardDirector.Xorshift = new Xorshift();
+
 /**
  * @param {ExEvent} e The event object.
  */
@@ -1216,10 +1197,26 @@ PlayCardDirector.prototype.OnEnter = function(e){
     var repositoryDirector = Game.Locator.locate(RepositoryDirector);
     var repository = repositoryDirector.Get("PlayCard");
     var playCards = repository.All();
-    this.playCards = Utility.FisherYatesShuffle(playCards);
+    this.playCards = this.FisherYatesShuffle(playCards);
     this.position = 0;
     Game.Publisher.Subscribe(Events.Race.OnPlayCard, this.OnPlayCardListener);
     Game.Publisher.Subscribe(Events.Race.OnUndoPlayCard, this.OnUndoPlayCardListener);
+};
+
+/**
+ * Fisher–Yates shuffle
+ * @param {Array<Object>} array The array.
+ * @return {Array<Object>} The shuffled array.
+ */
+PlayCardDirector.prototype.FisherYatesShuffle = function(array){
+    var shuffled = array.slice();
+    for(var i = shuffled.length - 1; 0 < i; i--){
+        var r = Math.floor((PlayCardDirector.Xorshift.rand() / Xorshift.MAX_VALUE) * (i + 1));
+        var tmp = shuffled[i];
+        shuffled[i] = shuffled[r];
+        shuffled[r] = tmp;
+    }
+    return shuffled;
 };
 
 /**
@@ -1248,6 +1245,7 @@ PlayCardDirector.prototype.OnPlayCard = function(e){
         return;
     }
     var race = Game.Locator.locate(GameDirector).race;
+    console.log(this.position);
     var command = new PlayCardCommand(race, card);
     this.position += 1;
     this.executer_.Execute(command);
@@ -1397,43 +1395,43 @@ var GameScene = function(name){
     this.name = name;
     var directors = {
         "Title": function(scene){
-            return [];
+            return {};
         },
         "Menu": function(scene){
-            return [];
+            return {};
         },
         "Race": function(scene){
-            return [
-                new RaceDirector(scene),
-                new PlayCardDirector(scene),
-            ];
+            return {
+                "RaceDirector": new RaceDirector(scene),
+                "PlayCardDirector": new PlayCardDirector(scene),
+            };
         },
         "Debug": function(scene){
-            return [];
+            return {};
         },
     };
     var renderers = {
         "Title": function(scene){
-            return [
-                new TitleSceneRenderer(scene)
-            ];
+            return {
+                "TitleSceneRenderer": new TitleSceneRenderer(scene),
+            };
         },
         "Menu": function(scene){
-            return [
-                new MenuRenderer(scene)
-            ];
+            return {
+                "MenuRenderer": new MenuRenderer(scene),
+            };
         },
         "Race": function(scene){
-            return [
-                new RacetrackRenderer(scene),
-                new LogMessageRenderer(scene),
-            ];
+            return {
+                "RacetrackRenderer": new RacetrackRenderer(scene),
+                "LogMessageRenderer": new LogMessageRenderer(scene),
+            };
         },
         "Debug": function(scene){
-            return [
-                new DebugMenuRenderer(scene),
-                new FPSRenderer(scene),
-            ];
+            return {
+                "DebugMenuRenderer": new DebugMenuRenderer(scene),
+                "FPSRenderer": new FPSRenderer(scene),
+            };
         },
     };
     this.directors = directors[name](this);
