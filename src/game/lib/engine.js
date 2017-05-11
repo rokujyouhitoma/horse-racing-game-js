@@ -81,6 +81,7 @@ var Engine = function(objects){
 Engine.prototype.Loop = function(){
     var lag = 0;
     var MPU = 1000 / this.FPS;
+    var LIMIT_LAG = 1000 * MPU;
     var loop = function(){
         if(0 <= this.count){
             setTimeout(loop, MPU);
@@ -90,6 +91,12 @@ Engine.prototype.Loop = function(){
         var elapsed = now - this.lastUpdate;
         this.lastUpdate = now;
         lag += elapsed;
+        if(LIMIT_LAG < lag){
+            //TODO: xxx
+            lag = 0;
+            console.error(lag);
+            return;
+        }
         while(MPU <= lag){
             this.Update();
             this.LastUpdate();
