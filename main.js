@@ -10,7 +10,7 @@ var Utility = {};
 Utility.FisherYatesShuffle = function(array){
     var shuffled = array.slice();
     for(var i = array.length - 1; 0 < i; i--){
-        var r = Math.floor((Utility.FisherYatesShuffle.Random.rand() / Xorshift.MAX_VALUE) * (i + 1));
+        var r = Math.floor((Utility.FisherYatesShuffle.Xorshift.rand() / Xorshift.MAX_VALUE) * (i + 1));
         var tmp = shuffled[i];
         shuffled[i] = shuffled[r];
         shuffled[r] = tmp;
@@ -18,7 +18,7 @@ Utility.FisherYatesShuffle = function(array){
     return shuffled;
 };
 
-Utility.FisherYatesShuffle.Random = new Xorshift();
+Utility.FisherYatesShuffle.Xorshift = new Xorshift();
 
 /**
  * @constructor
