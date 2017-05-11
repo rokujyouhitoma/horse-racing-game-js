@@ -775,7 +775,7 @@ StepCard.prototype.LogMessage = function(){
     var target = figures.map(function(figure){
         return figure.model["type"];
     }).join(",");
-    return ["[Step]: ", target, " +", step,].join("");
+    return ["[Step ", target, " +", step, "]"].join("");
 };
 
 /**
@@ -811,7 +811,7 @@ RankCard.prototype.LogMessage = function(){
     var target_rank = this.model["target_rank"];
     var step = this.model["step"];
     return [
-        "[Rank]: ", target_rank, " +", step,
+        "[Rank ", target_rank, " +", step, "]"
     ].join("");
 };
 
@@ -901,7 +901,7 @@ DashCard.prototype.Play = function(race){
 DashCard.prototype.LogMessage = function(){
     var target_rank = this.model["target_rank"];
     return [
-        "[Dash]: ", target_rank,
+        "[Dash ", target_rank, "]"
     ].join("");
 };
 
@@ -986,10 +986,12 @@ PlayCardCommand.prototype.Execute = function(){
     this.cardEffect_ = cardEffect;
     Game.Log([
 //        this.position, " ",
-        card.LogMessage(),
-        " ",
         "card_id=",
         card.model["id"],
+        " ",
+        card.LogMessage(),
+        " => +",
+        cardEffect.step_ || 0,
     ].join(""));
 };
 
