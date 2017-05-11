@@ -40,14 +40,14 @@ Game.prototype.Start = function(){
     Game.Publisher.Publish(Events.Game.OnStart, this);
 };
 
-Game.prototype.Update = function(deltaTime){
-    GameObject.prototype.Update.call(this, deltaTime);
-    Game.Publisher.Publish(Events.Game.OnUpdate, this, {deltaTime: deltaTime});
+Game.prototype.Update = function(){
+    GameObject.prototype.Update.call(this);
+    Game.Publisher.Publish(Events.Game.OnUpdate, this);
 };
 
-Game.prototype.LastUpdate = function(deltaTime){
-    GameObject.prototype.LastUpdate.call(this, deltaTime);
-    Game.Publisher.Publish(Events.Game.OnLastUpdate, this, {deltaTime: deltaTime});
+Game.prototype.LastUpdate = function(delta){
+    GameObject.prototype.LastUpdate.call(this, delta);
+    Game.Publisher.Publish(Events.Game.OnLastUpdate, this, {delta: delta});
 };
 
 Game.prototype.Destroy = function(){
@@ -1176,7 +1176,7 @@ var FPS = function(){
 };
 FPS.prototype = new GameObject();
 
-FPS.prototype.Update = function(deltaTime){
+FPS.prototype.Update = function(){
     var engine = Game.Locator.locate(Engine);
     if(1000 <= engine.lastUpdate - this.baseTime){
         this.currentFPS = ((engine.count - this.baseCount) * 1000) / (engine.lastUpdate - this.baseTime);
@@ -1464,7 +1464,7 @@ GameScene.prototype.OnResume = function(){
 // main
 (window.onload = function(){
     var engine = Game.Locator.locate(Engine);
-    engine.FPS = 1000 / 60;
+    engine.FPS = 60;
     engine.objects = [
         Game.Locator.locate(Game),
     ];

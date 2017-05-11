@@ -11,14 +11,14 @@ var IGameObject = function(){};
 IGameObject.prototype.Start = function(){};
 
 /**
- * @param {number} deltaTime The delta time.
+ *
  */
-IGameObject.prototype.Update = function(deltaTime){};
+IGameObject.prototype.Update = function(){};
 
 /**
- * @param {number} deltaTime The delta time.
+ * @param {number} delta The delta.
  */
-IGameObject.prototype.LastUpdate = function(deltaTime){};
+IGameObject.prototype.LastUpdate = function(delta){};
 
 /**
  *
@@ -39,15 +39,15 @@ GameObject.prototype.Start = function(){
     });
 };
 
-GameObject.prototype.Update = function(deltaTime){
+GameObject.prototype.Update = function(){
     this.objects.forEach(function(value, index, array){
-        value.Update(deltaTime);
+        value.Update();
     });
 };
 
-GameObject.prototype.LastUpdate = function(deltaTime){
+GameObject.prototype.LastUpdate = function(delta){
     this.objects.forEach(function(value, index, array){
-        value.LastUpdate(deltaTime);
+        value.LastUpdate(delta);
     });
 };
 
@@ -63,21 +63,27 @@ GameObject.prototype.Destroy = function(){
 var Engine = function(objects){
     this.objects = objects;
     this.count = 0;
-    this.FPS = 1000 / 60;
+    this.FPS = 60;
     this.lastUpdate = Date.now();
 };
 
 Engine.prototype.Loop = function(){
+    var lag = 0;
+    var MPU = 1000 / this.FPS;
     var loop = function(){
         if(0 <= this.count){
-            setTimeout(loop, this.FPS);
+            setTimeout(loop, MPU);
             this.count++;
         }
         var now = Date.now();
-        var deltaTime = (now - this.lastUpdate) / 1000;
+        var elapsed = now - this.lastUpdate;
         this.lastUpdate = now;
-        this.Update(deltaTime);
-        this.LastUpdate(deltaTime);
+        lag += elapsed;
+        while(MPU <= lag){
+            this.Update();
+            lag -= MPU;
+        }
+        this.LastUpdate(lag / MPU);
     }.bind(this);
     loop();
 };
@@ -88,14 +94,14 @@ Engine.prototype.Start = function(){
     });
 };
 
-Engine.prototype.Update = function(deltaTime){
+Engine.prototype.Update = function(){
     this.objects.forEach(function(value, index, array){
-        value.Update(deltaTime);
+        value.Update();
     });
 };
 
-Engine.prototype.LastUpdate = function(deltaTime){
+Engine.prototype.LastUpdate = function(delta){
     this.objects.forEach(function(value, index, array){
-        value.LastUpdate(deltaTime);
+        value.LastUpdate(delta);
     });
 };

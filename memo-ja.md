@@ -77,6 +77,7 @@
 
 ## 2017.5.11
 
+ - Engine.Loop()を改修
  - Add NoneCardEffect object
  - Xorshiftのseed値は内部で保持する。デバッグ目的
 
