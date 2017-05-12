@@ -20,13 +20,29 @@ section {
 section.menu {
 }
 
+section.menu.debugbutton {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    z-index: -100;
+    height: 100%;
+    width: 100%;
+}
+
+section.menu.debugbutton button {
+    position: absolute;
+    z-index: 100;
+    right: 0px;
+    top: 0px;
+}
+
 section.racetrack {
 }
 
 section.history {
 }
 
-section.debug_menu {
+section.debugmenu {
 }
 
 section.fps {

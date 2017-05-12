@@ -54,5 +54,5 @@ DebugButtonRenderer.prototype.OnExit = function(e){
 };
 
 DebugButtonRenderer.prototype.OnShowDebugMenu = function(e){
-    Game.SceneDirector.Push(new GameScene("Debug"));
+//    Game.SceneDirector.Push(new GameScene("Debug"));
 };

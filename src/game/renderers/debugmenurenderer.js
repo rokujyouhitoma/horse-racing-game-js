@@ -4,6 +4,7 @@
  * @constructor
  */
 var DebugMenuRenderer = function(scene){
+    this.scene = scene;
     this.dom = null;
     this.events = [
         [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
@@ -30,7 +31,7 @@ DebugMenuRenderer.prototype.OnEnter = function(e){
     if(elements.length > 0){
         var body = elements[0];
         var section = document.createElement("section");
-        section.className = "debug_menu";
+        section.className = this.scene.name.toLowerCase() + " " + "debugmenu";
         var h1 = document.createElement("h1");
         h1.innerText = "Debug Menu";
         section.appendChild(h1);

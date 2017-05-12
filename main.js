@@ -1420,7 +1420,7 @@ var GameScene = function(name){
         "Menu": function(scene){
             return {
                 "MenuRenderer": new MenuRenderer(scene),
-                "DebugButtonRenderer": new DebugButtonRenderer(scene),
+//                "DebugButtonRenderer": new DebugButtonRenderer(scene),
             };
         },
         "Race": function(scene){
