@@ -91,10 +91,9 @@ Engine.prototype.Loop = function(){
         var elapsed = now - this.lastUpdate;
         this.lastUpdate = now;
         lag += elapsed;
+        //TODO: xxx
         if(LIMIT_LAG < lag){
-            //TODO: xxx
             lag = 0;
-            console.error(lag);
             return;
         }
         while(MPU <= lag){
