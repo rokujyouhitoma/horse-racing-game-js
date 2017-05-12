@@ -2,8 +2,9 @@
 
 /**
  * @constructor
+ * @implements {ILayer}
  */
-var DebugButtonRenderer = function(scene){
+var DebugButtonLayer = function(scene){
     this.scene = scene;
     this.dom = null;
     this.events = [
@@ -16,20 +17,12 @@ var DebugButtonRenderer = function(scene){
     });
 };
 
-/**
- * @param {ExEvent} e The event object.
- */
-DebugButtonRenderer.prototype.OnEnter = function(e){
-    var elements = document.getElementsByTagName("body");
-    if(elements.length > 0){
-        var body = elements[0];
-        var section = document.createElement("section");
-        section.className = this.scene.name.toLowerCase() + " " + "debugbutton";
-        this.dom = section;
-        Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
-            body.appendChild(section);
-        }));
-    }
+DebugButtonLayer.prototype.Render = function(){
+    var fragment = document.createDocumentFragment();
+    var section = document.createElement("section");
+    section.className = "debugbutton";
+    this.dom = section;
+    fragment.appendChild(section);
     var buttons = [
         ["Debug", function(){Game.Publisher.Publish(Events.Debug.OnShowDebugMenu, this);}],
     ].map(function(value){
@@ -39,12 +32,18 @@ DebugButtonRenderer.prototype.OnEnter = function(e){
     }).forEach(function(dom){
         this.dom.appendChild(dom);
     }, this);
+    return fragment;
 };
 
 /**
  * @param {ExEvent} e The event object.
  */
-DebugButtonRenderer.prototype.OnExit = function(e){
+DebugButtonLayer.prototype.OnEnter = function(e){};
+
+/**
+ * @param {ExEvent} e The event object.
+ */
+DebugButtonLayer.prototype.OnExit = function(e){
     Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
         this.dom.parentNode.removeChild(this.dom);
     }.bind(this)));
@@ -53,6 +52,6 @@ DebugButtonRenderer.prototype.OnExit = function(e){
     });
 };
 
-DebugButtonRenderer.prototype.OnShowDebugMenu = function(e){
+DebugButtonLayer.prototype.OnShowDebugMenu = function(e){
 //    Game.SceneDirector.Push(new GameScene("Debug"));
 };

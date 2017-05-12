@@ -1387,6 +1387,16 @@ RaceDirector.prototype.OnPlacingSecond = function(e){
 };
 
 /**
+ * @interface
+ */
+var ILayer = function(scene){};
+
+/**
+ * @return {DocumentFragment} The document fragment.
+ */
+ILayer.prototype.Render = function(){};
+
+/**
  * @constructor
  * @param {string} name Scene name.
  * @implements {IScene}
@@ -1413,31 +1423,31 @@ var GameScene = function(name){
     };
     var renderers = {
         "Title": function(scene){
-            return {
-                "TitleSceneRenderer": new TitleSceneRenderer(scene),
-            };
+            return new RenderLayers(scene, [
+                new TitleSceneLayer(scene),
+            ]);
         },
         "Menu": function(scene){
-            return {
-                "MenuRenderer": new MenuRenderer(scene),
-//                "DebugButtonRenderer": new DebugButtonRenderer(scene),
-            };
+            return new RenderLayers(scene, [
+                new MenuLayer(scene),
+//                new DebugButtonLayer(scene),
+            ]);
         },
         "Race": function(scene){
-            return {
-                "RacetrackRenderer": new RacetrackRenderer(scene),
-                "LogMessageRenderer": new LogMessageRenderer(scene),
-            };
+            return new RenderLayers(scene, [
+                new RacetrackLayer(scene),
+                new LogMessageLayer(scene),
+            ]);
         },
         "Debug": function(scene){
-            return {
-                "DebugMenuRenderer": new DebugMenuRenderer(scene),
-                "FPSRenderer": new FPSRenderer(scene),
-            };
+            return new RenderLayers(scene, [
+                new DebugMenuLayer(scene),
+                new FPSLayer(scene),
+            ]);
         },
     };
     this.directors = directors[name](this);
-    this.renderers = renderers[name](this);
+    this.layers = renderers[name](this);
 };
 GameScene.prototype = new Scene();
 GameScene.prototype.OnEnter = function(){

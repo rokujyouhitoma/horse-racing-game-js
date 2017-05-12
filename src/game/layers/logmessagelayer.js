@@ -2,8 +2,9 @@
 
 /**
  * @constructor
+ * @implements {ILayer}
  */
-var LogMessageRenderer = function(scene){
+var LogMessageLayer = function(scene){
     this.dom = null;
     this.messages = [];
     this.events = [
@@ -16,35 +17,33 @@ var LogMessageRenderer = function(scene){
     });
 };
 
-/**
- * @param {ExEvent} e The event object.
- */
-LogMessageRenderer.prototype.OnEnter = function(e){
-    var elements = document.getElementsByTagName("body");
-    if(elements.length > 0){
-        var body = elements[0];
-        var section = document.createElement("section");
-        section.className = "history";
-        var h1 = document.createElement("h1");
-        h1.innerText = "History";
-        section.appendChild(h1);
-        for(var i =0; i < 5; i++){
-            var p = document.createElement("p");
-            p.innerText = "\uD83C\uDFC7";
-            this.messages.push(p);
-            section.appendChild(p);
-        }
-        this.dom = section;
-        Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
-            body.appendChild(section);
-        }));
+LogMessageLayer.prototype.Render = function(){
+    var fragment = document.createDocumentFragment();
+    var section = document.createElement("section");
+    section.className = "history";
+    var h1 = document.createElement("h1");
+    h1.innerText = "History";
+    section.appendChild(h1);
+    for(var i =0; i < 5; i++){
+        var p = document.createElement("p");
+        p.innerText = "\uD83C\uDFC7";
+        this.messages.push(p);
+        section.appendChild(p);
     }
+    this.dom = section;
+    fragment.appendChild(section);
+    return fragment;
 };
 
 /**
  * @param {ExEvent} e The event object.
  */
-LogMessageRenderer.prototype.OnExit = function(e){
+LogMessageLayer.prototype.OnEnter = function(e){};
+
+/**
+ * @param {ExEvent} e The event object.
+ */
+LogMessageLayer.prototype.OnExit = function(e){
     Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
         this.dom.parentNode.removeChild(this.dom);
     }.bind(this)));
@@ -56,7 +55,7 @@ LogMessageRenderer.prototype.OnExit = function(e){
 /**
  * @param {ExEvent} e The event object.
  */
-LogMessageRenderer.prototype.OnLogMessage = function(e){
+LogMessageLayer.prototype.OnLogMessage = function(e){
     var message = e.payload["message"];
     for(var i = this.messages.length - 1; 0 < i; i--){
         this.messages[i].innerText = this.messages[i - 1].innerText;

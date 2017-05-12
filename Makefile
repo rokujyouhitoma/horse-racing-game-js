@@ -11,15 +11,16 @@ SOURCES = src/lib/xorshift.js \
 	src/game/lib/repository.js \
 	src/game/lib/publisher.js \
 	src/game/lib/command.js \
-	src/game/renderers/guiparts.js \
-	src/game/renderers/titlescenerenderer.js \
-	src/game/renderers/menurenderer.js \
-	src/game/renderers/racetrackrenderer.js \
-	src/game/renderers/logmessagerenderer.js \
-	src/game/renderers/debugbuttonrenderer.js \
-	src/game/renderers/debugmenurenderer.js \
-	src/game/renderers/fpsrenderer.js \
+	src/game/layers/titlescenelayer.js \
+	src/game/layers/menulayer.js \
+	src/game/layers/racetracklayer.js \
+	src/game/layers/logmessagelayer.js \
+	src/game/layers/debugmenulayer.js \
+	src/game/layers/fpslayer.js \
+	src/game/layers/debugbuttonlayer.js \
 	src/game/renderers.js \
+	src/game/renderers/guiparts.js \
+	src/game/renderers/lanerenderer.js \
 	src/game/checker.js \
 	main.js
 

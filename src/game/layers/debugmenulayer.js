@@ -2,8 +2,9 @@
 
 /**
  * @constructor
+ * @implements {ILayer}
  */
-var DebugMenuRenderer = function(scene){
+var DebugMenuLayer = function(scene){
     this.scene = scene;
     this.dom = null;
     this.events = [
@@ -23,23 +24,15 @@ var DebugMenuRenderer = function(scene){
     });
 };
 
-/**
- * @param {ExEvent} e The event object.
- */
-DebugMenuRenderer.prototype.OnEnter = function(e){
-    var elements = document.getElementsByTagName("body");
-    if(elements.length > 0){
-        var body = elements[0];
-        var section = document.createElement("section");
-        section.className = this.scene.name.toLowerCase() + " " + "debugmenu";
-        var h1 = document.createElement("h1");
-        h1.innerText = "Debug Menu";
-        section.appendChild(h1);
-        this.dom = section;
-        Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
-            body.appendChild(section);
-        }));
-    }
+DebugMenuLayer.prototype.Render = function(){
+    var fragment = document.createDocumentFragment();
+    var section = document.createElement("section");
+    section.className = "debugmenu";
+    var h1 = document.createElement("h1");
+    h1.innerText = "Debug Menu";
+    section.appendChild(h1);
+    fragment.appendChild(section)
+    this.dom = section;
     var buttons = [
         ["Reset \uD83C\uDFAE", function(){Game.Publisher.Publish(Events.Debug.OnResetGame, this);}],
         ["Reset \uD83C\uDFC7", function(){Game.Publisher.Publish(Events.Debug.OnResetRace, this);}],
@@ -55,12 +48,18 @@ DebugMenuRenderer.prototype.OnEnter = function(e){
     }).forEach(function(dom){
         this.dom.appendChild(dom);
     }, this);
+    return fragment;
 };
 
 /**
  * @param {ExEvent} e The event object.
  */
-DebugMenuRenderer.prototype.OnExit = function(e){
+DebugMenuLayer.prototype.OnEnter = function(e){};
+
+/**
+ * @param {ExEvent} e The event object.
+ */
+DebugMenuLayer.prototype.OnExit = function(e){
     Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
         this.dom.parentNode.removeChild(this.dom);
     }.bind(this)));
@@ -72,35 +71,35 @@ DebugMenuRenderer.prototype.OnExit = function(e){
 /**
  * @param {ExEvent} e The event object.
  */
-DebugMenuRenderer.prototype.OnResetGame = function(e){
+DebugMenuLayer.prototype.OnResetGame = function(e){
     Game.Publisher.Publish(Events.GameDirector.OnResetGame, this);
 };
 
 /**
  * @param {ExEvent} e The event object.
  */
-DebugMenuRenderer.prototype.OnResetRace = function(e){
+DebugMenuLayer.prototype.OnResetRace = function(e){
     Game.Publisher.Publish(Events.GameDirector.OnNewRace, this);
 };
 
 /**
  * @param {ExEvent} e The event object.
  */
-DebugMenuRenderer.prototype.OnPlayCard = function(e){
+DebugMenuLayer.prototype.OnPlayCard = function(e){
     Game.Publisher.Publish(Events.Race.OnPlayCard, this);
 };
 
 /**
  * @param {ExEvent} e The event object.
  */
-DebugMenuRenderer.prototype.OnUndoPlayCard = function(e){
+DebugMenuLayer.prototype.OnUndoPlayCard = function(e){
     Game.Publisher.Publish(Events.Race.OnUndoPlayCard, this);
 };
 
 /**
  * @param {ExEvent} e The event object.
  */
-DebugMenuRenderer.prototype.OnPlayRankCard = function(e){
+DebugMenuLayer.prototype.OnPlayRankCard = function(e){
     var race = Game.Locator.locate(GameDirector).race;
     var repositoryDirector = Game.Locator.locate(RepositoryDirector);
     var name = "RankCard";
@@ -115,7 +114,7 @@ DebugMenuRenderer.prototype.OnPlayRankCard = function(e){
 /**
  * @param {ExEvent} e The event object.
  */
-DebugMenuRenderer.prototype.OnPlayDashCard = function(e){
+DebugMenuLayer.prototype.OnPlayDashCard = function(e){
     var race = Game.Locator.locate(GameDirector).race;
     var repositoryDirector = Game.Locator.locate(RepositoryDirector);
     var name = "DashCard";
@@ -130,7 +129,7 @@ DebugMenuRenderer.prototype.OnPlayDashCard = function(e){
 /**
  * @param {ExEvent} e The event object.
  */
-DebugMenuRenderer.prototype.OnMove = function(e){
+DebugMenuLayer.prototype.OnMove = function(e){
     var index = e.payload["index"];
     Game.Locator.locate(GameDirector).race.gameBoard.racetrack.lanes[index].position += 1;
 };
@@ -138,7 +137,7 @@ DebugMenuRenderer.prototype.OnMove = function(e){
 /**
  * @param {ExEvent} e The event object.
  */
-DebugMenuRenderer.prototype.OnCheckRelationship = function(e){
+DebugMenuLayer.prototype.OnCheckRelationship = function(e){
     var checker = new RelationshipChecker()
     checker.CheckAll([
         "HorseFigure",

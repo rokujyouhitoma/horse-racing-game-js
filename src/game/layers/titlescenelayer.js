@@ -2,8 +2,9 @@
 
 /**
  * @constructor
+ * @implements {ILayer}
  */
-var TitleSceneRenderer = function(scene){
+var TitleSceneLayer = function(scene){
     this.dom = null;
     this.events = [
         [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
@@ -15,33 +16,31 @@ var TitleSceneRenderer = function(scene){
     this.onClickListener = this.OnClick.bind(this);
 };
 
-/**
- * @param {ExEvent} e The event object.
- */
-TitleSceneRenderer.prototype.OnEnter = function(e){
-    var elements = document.getElementsByTagName("body");
-    if(elements.length > 0){
-        var body = elements[0];
-        var section = document.createElement("section");
-        section.className = "";
-        var h1 = document.createElement("h1");
-        h1.innerText = "\uD83C\uDFC7 -> \uD83C\uDFAE";
-        section.appendChild(h1);
-        var button = document.createElement("button");
-        button.innerText = "Start \uD83C\uDFC7";
-        button.addEventListener("click", this.onClickListener);
-        section.appendChild(button);
-        this.dom = section;
-        Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
-            body.appendChild(section);
-        }));
-    }
+TitleSceneLayer.prototype.Render = function(){
+    var fragment = document.createDocumentFragment();
+    var section = document.createElement("section");
+    section.className = "title";
+    var h1 = document.createElement("h1");
+    h1.innerText = "\uD83C\uDFC7 -> \uD83C\uDFAE";
+    section.appendChild(h1);
+    var button = document.createElement("button");
+    button.innerText = "Start \uD83C\uDFC7";
+    button.addEventListener("click", this.onClickListener);
+    section.appendChild(button);
+    fragment.appendChild(section);
+    this.dom = section;
+    return fragment;
 };
 
 /**
  * @param {ExEvent} e The event object.
  */
-TitleSceneRenderer.prototype.OnExit = function(e){
+TitleSceneLayer.prototype.OnEnter = function(e){};
+
+/**
+ * @param {ExEvent} e The event object.
+ */
+TitleSceneLayer.prototype.OnExit = function(e){
     this.dom.children[1].removeEventListener("click", this.onClickListener);
     Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
         this.dom.parentNode.removeChild(this.dom);
@@ -54,6 +53,6 @@ TitleSceneRenderer.prototype.OnExit = function(e){
 /**
  * @param {Event} e Type event object.
  */
-TitleSceneRenderer.prototype.OnClick = function(e){
+TitleSceneLayer.prototype.OnClick = function(e){
     Game.Publisher.Publish(Events.GameDirector.OnNewRace, this);
 };
