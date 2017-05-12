@@ -3,14 +3,18 @@ JAVA = java
 
 CLOSURE_COMPIER = tools/closure-compiler/closure-compiler-v20170423.jar
 
-SOURCES = src/lib/xorshift.js \
+LIB_SOURCES = src/lib/xorshift.js \
 	src/lib/event.js \
-	src/lib/locator.js \
-	src/game/lib/scene.js \
+	src/lib/locator.js
+
+GAME_LIB_SOURCES = src/game/lib/scene.js \
 	src/game/lib/engine.js \
 	src/game/lib/repository.js \
 	src/game/lib/publisher.js \
-	src/game/lib/command.js \
+	src/game/lib/command.js
+
+SOURCES = $(LIB_SOURCES) \
+	$(GAME_LIB_SOURCES) \
 	src/game/events.js \
 	src/game/layers/titlescenelayer.js \
 	src/game/layers/menulayer.js \
