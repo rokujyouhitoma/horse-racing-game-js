@@ -75,6 +75,10 @@
 
 # History
 
+## 2017.5.13
+
+ - レイアウト修正。Debug Buttonを仮配置
+
 ## 2017.5.12
 
  - Add RenderLayers for レイヤーのHTML描画処理を整理

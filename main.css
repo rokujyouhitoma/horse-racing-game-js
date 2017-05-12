@@ -12,6 +12,9 @@ p {
 }
 
 section {
+}
+
+section.scene {
     width: 700px;
     min-width: 700px;
     margin: 0 auto;
@@ -20,39 +23,26 @@ section {
 section.menu {
 }
 
-section.menu.debugbutton {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    z-index: -100;
-    height: 100%;
-    width: 100%;
+section.menu .debugbutton {
 }
 
-section.menu.debugbutton button {
+section.menu .debugbutton button {
     position: absolute;
-    z-index: 100;
     right: 0px;
     top: 0px;
 }
 
-section.racetrack {
+section.race {
 }
 
-section.history {
-}
-
-section.debugmenu {
-}
-
-section.fps {
-}
-
-section.racetrack div {
+section.race section.racetrack div {
     font-size: 14px;
 }
 
-section.history p {
+section.race section.history p {
     text-indent: 50px;
     text-align: left;
+}
+
+section.debug {
 }

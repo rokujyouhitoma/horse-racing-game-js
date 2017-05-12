@@ -1430,7 +1430,7 @@ var GameScene = function(name){
         "Menu": function(scene){
             return new RenderLayers(scene, [
                 new MenuLayer(scene),
-//                new DebugButtonLayer(scene),
+                new DebugButtonLayer(scene),
             ]);
         },
         "Race": function(scene){
