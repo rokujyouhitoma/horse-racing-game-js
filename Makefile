@@ -11,6 +11,7 @@ SOURCES = src/lib/xorshift.js \
 	src/game/lib/repository.js \
 	src/game/lib/publisher.js \
 	src/game/lib/command.js \
+	src/game/events.js \
 	src/game/layers/titlescenelayer.js \
 	src/game/layers/menulayer.js \
 	src/game/layers/racetracklayer.js \

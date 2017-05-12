@@ -73,45 +73,6 @@ Game.Log = function(message){
     console.log(message);
 };
 
-var Events = {
-    Game: {
-        OnStart: "Events.Game.OnStart",
-        OnUpdate: "Events.Game.OnUpdate",
-        OnLastUpdate: "Events.Game.OnLastUpdate",
-        OnRender: "Events.Game.OnRender",
-        OnDestroy: "Events.Game.OnDestroy",
-    },
-    GameScene: {
-        OnEnter: "Events.GameScene.OnEnter",
-        OnExit: "Events.GameScene.OnExit",
-        OnPause: "Events.GameScene.OnPause",
-        OnResume: "Events.GameScene.OnResume",
-    },
-    GameDirector: {
-        OnResetGame: "Events.GameDirector.OnResetGame",
-        OnNewRace: "Events.GameDirector.OnNewRace",
-        OnLogMessage: "Events.GameDirector.OnLogMessage",
-    },
-    Race: {
-        OnPlacingFirst: "Events.Race.OnPlacingFirst",
-        OnPlacingSecond: "Events.Race.OnPlacingSecond",
-        OnPlayCard: "Events.Race.OnPlayCard",
-        OnUndoPlayCard: "Events.Race.OnUndoPlayCard", // For debug?
-    },
-    // For debug.
-    Debug: {
-        OnShowDebugMenu: "Events.Deubg.OnShowDebugMenu",
-        OnResetGame: "Events.Debug.OnResetGame",
-        OnResetRace: "Events.Debug.OnResetRace",
-        OnPlayCard: "Events.Debug.OnPlayCard",
-        OnUndoPlayCard: "Events.Debug.OnUndoPlayCard",
-        OnPlayRankCard: "Events.Debug.OnPlayRankCard",
-        OnPlayDashCard: "Events.Debug.OnPlayDashCard",
-        OnMove: "Events.Debug.OnMove",
-        OnCheckRelationship: "Events.Debug.OnCheckRelationship",
-    },
-};
-
 /**
  * @constructor
  */
@@ -123,9 +84,10 @@ var GameDirector = function(){
         Game.Locator.locate(MonsterFigureDirector),
     ];
     this.events = [
-        [Events.GameDirector.OnLogMessage, this.OnLogMessage.bind(this), null],
-        [Events.GameDirector.OnNewRace, this.OnNewRace.bind(this), null],
+        [Events.GameDirector.OnBootGame, this.OnBootGame.bind(this), null],
         [Events.GameDirector.OnResetGame, this.OnResetGame.bind(this), null],
+        [Events.GameDirector.OnNewRace, this.OnNewRace.bind(this), null],
+        [Events.GameDirector.OnLogMessage, this.OnLogMessage.bind(this), null],
     ];
     Game.Publisher.Subscribe(Events.Game.OnStart, this.OnStart.bind(this));
     Game.Publisher.Subscribe(Events.Game.OnDestroy, this.OnDestroy.bind(this));
@@ -139,7 +101,7 @@ GameDirector.prototype.OnStart = function(e){
     this.events.forEach(function(event){
         Game.Publisher.Subscribe(event[0], event[1], event[2]);
     });
-    Game.Publisher.Publish(Events.GameDirector.OnResetGame, this);
+    Game.Publisher.Publish(Events.GameDirector.OnBootGame, this);
 };
 
 /**
@@ -154,17 +116,16 @@ GameDirector.prototype.OnDestroy = function(e){
 /**
  * @param {ExEvent} e The event object.
  */
-GameDirector.prototype.OnLogMessage = function(e){
-    var message = e.payload["message"];
-//    console.log(message);
-    //TODO: xxx
+GameDirector.prototype.OnBootGame = function(e){
+    Game.SceneDirector.Push(new GameScene("Debug"));
+    Game.Publisher.Publish(Events.GameDirector.OnResetGame, this);
 };
 
 /**
  * @param {ExEvent} e The event object.
  */
 GameDirector.prototype.OnResetGame = function(e){
-    Game.SceneDirector.ToDepth(0);
+    Game.SceneDirector.ToDepth(1);
     Game.SceneDirector.Push(new GameScene("Title"));
 };
 
@@ -173,16 +134,24 @@ GameDirector.prototype.OnResetGame = function(e){
  */
 GameDirector.prototype.OnNewRace = function(e){
     //TODO: xxx, priority high.
-    Game.SceneDirector.ToDepth(0);
+    Game.SceneDirector.ToDepth(1);
     Game.SceneDirector.Push(new GameScene("Menu"));
     Game.SceneDirector.Push(new GameScene("Race"));
-    Game.SceneDirector.Push(new GameScene("Debug"));
     var row = Game.Locator.locate(MasterData).Get("Race")[0];
     var model = Game.Model("Race").Set(row);
     var race = new Race(model);
     race.Start();
     this.objects.push(race);
     this.race = race;
+};
+
+/**
+ * @param {ExEvent} e The event object.
+ */
+GameDirector.prototype.OnLogMessage = function(e){
+    var message = e.payload["message"];
+//    console.log(message);
+    //TODO: xxx
 };
 
 /**
