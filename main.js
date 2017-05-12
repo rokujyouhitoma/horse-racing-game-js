@@ -100,6 +100,7 @@ var Events = {
     },
     // For debug.
     Debug: {
+        OnShowDebugMenu: "Events.Deubg.OnShowDebugMenu",
         OnResetGame: "Events.Debug.OnResetGame",
         OnResetRace: "Events.Debug.OnResetRace",
         OnPlayCard: "Events.Debug.OnPlayCard",
@@ -1419,6 +1420,7 @@ var GameScene = function(name){
         "Menu": function(scene){
             return {
                 "MenuRenderer": new MenuRenderer(scene),
+                "DebugButtonRenderer": new DebugButtonRenderer(scene),
             };
         },
         "Race": function(scene){
