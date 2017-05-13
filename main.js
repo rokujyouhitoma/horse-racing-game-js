@@ -2,6 +2,29 @@
 
 /**
  * @constructor
+ */
+var CustomSceneDirector = function(){
+    this.director = new SceneDirector();
+};
+
+CustomSceneDirector.prototype.CurrentScene = function(){
+    return this.director.CurrentScene();
+};
+
+CustomSceneDirector.prototype.Push = function(scene){
+    this.director.Push(scene);
+};
+
+CustomSceneDirector.prototype.Pop = function(){
+    return this.director.Pop();
+};
+
+CustomSceneDirector.prototype.ToDepth = function(toDepth){
+    this.director.ToDepth(toDepth);
+};
+
+/**
+ * @constructor
  * @extends {GameObject}
  * @implements {IGameObject}
  */
@@ -49,7 +72,7 @@ Game.Locator = new Locator(Game.LocatorContainer);
 
 Game.Publisher = Game.Locator.locate(Publisher);
 
-Game.SceneDirector = Game.Locator.locate(SceneDirector);
+Game.SceneDirector = Game.Locator.locate(CustomSceneDirector);
 
 Game.RenderCommandExecuter = new BasicExecuter();
 
@@ -117,7 +140,6 @@ GameDirector.prototype.OnDestroy = function(e){
  * @param {ExEvent} e The event object.
  */
 GameDirector.prototype.OnBootGame = function(e){
-    Game.SceneDirector.Push(new GameScene("Debug"));
     Game.Publisher.Publish(Events.GameDirector.OnResetGame, this);
 };
 
@@ -125,7 +147,7 @@ GameDirector.prototype.OnBootGame = function(e){
  * @param {ExEvent} e The event object.
  */
 GameDirector.prototype.OnResetGame = function(e){
-    Game.SceneDirector.ToDepth(1);
+    Game.SceneDirector.ToDepth(0);
     Game.SceneDirector.Push(new GameScene("Title"));
 };
 
@@ -134,8 +156,7 @@ GameDirector.prototype.OnResetGame = function(e){
  */
 GameDirector.prototype.OnNewRace = function(e){
     //TODO: xxx, priority high.
-    Game.SceneDirector.ToDepth(1);
-    Game.SceneDirector.Push(new GameScene("Menu"));
+    Game.SceneDirector.ToDepth(0);
     Game.SceneDirector.Push(new GameScene("Race"));
     var row = Game.Locator.locate(MasterData).Get("Race")[0];
     var model = Game.Model("Race").Set(row);
@@ -1382,17 +1403,11 @@ var GameScene = function(name){
         "Title": function(scene){
             return {};
         },
-        "Menu": function(scene){
-            return {};
-        },
         "Race": function(scene){
             return {
                 "RaceDirector": new RaceDirector(scene),
                 "PlayCardDirector": new PlayCardDirector(scene),
             };
-        },
-        "Debug": function(scene){
-            return {};
         },
     };
     var renderers = {
@@ -1401,20 +1416,12 @@ var GameScene = function(name){
                 new TitleSceneLayer(scene),
             ]);
         },
-        "Menu": function(scene){
+        "Race": function(scene){
             return new RenderLayers(scene, [
                 new MenuLayer(scene),
                 new DebugButtonLayer(scene),
-            ]);
-        },
-        "Race": function(scene){
-            return new RenderLayers(scene, [
                 new RacetrackLayer(scene),
                 new LogMessageLayer(scene),
-            ]);
-        },
-        "Debug": function(scene){
-            return new RenderLayers(scene, [
                 new DebugMenuLayer(scene),
                 new FPSLayer(scene),
             ]);
