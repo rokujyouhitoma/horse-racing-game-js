@@ -34,14 +34,14 @@ RacetrackLayer.prototype.Render = function(){
  * @param {ExEvent} e The event object.
  */
 RacetrackLayer.prototype.OnUpdate = function(e){
-    var game = Game.Locator.locate(GameDirector);
+    var race = Game.SceneDirector.CurrentScene().directors.RaceDirector.race;
     //TODO: xxx
-    if(!game.race){
+    if(!race){
         return;
     }
     //TODO: innerHTMLは手抜き。createElementによるDOM操作が望ましい
     this.dom.children[1].innerHTML = this.DOM({
-        "racetrack": game.race.gameBoard.racetrack,
+        "racetrack": race.gameBoard.racetrack,
     });
 };
 

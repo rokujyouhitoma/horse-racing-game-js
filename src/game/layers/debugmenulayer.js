@@ -100,7 +100,7 @@ DebugMenuLayer.prototype.OnUndoPlayCard = function(e){
  * @param {ExEvent} e The event object.
  */
 DebugMenuLayer.prototype.OnPlayRankCard = function(e){
-    var race = Game.Locator.locate(GameDirector).race;
+    var race = Game.SceneDirector.CurrentScene().directors.RaceDirector.race;
     var repositoryDirector = Game.Locator.locate(RepositoryDirector);
     var name = "RankCard";
     var repository = repositoryDirector.Get(name);
@@ -115,7 +115,7 @@ DebugMenuLayer.prototype.OnPlayRankCard = function(e){
  * @param {ExEvent} e The event object.
  */
 DebugMenuLayer.prototype.OnPlayDashCard = function(e){
-    var race = Game.Locator.locate(GameDirector).race;
+    var race = Game.SceneDirector.CurrentScene().directors.RaceDirector.race;
     var repositoryDirector = Game.Locator.locate(RepositoryDirector);
     var name = "DashCard";
     var repository = repositoryDirector.Get(name);
@@ -131,7 +131,8 @@ DebugMenuLayer.prototype.OnPlayDashCard = function(e){
  */
 DebugMenuLayer.prototype.OnMove = function(e){
     var index = e.payload["index"];
-    Game.Locator.locate(GameDirector).race.gameBoard.racetrack.lanes[index].position += 1;
+    var race = Game.SceneDirector.CurrentScene().directors.RaceDirector.race;
+    race.gameBoard.racetrack.lanes[index].position += 1;
 };
 
 /**
