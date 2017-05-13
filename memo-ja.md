@@ -336,6 +336,20 @@ SceneDirectorはSceneの
 
 # 不具合
 
+## window.historyとの連携
+
+大苦戦。
+
+ - [ブラウザの履歴を操作する](https://developer.mozilla.org/ja/docs/Web/Guide/DOM/Manipulating_the_browser_history)
+
+## Raceオブジェクトへのアクセス
+
+以下のコードやばい
+
+```
+var race = Game.SceneDirector.CurrentScene().directors.RaceDirector.race;
+```
+
 ## 仕様バグ？
 
 元の仕様はプレイカードを使い切った場合に1,2位が必ず決まるとのレベルデザインがなされているとのこと。
