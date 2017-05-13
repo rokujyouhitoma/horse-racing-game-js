@@ -15,7 +15,6 @@ var Events = {
         OnResume: "Events.GameScene.OnResume",
     },
     GameDirector: {
-        OnBootGame: "Events.GameDirector.OnBootGame",
         OnResetGame: "Events.GameDirector.OnResetGame",
         OnNewRace: "Events.GameDirector.OnNewRace",
         OnLogMessage: "Events.GameDirector.OnLogMessage",

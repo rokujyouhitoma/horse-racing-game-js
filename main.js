@@ -5,6 +5,26 @@
  */
 var CustomSceneDirector = function(){
     this.director = new SceneDirector();
+    window.addEventListener("load", function(e){
+        // TODO: xxx
+        var hash = window.location.hash;
+        if(!hash){
+            Game.SceneDirector.Push(new GameScene("Title"));
+            return;
+        }
+        var name = hash.charAt(1).toUpperCase() + hash.substring(2);
+        // TODO: Danger call
+        this.Push(new GameScene(name))
+    }.bind(this));
+    window.addEventListener("popstate", function(e){
+        // TODO: xxx
+        var currentState = history.state;
+        console.log(currentState);
+        var name = currentState.name;
+        this.Pop();
+        // TODO: Danger call
+        this.Push(new GameScene(name))
+    }.bind(this));
 };
 
 CustomSceneDirector.prototype.CurrentScene = function(){
@@ -12,6 +32,7 @@ CustomSceneDirector.prototype.CurrentScene = function(){
 };
 
 CustomSceneDirector.prototype.Push = function(scene){
+    window.history.pushState({name: scene.name}, scene.name, "#" + scene.name);
     this.director.Push(scene);
 };
 
@@ -107,7 +128,6 @@ var GameDirector = function(){
         Game.Locator.locate(MonsterFigureDirector),
     ];
     this.events = [
-        [Events.GameDirector.OnBootGame, this.OnBootGame.bind(this), null],
         [Events.GameDirector.OnResetGame, this.OnResetGame.bind(this), null],
         [Events.GameDirector.OnNewRace, this.OnNewRace.bind(this), null],
         [Events.GameDirector.OnLogMessage, this.OnLogMessage.bind(this), null],
@@ -124,7 +144,6 @@ GameDirector.prototype.OnStart = function(e){
     this.events.forEach(function(event){
         Game.Publisher.Subscribe(event[0], event[1], event[2]);
     });
-    Game.Publisher.Publish(Events.GameDirector.OnBootGame, this);
 };
 
 /**
@@ -139,13 +158,6 @@ GameDirector.prototype.OnDestroy = function(e){
 /**
  * @param {ExEvent} e The event object.
  */
-GameDirector.prototype.OnBootGame = function(e){
-    Game.Publisher.Publish(Events.GameDirector.OnResetGame, this);
-};
-
-/**
- * @param {ExEvent} e The event object.
- */
 GameDirector.prototype.OnResetGame = function(e){
     Game.SceneDirector.ToDepth(0);
     Game.SceneDirector.Push(new GameScene("Title"));
@@ -155,7 +167,6 @@ GameDirector.prototype.OnResetGame = function(e){
  * @param {ExEvent} e The event object.
  */
 GameDirector.prototype.OnNewRace = function(e){
-    //TODO: xxx, priority high.
     Game.SceneDirector.ToDepth(0);
     Game.SceneDirector.Push(new GameScene("Race"));
 };
