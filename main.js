@@ -1215,7 +1215,6 @@ PlayCardDirector.prototype.OnPlayCard = function(e){
         return;
     }
     var race = Game.Locator.locate(GameDirector).race;
-    console.log(this.position);
     var command = new PlayCardCommand(race, card);
     this.position += 1;
     this.executer_.Execute(command);
@@ -1346,13 +1345,19 @@ RaceDirector.prototype.OnPlacingFirst = function(e){
  * @param {ExEvent} e The event object.
  */
 RaceDirector.prototype.OnPlacingSecond = function(e){
-    var placings = this.goals_.slice(0, 2).map(function(figure){
-        return figure.model["type"];
-    });
+    /** @type {Array<HorseFigure>} */
+    var placings = this.goals_.slice(0, 2);
+    /** @type {HorseFigure} */
     var first = placings[0];
+    /** @type {HorseFigure} */
     var second = placings[1];
-    Game.Log("The first: " + first);
-    Game.Log("The second: " + second);
+    Game.Log("The first: " + first.model["type"]);
+    Game.Log("The second: " + second.model["type"]);
+    Game.Publisher.Publish(Events.Race.OnFinishedRace, this, {
+        race: this,
+        first: first,
+        second: second,
+    });
 };
 
 /**

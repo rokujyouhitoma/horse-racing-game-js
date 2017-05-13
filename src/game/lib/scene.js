@@ -3,7 +3,10 @@
 /**
  * @interface
  */
-var IScene = function(){};
+var IScene = function(){
+};
+/** @type {string} */
+IScene.prototype.name;
 IScene.prototype.OnEnter = function(){};
 IScene.prototype.OnExit = function(){};
 IScene.prototype.OnPause = function(){};
@@ -25,6 +28,8 @@ Scene.State = {
     Paused: "Paused",
 };
 
+/** @type {string} */
+Scene.prototype.name;
 Scene.prototype.OnEnter = function(){};
 Scene.prototype.OnExit = function(){};
 Scene.prototype.OnPause = function(){};

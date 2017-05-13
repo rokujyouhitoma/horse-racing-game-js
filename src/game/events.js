@@ -23,6 +23,7 @@ var Events = {
     Race: {
         OnPlacingFirst: "Events.Race.OnPlacingFirst",
         OnPlacingSecond: "Events.Race.OnPlacingSecond",
+        OnFinishedRace: "Events.Race.OnFinishedRace",
         OnPlayCard: "Events.Race.OnPlayCard",
         OnUndoPlayCard: "Events.Race.OnUndoPlayCard", // For debug?
     },
