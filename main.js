@@ -161,8 +161,6 @@ GameDirector.prototype.OnNewRace = function(e){
     var row = Game.Locator.locate(MasterData).Get("Race")[0];
     var model = Game.Model("Race").Set(row);
     var race = new Race(model);
-    race.Start();
-    this.objects.push(race);
     this.race = race;
 };
 
@@ -996,7 +994,6 @@ var Lane = function(index, number, runner, len){
     this.len = len;
     this.position = Lane.GatePosition;
 };
-Lane.prototype = new GameObject();
 
 Lane.GatePosition = 0;
 
@@ -1015,16 +1012,10 @@ var Racetrack = function(runners, len){
     this.runners = runners;
     this.len = len;
     this.lanes = [];
-};
-Racetrack.prototype = new GameObject();
-
-Racetrack.prototype.Start = function(){
     this.lanes = this.runners.map(function(runner, index, array){
         var number = index + 1;
         return new Lane(index, number, runner, this.len);
     }.bind(this));
-    this.objects.concat(this.lanes);
-    GameObject.prototype.Start.call(this);
 };
 
 /**
@@ -1033,19 +1024,11 @@ Racetrack.prototype.Start = function(){
 var GameBoard = function(race){
     this.race = race;
     this.racetrack = null;
-};
-GameBoard.prototype = new GameObject();
-
-GameBoard.prototype.Start = function(){
     var master = Game.Locator.locate(MasterData);
     var length = this.race.model["len"];
     this.racetrack = new Racetrack(master.Get("HorseFigure").map(function(row){
         return new HorseFigure(Game.Model("HorseFigure").Set(row));
     }), length);
-    this.objects = [
-        this.racetrack,
-    ];
-    GameObject.prototype.Start.call(this);
 };
 
 /**
@@ -1056,14 +1039,6 @@ var Race = function(model){
     this.model = model;
     /** @type {GameBoard} */
     this.gameBoard = new GameBoard(this);
-};
-Race.prototype = new GameObject();
-
-Race.prototype.Start = function(){
-    this.objects = [
-        this.gameBoard,
-    ];
-    GameObject.prototype.Start.call(this);
 };
 
 Race.prototype.Apply = function(card){
