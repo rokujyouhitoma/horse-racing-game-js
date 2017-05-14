@@ -75,6 +75,10 @@
 
 # History
 
+## 2017.5.15
+
+ - Xorshift.s（シード)をpublicにする
+
 ## 2017.5.14
 
  - window.historyを仮サポート
