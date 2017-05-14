@@ -6,7 +6,7 @@
 var CustomSceneDirector = function(){
     this.director = new SceneDirector();
     window.addEventListener("load", function(e){
-        // TODO: xxx
+        // TODO: There are boot call. but...
         Game.Locator.locate(RepositoryDirector);
         Game.Locator.locate(Game);
         var hash = window.location.hash;
