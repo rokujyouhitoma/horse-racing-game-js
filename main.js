@@ -7,6 +7,8 @@ var CustomSceneDirector = function(){
     this.director = new SceneDirector();
     window.addEventListener("load", function(e){
         // TODO: xxx
+        Game.Locator.locate(RepositoryDirector);
+        Game.Locator.locate(Game);
         var hash = window.location.hash;
         if(!hash){
             Game.SceneDirector.Push(new GameScene("Title"));
@@ -19,7 +21,6 @@ var CustomSceneDirector = function(){
     window.addEventListener("popstate", function(e){
         // TODO: xxx
         var currentState = history.state;
-        console.log(currentState);
         var name = currentState.name;
         this.Pop();
         // TODO: Danger call
@@ -56,6 +57,7 @@ var Game = function(){
         Game.Locator.locate(GameDirector),
     ];
     Game.Publisher.Subscribe(Events.Game.OnRender, this.OnRender.bind(this));
+    Game.Publisher.Publish(Events.Game.OnAwake, this);
 };
 Game.prototype = new GameObject();
 
@@ -122,7 +124,6 @@ Game.Log = function(message){
  */
 var GameDirector = function(){
     this.objects = [
-        Game.Locator.locate(RepositoryDirector),
         Game.Locator.locate(HorseFigureDirector),
         Game.Locator.locate(MonsterCoinDirector),
         Game.Locator.locate(MonsterFigureDirector),
@@ -1090,7 +1091,7 @@ Race.prototype.Ranks = function(){
 /**
  * @constructor
  */
-var RepositoryDirector = function(){
+var RepositoryDirector = function(scene){
     this.repository = new Repository();
     [
         ["StepCard", new Repository()],
@@ -1100,14 +1101,10 @@ var RepositoryDirector = function(){
     ].forEach(function(value){
         this.repository.Store(value[0], value[1]);
     }, this);
-};
-RepositoryDirector.prototype = new GameObject();
-
-RepositoryDirector.prototype.Get = function(name){
-    return this.repository.Find(name);
+    Game.Publisher.Subscribe(Events.Game.OnAwake, this.OnAwake.bind(this));
 };
 
-RepositoryDirector.prototype.Start = function(){
+RepositoryDirector.prototype.OnAwake = function(){
     var names = [
         "StepCard",
         "RankCard",
@@ -1121,6 +1118,10 @@ RepositoryDirector.prototype.Start = function(){
             this.repository.Find(modelName).Store(model["id"], entity);
         }, this);
     }, this);
+};
+
+RepositoryDirector.prototype.Get = function(name){
+    return this.repository.Find(name);
 };
 
 /**
@@ -1147,6 +1148,7 @@ FPS.prototype.Update = function(){
  * @constructor
  */
 var PlayCardDirector = function(scene){
+    this.scene = scene;
     /** @type {CommandExecuter} */
     this.executer_ = new CommandExecuter();
     this.playCards = [];

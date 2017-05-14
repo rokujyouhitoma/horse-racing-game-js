@@ -2,6 +2,7 @@
 
 var Events = {
     Game: {
+        OnAwake: "Events.Game.OnAwake",
         OnStart: "Events.Game.OnStart",
         OnUpdate: "Events.Game.OnUpdate",
         OnLastUpdate: "Events.Game.OnLastUpdate",
