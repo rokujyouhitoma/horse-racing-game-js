@@ -48,6 +48,9 @@ DebugMenuLayer.prototype.Render = function(){
     }).forEach(function(dom){
         this.dom.appendChild(dom);
     }, this);
+    var seed = document.createElement("p");
+    seed.innerText = "seed: " + PlayCardDirector.Xorshift.s;
+    this.dom.appendChild(seed);
     return fragment;
 };
 
