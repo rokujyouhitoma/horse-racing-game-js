@@ -5,22 +5,12 @@
  */
 var CustomSceneDirector = function(){
     this.director = new SceneDirector();
-    window.addEventListener("load", function(e){
-        // TODO: There are boot call. but...
-        Game.Locator.locate(RepositoryDirector);
-        Game.Locator.locate(Game);
-        var hash = window.location.hash;
-        if(!hash){
-            Game.SceneDirector.Push(new GameScene("Title"));
-            return;
-        }
-        var name = hash.charAt(1).toUpperCase() + hash.substring(2);
-        // TODO: Danger call
-        this.Push(new GameScene(name))
-    }.bind(this));
     window.addEventListener("popstate", function(e){
         // TODO: xxx
         var currentState = history.state;
+        if(!currentState){
+            return;
+        }
         var name = currentState.name;
         this.Pop();
         // TODO: Danger call
@@ -51,10 +41,10 @@ CustomSceneDirector.prototype.ToDepth = function(toDepth){
  * @implements {IGameObject}
  */
 var Game = function(){
+    Game.Locator.locate(GameDirector); //TODO: This is bootstrap code.
     this.fps = new FPS();
     this.objects = [
         this.fps,
-        Game.Locator.locate(GameDirector),
     ];
     Game.Publisher.Subscribe(Events.Game.OnRender, this.OnRender.bind(this));
     Game.Publisher.Publish(Events.Game.OnAwake, this);
@@ -123,6 +113,7 @@ Game.Log = function(message){
  * @constructor
  */
 var GameDirector = function(){
+    Game.Locator.locate(RepositoryDirector); //TODO: This is bootstrap code.
     this.objects = [
         Game.Locator.locate(HorseFigureDirector),
         Game.Locator.locate(MonsterCoinDirector),
@@ -136,7 +127,6 @@ var GameDirector = function(){
     Game.Publisher.Subscribe(Events.Game.OnStart, this.OnStart.bind(this));
     Game.Publisher.Subscribe(Events.Game.OnDestroy, this.OnDestroy.bind(this));
 };
-GameDirector.prototype = new GameObject();
 
 /**
  * @param {ExEvent} e The event object.
@@ -145,6 +135,16 @@ GameDirector.prototype.OnStart = function(e){
     this.events.forEach(function(event){
         Game.Publisher.Subscribe(event[0], event[1], event[2]);
     });
+    // TODO: xxx
+    var hash = window.location.hash;
+    if(!hash){
+        //Game.SceneDirector.Push(new GameScene("Title"));
+        Game.Publisher.Publish(Events.GameDirector.OnResetGame, this);
+        return;
+    }
+    var name = hash.charAt(1).toUpperCase() + hash.substring(2);
+    // TODO: Danger call
+    Game.SceneDirector.Push(new GameScene(name));
 };
 
 /**
