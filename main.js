@@ -1,6 +1,7 @@
 "use strict";
 
 /**
+ * Support for windows.history brower API.
  * @constructor
  */
 var CustomSceneDirector = function(){
@@ -143,7 +144,7 @@ GameDirector.prototype.OnStart = function(e){
         return;
     }
     var name = hash.charAt(1).toUpperCase() + hash.substring(2);
-    // TODO: Danger call
+    // TODO: Danger call. Should be validate.
     Game.SceneDirector.Push(new GameScene(name));
 };
 
@@ -270,17 +271,17 @@ Model.Types = {
 /**
  * @interface
  */
-var Loader = function(){};
+var ILoader = function(){};
 
 /**
  * @param {string} key The key.
  * @return {Array<Array<string>>} The rows.
  */
-Loader.prototype.Load = function(key){};
+ILoader.prototype.Load = function(key){};
 
 /**
  * @constructor
- * @implements {Loader}
+ * @implements {ILoader}
  */
 var StubLoader = function(){
     this.stub = {
@@ -647,18 +648,18 @@ MonsterFigureDirector.prototype.Destroy = function(){
 /**
  * @interface
  */
-var Card = function(){};
+var ICard = function(){};
 
 /**
  * @param {Race} racetrack The racetrack.
  * @return {?ICardEffect} The object.
  */
-Card.prototype.Play = function(racetrack){};
+ICard.prototype.Play = function(racetrack){};
 
 /**
  * @return {string} The message string.
  */
-Card.prototype.LogMessage = function(){};
+ICard.prototype.LogMessage = function(){};
 
 /**
  * @interface
@@ -719,7 +720,7 @@ StepCardEffect.prototype.UnApply = function(){
 
 /**
  * @constructor
- * @implements {Card}
+ * @implements {ICard}
  */
 var StepCard = function(model){
     /** @type {Model} */
@@ -763,7 +764,7 @@ StepCard.prototype.LogMessage = function(){
 
 /**
  * @constructor
- * @implements {Card}
+ * @implements {ICard}
  */
 var RankCard = function(model){
     /** @type {Model} */
@@ -800,7 +801,7 @@ RankCard.prototype.LogMessage = function(){
 
 /**
  * @constructor
- * @implements {Card}
+ * @implements {ICard}
  */
 var DashCardTypeBoost = function(){};
 
@@ -830,7 +831,7 @@ DashCardTypeBoost.prototype.LogMessage = function(){};
 
 /**
  * @constructor
- * @implements {Card}
+ * @implements {ICard}
  */
 var DashCardTypeCatchUp = function(){};
 
@@ -860,7 +861,7 @@ DashCardTypeCatchUp.prototype.LogMessage = function(){};
 
 /**
  * @constructor
- * @implements {Card}
+ * @implements {ICard}
  */
 var DashCard = function(model){
     /** @type {Model} */
@@ -901,7 +902,7 @@ DashCard.prototype.GetBehavior = function(dashType){
 
 /**
  * @constructor
- * @implements {Card}
+ * @implements {ICard}
  */
 var PlayCard = function(model){
     /** @type {Model} */
@@ -950,12 +951,12 @@ PlayCard.prototype.LogMessage = function(){
  * @constructor
  * @implements {ICommand}
  * @param {Race} race The race.
- * @param {Card} card The card.
+ * @param {ICard} card The card.
  */
 var PlayCardCommand = function(race, card){
     /** @type {Race} */
     this.race_ = race;
-    /** @type {Card} */
+    /** @type {ICard} */
     this.card_ = card;
     /** @type {?ICardEffect} */
     this.cardEffect_ = null;
