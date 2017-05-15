@@ -348,12 +348,6 @@ SceneDirectorはSceneの
 
 # 不具合
 
-## window.historyとの連携
-
-大苦戦。
-
- - [ブラウザの履歴を操作する](https://developer.mozilla.org/ja/docs/Web/Guide/DOM/Manipulating_the_browser_history)
-
 ## Raceオブジェクトへのアクセス
 
 以下のコードやばい
@@ -438,3 +432,7 @@ main.js:87 [Step]: Green +7 card_id=26
 
 > Game.SceneDirector.scenes[1].directors[1].playCards.map(function(v){return v.model.id;})
 [57, 38, 23, 32, 48, 41, 58, 29, 49, 37, 24, 21, 47, 11, 50, 19, 12, 30, 35, 34, 5, 51, 20, 3, 28, 4, 43, 53, 55, 31, 46, 17, 22, 25, 2, 44, 42, 39, 13, 60, 45, 7, 9, 6, 59, 16, 18, 10, 27, 40, 36, 14, 54, 56, 1, 8, 33, 15, 52, 26]
+
+# 参考文献
+
+ - [ブラウザの履歴を操作する](https://developer.mozilla.org/ja/docs/Web/Guide/DOM/Manipulating_the_browser_history)
