@@ -1,5 +1,15 @@
 "use strict";
 
+/*
+var router = new Router();
+router.Registers([
+    new Matcher(/^#Race$/, function(query){ console.log(query); console.log("hi race"); }),
+    new Matcher(/^#Title$/, function(query){ console.log(query); console.log("hi title"); }),
+]);
+router.Route("#Title");
+router.Route("#Titleh");
+*/
+
 /**
  * Support for windows.history brower API.
  * @constructor
@@ -702,7 +712,7 @@ var StepCardEffect = function(race, lane, step){
  * 
  */
 StepCardEffect.prototype.Apply = function(){
-    var race = Game.SceneDirector.CurrentScene().directors.RaceDirector.race;
+    var race = Game.SceneDirector.CurrentScene().directors["RaceDirector"].race;
     if(race === this.race_){
         this.lane_.position += this.step_;
     }
@@ -712,7 +722,7 @@ StepCardEffect.prototype.Apply = function(){
  *
  */
 StepCardEffect.prototype.UnApply = function(){
-    var race = Game.SceneDirector.CurrentScene().directors.RaceDirector.race;
+    var race = Game.SceneDirector.CurrentScene().directors["RaceDirector"].race;
     if(race === this.race_){
         this.lane_.position -= this.step_;
     }
@@ -749,7 +759,7 @@ StepCard.prototype.Play = function(race){
 StepCard.prototype.LogMessage = function(){
     var target_id = this.model["target_id"];
     var step = this.model["step"];
-    var race = Game.SceneDirector.CurrentScene().directors.RaceDirector.race;
+    var race = Game.SceneDirector.CurrentScene().directors["RaceDirector"].race;
     var racetrack = race.gameBoard.racetrack;
     var figures = racetrack.lanes.filter(function(lane){
         return lane.runner.model["id"] === target_id;
@@ -1225,7 +1235,7 @@ PlayCardDirector.prototype.OnPlayCard = function(e){
         Game.Log("404 Card Not found.");
         return;
     }
-    var race = Game.SceneDirector.CurrentScene().directors.RaceDirector.race;
+    var race = Game.SceneDirector.CurrentScene().directors["RaceDirector"].race;
     var command = new PlayCardCommand(race, card);
     this.position += 1;
     this.executer_.Execute(command);
@@ -1285,7 +1295,7 @@ RaceDirector.State = {
  * @param {ExEvent} e The event object.
  */
 RaceDirector.prototype.OnUpdate = function(e){
-    var race = Game.SceneDirector.CurrentScene().directors.RaceDirector.race;
+    var race = Game.SceneDirector.CurrentScene().directors["RaceDirector"].race;
     //TODO: xxx
     if(!race){
         return;

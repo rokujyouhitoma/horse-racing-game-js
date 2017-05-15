@@ -26,6 +26,7 @@
  - [ ] マスターデータのバリューチェッカー(ValueChecker)
  - [x] Utility/Fisher–Yates shuffle(Utility.FisherYatesShuffle)
  - [x] Xorshift(シードベースの乱数生成器ならなんでもいい) ただし、分布を未検証(Xorshift)
+ - [x] ディスパッチャ(Router, Matcher)
 
 ## ゲーム
 
@@ -77,6 +78,7 @@
 
 ## 2017.5.15
 
+ - Router, Matcherオブジェクトを追加
  - デバッグ目的でXorshiftのシード値を表示する
  - Xorshift.s（シード)をpublicにする
 

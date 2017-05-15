@@ -34,7 +34,7 @@ RacetrackLayer.prototype.Render = function(){
  * @param {ExEvent} e The event object.
  */
 RacetrackLayer.prototype.OnUpdate = function(e){
-    var race = Game.SceneDirector.CurrentScene().directors.RaceDirector.race;
+    var race = Game.SceneDirector.CurrentScene().directors["RaceDirector"].race;
     //TODO: xxx
     if(!race){
         return;
