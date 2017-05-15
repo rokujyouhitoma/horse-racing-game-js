@@ -1157,12 +1157,13 @@ var PlayCardDirector = function(scene){
     this.events = [
         [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
         [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
+        [Events.PlayCardDirector.OnReset, this.OnReset.bind(this), null],
+        [Events.Race.OnPlayCard, this.OnPlayCard.bind(this), null],
+        [Events.Race.OnUndoPlayCard, this.OnUndoPlayCard.bind(this), null],
     ];
     this.events.forEach(function(event){
         Game.Publisher.Subscribe(event[0], event[1], event[2]);
     });
-    this.OnPlayCardListener = this.OnPlayCard.bind(this);
-    this.OnUndoPlayCardListener = this.OnUndoPlayCard.bind(this);
 };
 
 PlayCardDirector.Xorshift = new Xorshift();
@@ -1171,13 +1172,18 @@ PlayCardDirector.Xorshift = new Xorshift();
  * @param {ExEvent} e The event object.
  */
 PlayCardDirector.prototype.OnEnter = function(e){
+    Game.Publisher.Publish(Events.PlayCardDirector.OnReset, this);
+};
+
+/**
+ * @param {ExEvent} e The event object.
+ */
+PlayCardDirector.prototype.OnReset = function(e){
     var repositoryDirector = Game.Locator.locate(RepositoryDirector);
     var repository = repositoryDirector.Get("PlayCard");
     var playCards = repository.All();
     this.playCards = this.FisherYatesShuffle(playCards);
     this.position = 0;
-    Game.Publisher.Subscribe(Events.Race.OnPlayCard, this.OnPlayCardListener);
-    Game.Publisher.Subscribe(Events.Race.OnUndoPlayCard, this.OnUndoPlayCardListener);
 };
 
 /**
@@ -1202,8 +1208,6 @@ PlayCardDirector.prototype.FisherYatesShuffle = function(array){
 PlayCardDirector.prototype.OnExit = function(e){
     this.playCards = [];
     this.position = 0;
-    Game.Publisher.UnSubscribe(Events.Race.OnPlayCard, this.OnPlayCardListener);
-    Game.Publisher.UnSubscribe(Events.Race.OnUndoPlayCard, this.OnUndoPlayCardListener);
     this.events.forEach(function(event){
         Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
     });
@@ -1408,7 +1412,7 @@ var GameScene = function(name){
         "Race": function(scene){
             return new RenderLayers(scene, [
                 new MenuLayer(scene),
-                new DebugButtonLayer(scene),
+//                new DebugButtonLayer(scene),
                 new RacetrackLayer(scene),
                 new LogMessageLayer(scene),
                 new DebugMenuLayer(scene),

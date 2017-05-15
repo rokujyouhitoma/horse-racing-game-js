@@ -20,6 +20,9 @@ var Events = {
         OnNewRace: "Events.GameDirector.OnNewRace",
         OnLogMessage: "Events.GameDirector.OnLogMessage",
     },
+    PlayCardDirector: {
+        OnReset: "Events.PlayCardDirector.OnReset",
+    },
     Race: {
         OnPlacingFirst: "Events.Race.OnPlacingFirst",
         OnPlacingSecond: "Events.Race.OnPlacingSecond",
