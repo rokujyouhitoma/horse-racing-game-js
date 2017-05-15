@@ -78,6 +78,7 @@
 
 ## 2017.5.15
 
+ - RouterをCustomeSceneDirectorに組み込みwindows.history, locationをサポート
  - Router, Matcherオブジェクトを追加
  - デバッグ目的でXorshiftのシード値を表示する
  - Xorshift.s（シード)をpublicにする

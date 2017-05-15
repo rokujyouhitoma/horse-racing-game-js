@@ -1,32 +1,40 @@
 "use strict";
 
-/*
-var router = new Router();
-router.Registers([
-    new Matcher(/^#Race$/, function(query){ console.log(query); console.log("hi race"); }),
-    new Matcher(/^#Title$/, function(query){ console.log(query); console.log("hi title"); }),
-]);
-router.Route("#Title");
-router.Route("#Titleh");
-*/
-
 /**
- * Support for windows.history brower API.
+ * Support for brower API(windows.history and windows.location).
  * @constructor
  */
 var CustomSceneDirector = function(){
     this.director = new SceneDirector();
-    window.addEventListener("popstate", function(e){
-        // TODO: xxx
-        var currentState = history.state;
-        if(!currentState){
-            return;
-        }
-        var name = currentState.name;
-        this.Pop();
-        // TODO: Danger call
-        this.Push(new GameScene(name))
-    }.bind(this));
+    this.router = new Router();
+    this.router.Registers([
+        new Matcher(/^Race$/, this.Routing.bind(this)),
+        new Matcher(/^Title$/, this.Routing.bind(this)),
+        new Matcher(/.*/, this.RoutingDefault.bind(this)),
+    ]);
+    window.addEventListener("popstate", this.RoutingLocationHash.bind(this));
+};
+
+CustomSceneDirector.prototype.RoutingDefault = function(){
+    Game.Publisher.Publish(Events.GameDirector.OnResetGame, this);
+};
+
+/**
+ * @param {string} name A game scene name.
+ */
+CustomSceneDirector.prototype.Routing = function(name){
+    this.ToDepth(0);
+    this.Push(new GameScene(name))
+};
+
+CustomSceneDirector.prototype.RoutingLocationHash = function(){
+    var hash = window.location.hash;
+    if(hash){
+        var name = hash.charAt(1).toUpperCase() + hash.substring(2);
+        this.router.Route(name);
+    } else {
+        Game.Publisher.Publish(Events.GameDirector.OnResetGame, this);
+    }
 };
 
 CustomSceneDirector.prototype.CurrentScene = function(){
@@ -146,16 +154,7 @@ GameDirector.prototype.OnStart = function(e){
     this.events.forEach(function(event){
         Game.Publisher.Subscribe(event[0], event[1], event[2]);
     });
-    // TODO: xxx
-    var hash = window.location.hash;
-    if(!hash){
-        //Game.SceneDirector.Push(new GameScene("Title"));
-        Game.Publisher.Publish(Events.GameDirector.OnResetGame, this);
-        return;
-    }
-    var name = hash.charAt(1).toUpperCase() + hash.substring(2);
-    // TODO: Danger call. Should be validate.
-    Game.SceneDirector.Push(new GameScene(name));
+    Game.SceneDirector.RoutingLocationHash();
 };
 
 /**
