@@ -65,6 +65,6 @@ Router.prototype.Route = function(query){
         }
     }
     if(!matched){
-        console.info("Not matched");
+        console.info("Not matched. query: " + query);
     }
 };
