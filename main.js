@@ -54,6 +54,11 @@ CustomSceneDirector.prototype.ToDepth = function(toDepth){
     this.director.ToDepth(toDepth);
 };
 
+CustomSceneDirector.prototype.Replace = function(scene){
+    this.Pop();
+    this.Push(scene);
+};
+
 /**
  * @constructor
  * @extends {GameObject}
@@ -178,8 +183,7 @@ GameDirector.prototype.OnResetGame = function(e){
  * @param {ExEvent} e The event object.
  */
 GameDirector.prototype.OnToRaceScene = function(e){
-    Game.SceneDirector.Pop();
-    Game.SceneDirector.Push(new GameScene("Race"));
+    Game.SceneDirector.Replace(new GameScene("Race"));
 };
 
 /**

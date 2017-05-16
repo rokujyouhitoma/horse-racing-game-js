@@ -76,6 +76,10 @@
 
 # History
 
+## 2017.5.17
+
+ - SceneDirector.prototype.Replace(scene)を追加
+
 ## 2017.5.16
 
  - デバッグのためにSampleBallLayerを追加

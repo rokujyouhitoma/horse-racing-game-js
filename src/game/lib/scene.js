@@ -48,12 +48,18 @@ SceneDirector.prototype.CurrentScene = function(){
     return (0 < length) ? scenes[length - 1] : null;
 };
 
+/**
+ * @param {IScene} scene A scene.
+ */
 SceneDirector.prototype.Push = function(scene){
     this.scenes.push(scene);
     this.TriggerEnter(scene);
     this.PauseScenes();
 };
 
+/**
+ * @return {IScene} A poped scene.
+ */
 SceneDirector.prototype.Pop = function(){
     var last = this.CurrentScene();
     if(last == null){
@@ -69,13 +75,21 @@ SceneDirector.prototype.Pop = function(){
 };
 
 /**
- * @param {number|null} toDepth
+ * @param {number|null} toDepth To depth number.
  */
 SceneDirector.prototype.ToDepth = function(toDepth){
     var count = Math.max(0, this.scenes.length - toDepth);
-    for(var i=0; i<count; i++){
+    for(var i = 0; i < count; i++){
         this.Pop();
     }
+};
+
+/**
+ * @param {IScene} scene A scene.
+ */
+SceneDirector.prototype.Replace = function(scene){
+    this.Pop();
+    this.Push(scene);
 };
 
 SceneDirector.prototype.TriggerEnter = function(scene){
