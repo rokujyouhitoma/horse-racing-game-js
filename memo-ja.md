@@ -76,6 +76,10 @@
 
 # History
 
+## 2017.5.16
+
+ - ExEventInfoを追加し、整理
+
 ## 2017.5.15
 
  - RouterをCustomeSceneDirectorに組み込みwindows.history, locationをサポート

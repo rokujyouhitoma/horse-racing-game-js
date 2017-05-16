@@ -19,6 +19,17 @@ var ExEvent = function(type, target, opt_payload){
 };
 
 /**
+ * @constructor
+ */
+var ExEventInfo = function(object, type, listener, publisher, wrapper){
+    this.object = object;
+    this.type = type;
+    this.listener = listener;
+    this.publisher = publisher;
+    this.wrapper = wrapper;
+};
+
+/**
  * Note: Want to use Variable Event. but...Closure Compiler said...
  * > ERROR - Variable EventTarget first declared in externs.zip//w3c_event.js
  * Therefor, Use Ex prefix.
@@ -45,13 +56,7 @@ ExEventTarget.prototype.addEventListener = function(type, listener, publisher){
             listener.call(this, e);
         }
     }.bind(this);
-    this.eventListeners_[type].push({
-        object: this,
-        type: type,
-        listener: listener,
-        publisher: publisher,
-        wrapper: wrapper
-    });
+    this.eventListeners_[type].push(new ExEventInfo(this, type, listener, publisher, wrapper));
 };
 
 /**
