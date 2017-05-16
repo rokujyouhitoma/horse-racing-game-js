@@ -1411,6 +1411,10 @@ var GameScene = function(name){
                 "PlayCardDirector": new PlayCardDirector(scene),
             };
         },
+        "Result": function(scene){
+            return {
+            };
+        },
     };
     var renderers = {
         "Title": function(scene){
@@ -1426,7 +1430,13 @@ var GameScene = function(name){
                 new LogMessageLayer(scene),
                 new DebugMenuLayer(scene),
                 new FPSLayer(scene),
+                new SampleBallLayer
+                (scene),
             ]);
+        },
+        "Result": function(scene){
+            return {
+            };
         },
     };
     this.directors = directors[name](this);

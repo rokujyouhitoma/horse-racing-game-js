@@ -24,6 +24,7 @@ SOURCES = $(LIB_SOURCES) \
 	src/game/layers/debugmenulayer.js \
 	src/game/layers/fpslayer.js \
 	src/game/layers/debugbuttonlayer.js \
+	src/game/layers/sampleballlayer.js \
 	src/game/renderers.js \
 	src/game/renderers/guiparts.js \
 	src/game/renderers/lanerenderer.js \

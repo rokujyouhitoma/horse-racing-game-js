@@ -440,3 +440,4 @@ main.js:87 [Step]: Green +7 card_id=26
 # 参考文献
 
  - [ブラウザの履歴を操作する](https://developer.mozilla.org/ja/docs/Web/Guide/DOM/Manipulating_the_browser_history)
+ - [Simple Easing Functions in Javascript](https://gist.github.com/gre/1650294)
