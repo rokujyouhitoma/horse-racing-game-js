@@ -140,7 +140,7 @@ var GameDirector = function(){
     ];
     this.events = [
         [Events.GameDirector.OnResetGame, this.OnResetGame.bind(this), null],
-        [Events.GameDirector.OnNewRace, this.OnNewRace.bind(this), null],
+        [Events.GameDirector.OnToRaceScene, this.OnToRaceScene.bind(this), null],
         [Events.GameDirector.OnLogMessage, this.OnLogMessage.bind(this), null],
     ];
     Game.Publisher.Subscribe(Events.Game.OnStart, this.OnStart.bind(this));
@@ -177,8 +177,8 @@ GameDirector.prototype.OnResetGame = function(e){
 /**
  * @param {ExEvent} e The event object.
  */
-GameDirector.prototype.OnNewRace = function(e){
-    Game.SceneDirector.ToDepth(0);
+GameDirector.prototype.OnToRaceScene = function(e){
+    Game.SceneDirector.Pop();
     Game.SceneDirector.Push(new GameScene("Race"));
 };
 

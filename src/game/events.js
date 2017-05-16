@@ -17,7 +17,7 @@ var Events = {
     },
     GameDirector: {
         OnResetGame: "Events.GameDirector.OnResetGame",
-        OnNewRace: "Events.GameDirector.OnNewRace",
+        OnToRaceScene: "Events.GameDirector.OnToRaceScene",
         OnLogMessage: "Events.GameDirector.OnLogMessage",
     },
     PlayCardDirector: {

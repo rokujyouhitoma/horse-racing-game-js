@@ -82,7 +82,7 @@ DebugMenuLayer.prototype.OnResetGame = function(e){
  * @param {ExEvent} e The event object.
  */
 DebugMenuLayer.prototype.OnResetRace = function(e){
-    Game.Publisher.Publish(Events.GameDirector.OnNewRace, this);
+    Game.Publisher.Publish(Events.GameDirector.OnToRaceScene, this);
 };
 
 /**

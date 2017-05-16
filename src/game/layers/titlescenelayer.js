@@ -54,5 +54,5 @@ TitleSceneLayer.prototype.OnExit = function(e){
  * @param {Event} e Type event object.
  */
 TitleSceneLayer.prototype.OnClick = function(e){
-    Game.Publisher.Publish(Events.GameDirector.OnNewRace, this);
+    Game.Publisher.Publish(Events.GameDirector.OnToRaceScene, this);
 };
