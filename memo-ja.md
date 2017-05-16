@@ -78,6 +78,7 @@
 
 ## 2017.5.16
 
+ - デバッグのためにSampleBallLayerを追加
  - ExEventInfoを追加し、整理
 
 ## 2017.5.15
