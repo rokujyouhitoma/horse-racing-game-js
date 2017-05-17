@@ -92,6 +92,10 @@ SceneDirector.prototype.Replace = function(scene){
     this.Push(scene);
 };
 
+/**
+ * @private
+ * @param {IScene} scene A scene.
+ */
 SceneDirector.prototype.TriggerEnter = function(scene){
     switch(scene.state){
     case Scene.State.Initial:
@@ -110,6 +114,10 @@ SceneDirector.prototype.TriggerEnter = function(scene){
     }
 };
 
+/**
+ * @private
+ * @param {IScene} scene A scene.
+ */
 SceneDirector.prototype.TriggerExit = function(scene){
     switch(scene.state){
     case Scene.State.Initial:
@@ -146,6 +154,10 @@ SceneDirector.prototype.TriggerPause = function(scene){
     }
 };
 
+/**
+ * @private
+ * @param {IScene} scene A scene.
+ */
 SceneDirector.prototype.TriggerResume = function(scene){
     switch(scene.state){
     case Scene.State.Initial:
@@ -164,6 +176,9 @@ SceneDirector.prototype.TriggerResume = function(scene){
     }
 };
 
+/**
+ * @private
+ */
 SceneDirector.prototype.PauseScenes = function(){
     var current = this.CurrentScene();
     this.scenes.forEach(function(scene){

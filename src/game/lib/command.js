@@ -69,6 +69,9 @@ var SimpleCommandExecuter = function(){
     this.position_ = 0;
 };
 
+/**
+ * @param {ICommand} command The command.
+ */
 SimpleCommandExecuter.prototype.Execute = function(command){
     this.commands_.push(command);
     command.Execute();
