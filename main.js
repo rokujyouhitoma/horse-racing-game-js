@@ -30,6 +30,9 @@ CustomSceneDirector.prototype.Routing = function(name){
     this.Push(new GameScene(name));
 };
 
+/**
+ * Routing by used of window.location.hash.
+ */
 CustomSceneDirector.prototype.RoutingLocationHash = function(){
     var hash = window.location.hash;
     if(hash){
@@ -40,23 +43,38 @@ CustomSceneDirector.prototype.RoutingLocationHash = function(){
     }
 };
 
+/**
+ * @return {IScene} The current scene.
+ */
 CustomSceneDirector.prototype.CurrentScene = function(){
     return this.director.CurrentScene();
 };
 
+/**
+ * @param {IScene} scene A scene.
+ */
 CustomSceneDirector.prototype.Push = function(scene){
     window.history.pushState({name: scene.name}, scene.name, "#" + scene.name);
     this.director.Push(scene);
 };
 
+/**
+ * @return {IScene} A scene.
+ */
 CustomSceneDirector.prototype.Pop = function(){
     return this.director.Pop();
 };
 
+/**
+ * @param {number|null} toDepth To depth number.
+ */
 CustomSceneDirector.prototype.ToDepth = function(toDepth){
     this.director.ToDepth(toDepth);
 };
 
+/**
+ * @param {IScene} scene A scene.
+ */
 CustomSceneDirector.prototype.Replace = function(scene){
     window.history.pushState({name: scene.name}, scene.name, "#" + scene.name);
     this.director.Replace(scene);
@@ -78,30 +96,48 @@ var Game = function(){
 };
 Game.prototype = new GameObject();
 
+/**
+ * Start.
+ */
 Game.prototype.Start = function(){
     GameObject.prototype.Start.call(this);
     Game.Publisher.Publish(Events.Game.OnStart, this);
 };
 
+/**
+ * Update.
+ */
 Game.prototype.Update = function(){
     GameObject.prototype.Update.call(this);
     Game.Publisher.Publish(Events.Game.OnUpdate, this);
 };
 
+/**
+ * Last Update.
+ */
 Game.prototype.LastUpdate = function(){
     GameObject.prototype.LastUpdate.call(this);
 };
 
+/**
+ * @param {number} delta The delta. range is 0-1.
+ */
 Game.prototype.Render = function(delta){
     GameObject.prototype.Render.call(this, delta);
     Game.Publisher.Publish(Events.Game.OnRender, this, {delta: delta});
 };
 
+/**
+ * Destroy.
+ */
 Game.prototype.Destroy = function(){
     GameObject.prototype.Destroy.call(this);
     Game.Publisher.Publish(Events.Game.OnDestroy, this);
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 Game.prototype.OnRender = function(e){
     // This is different from Start/Update/LastUpdate/Destroy
     Game.RenderCommandExecuter.ExecuteAll();
@@ -116,11 +152,20 @@ Game.SceneDirector = Game.Locator.locate(CustomSceneDirector);
 
 Game.RenderCommandExecuter = new BasicExecuter();
 
+/**
+ * @param {string} name The meta name.
+ * @return {Model} . 
+ */
 Game.Model = function(name){
     var meta = Game.Locator.locate(MasterData).GetMeta(name);
     return new Model(meta);
 };
 
+/**
+ * @param {string} name Entity name.
+ * @param {Model} model The model.
+ * @return {ICard} .
+ */
 Game.Entity = function(name, model){
     return new ({
         "StepCard": StepCard,
@@ -131,6 +176,9 @@ Game.Entity = function(name, model){
     }[name])(model);
 };
 
+/**
+ * @param {string} message The message.
+ */
 Game.Log = function(message){
     Game.Publisher.Publish(Events.GameDirector.OnLogMessage, Game, {message: message});
     console.log(message);
@@ -223,17 +271,23 @@ CommandExecuter.prototype.OnUpdate = function(e){
     }
 };
 
+/**
+ * @param {ICommand} command The command.
+ */
 CommandExecuter.prototype.Execute = function(command){
     this.commands_.push(command);
 };
 
+/**
+ * Undo.
+ */
 CommandExecuter.prototype.Undo = function(){
     if(this.commands_.length <= 0){
         return;
     }
     var command = this.commands_.pop();
     command.Undo();
-    this.position_ -= 1
+    this.position_ -= 1;
 };
 
 /**
@@ -251,12 +305,16 @@ CommandExecuter.prototype.Generator = function*(){
 
 /**
  * @constructor
+ * @param {Object} meta The meta. 
  */
 var Model = function(meta){
-    /** @private */
     this.meta_ = meta;
 };
 
+/**
+ * @param {string} value The value.
+ * @return {Model} .
+ */
 Model.prototype.Set = function(value){
     var names = this.meta_.names;
     var types = this.meta_.types;
@@ -267,6 +325,11 @@ Model.prototype.Set = function(value){
     return this;
 };
 
+/**
+ * @param {Model.Types} type The type.
+ * @param {string} string The string.
+ * @return {string|number} .
+ */
 Model.Cast = function(type, string){
     switch(type){
     case Model.Types.Int:
@@ -274,6 +337,7 @@ Model.Cast = function(type, string){
     case Model.Types.String:
         return string;
     }
+    throw Error("Not support: " + type);
 };
 
 /**
@@ -564,9 +628,9 @@ MasterData.prototype.GetMeta = function(key){
 
 /**
  * @constructor
+ * @param {Model} model The model.
  */
 var HorseFigure = function(model){
-    /** @type {Model} */
     this.model = model;
 };
 HorseFigure.prototype = new GameObject();
@@ -579,6 +643,9 @@ var HorseFigureDirector = function(){
 };
 HorseFigureDirector.prototype = new GameObject();
 
+/**
+ * Start.
+ */
 HorseFigureDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this);
     var figures = Game.Locator.locate(MasterData).Get("HorseFigure").map(function(row){
@@ -590,6 +657,9 @@ HorseFigureDirector.prototype.Start = function(){
     }, this);
 };
 
+/**
+ * Destroy.
+ */
 HorseFigureDirector.prototype.Destroy = function(){
     GameObject.prototype.Destroy.call(this);
     this.figure = {};
@@ -597,9 +667,9 @@ HorseFigureDirector.prototype.Destroy = function(){
 
 /**
  * @constructor
+ * @param {Model} model The model.
  */
 var MonsterCoin = function(model){
-    /** @type {Model} */
     this.model = model;
 };
 MonsterCoin.prototype = new GameObject();
@@ -612,6 +682,9 @@ var MonsterCoinDirector = function(){
 };
 MonsterCoinDirector.prototype = new GameObject();
 
+/**
+ * Start.
+ */
 MonsterCoinDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this);
     var coins = Game.Locator.locate(MasterData).Get("MonsterCoin").map(function(row){
@@ -623,6 +696,9 @@ MonsterCoinDirector.prototype.Start = function(){
     }, this);
 };
 
+/**
+ * Destory.
+ */
 MonsterCoinDirector.prototype.Destroy = function(){
     GameObject.prototype.Destroy.call(this);
     this.coins = {};
@@ -630,9 +706,9 @@ MonsterCoinDirector.prototype.Destroy = function(){
 
 /**
  * @constructor
+ * @param {Model} model The model.
  */
 var MonsterFigure = function(model){
-    /** @type {Model} */
     this.model = model;
 };
 MonsterFigure.prototype = new GameObject();
@@ -645,6 +721,9 @@ var MonsterFigureDirector = function(){
 };
 MonsterFigureDirector.prototype = new GameObject();
 
+/**
+ * Start.
+ */
 MonsterFigureDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this);
     var figures = Game.Locator.locate(MasterData).Get("MonsterFigure").map(function(row){
@@ -656,6 +735,9 @@ MonsterFigureDirector.prototype.Start = function(){
     }, this);
 };
 
+/**
+ * Destroy.
+ */
 MonsterFigureDirector.prototype.Destroy = function(){
     GameObject.prototype.Destroy.call(this);
     this.figures = {};
@@ -683,12 +765,12 @@ ICard.prototype.LogMessage = function(){};
 var ICardEffect = function(){};
 
 /**
- * 
+ * Apply.
  */
 ICardEffect.prototype.Apply = function(){};
 
 /**
- * 
+ * Un Apply.
  */
 ICardEffect.prototype.UnApply = function(){};
 
@@ -698,7 +780,14 @@ ICardEffect.prototype.UnApply = function(){};
  */
 var NoneCardEffect = function(){};
 
+/**
+ * Apply.
+ */
 NoneCardEffect.prototype.Apply = function(){};
+
+/**
+ * Un Apply.
+ */
 NoneCardEffect.prototype.UnApply = function(){};
 
 /**
@@ -715,7 +804,7 @@ var StepCardEffect = function(race, lane, step){
 };
 
 /**
- * 
+ *  Apply.
  */
 StepCardEffect.prototype.Apply = function(){
     var race = Game.SceneDirector.CurrentScene().directors["RaceDirector"].race;
@@ -725,7 +814,7 @@ StepCardEffect.prototype.Apply = function(){
 };
 
 /**
- *
+ * Un Apply.
  */
 StepCardEffect.prototype.UnApply = function(){
     var race = Game.SceneDirector.CurrentScene().directors["RaceDirector"].race;
@@ -737,9 +826,9 @@ StepCardEffect.prototype.UnApply = function(){
 /**
  * @constructor
  * @implements {ICard}
+ * @param {Model} model The model.
  */
 var StepCard = function(model){
-    /** @type {Model} */
     this.model = model;
 };
 
@@ -762,6 +851,9 @@ StepCard.prototype.Play = function(race){
     return new StepCardEffect(race, lane, step);
 };
 
+/**
+ * @return {string} log message.
+ */
 StepCard.prototype.LogMessage = function(){
     var target_id = this.model["target_id"];
     var step = this.model["step"];
@@ -781,9 +873,9 @@ StepCard.prototype.LogMessage = function(){
 /**
  * @constructor
  * @implements {ICard}
+ * @param {Model} model The model.
  */
 var RankCard = function(model){
-    /** @type {Model} */
     this.model = model;
 };
 
@@ -807,6 +899,9 @@ RankCard.prototype.Play = function(race){
     }
 };
 
+/**
+ * @return {string} log message.
+ */
 RankCard.prototype.LogMessage = function(){
     var target_rank = this.model["target_rank"];
     var step = this.model["step"];
@@ -843,7 +938,12 @@ DashCardTypeBoost.prototype.Play = function(race){
     return new StepCardEffect(race, first, step);
 };
 
-DashCardTypeBoost.prototype.LogMessage = function(){};
+/**
+ * @return {string} log message.
+ */
+DashCardTypeBoost.prototype.LogMessage = function(){
+    return "";
+};
 
 /**
  * @constructor
@@ -873,14 +973,19 @@ DashCardTypeCatchUp.prototype.Play = function(race){
     return new StepCardEffect(race, second, step);
 };
 
-DashCardTypeCatchUp.prototype.LogMessage = function(){};
+/**
+ * @return {string} log message.
+ */
+DashCardTypeCatchUp.prototype.LogMessage = function(){
+    return "";
+};
 
 /**
  * @constructor
  * @implements {ICard}
+ * @param {Model} model The model.
  */
 var DashCard = function(model){
-    /** @type {Model} */
     this.model = model;
     var dashType = model["dash_type"];
     this.behavior = this.GetBehavior(dashType);
@@ -894,10 +999,17 @@ DashCard.DashType = {
     CatchUp: 2,
 };
 
+/**
+ * @param {Race} race A race.
+ * @return {ICardEffect} card effect.
+ */
 DashCard.prototype.Play = function(race){
     return this.behavior.Play(race);
 };
 
+/**
+ * @return {string} log message.
+ */
 DashCard.prototype.LogMessage = function(){
     var target_rank = this.model["target_rank"];
     return [
@@ -905,6 +1017,10 @@ DashCard.prototype.LogMessage = function(){
     ].join("");
 };
 
+/**
+ * @param {DashCard.DashType} dashType The dash type.
+ * @return {ICard} card.
+ */
 DashCard.prototype.GetBehavior = function(dashType){
     switch(dashType){
     case DashCard.DashType.Boost:
@@ -919,9 +1035,9 @@ DashCard.prototype.GetBehavior = function(dashType){
 /**
  * @constructor
  * @implements {ICard}
+ * @param {Model} model The model.
  */
 var PlayCard = function(model){
-    /** @type {Model} */
     this.model = model;
     this.card = this.GetCard();
 };
@@ -935,6 +1051,9 @@ PlayCard.CardType = {
     DashCard: 3,
 };
 
+/**
+ * @return {ICard} card.
+ */
 PlayCard.prototype.GetCard = function(){
     var detail_id = this.model["detail_id"];
     var name = this.GetCardName();
@@ -943,6 +1062,9 @@ PlayCard.prototype.GetCard = function(){
     return repository.Find(detail_id);
 };
 
+/**
+ * @return {string} card type.
+ */
 PlayCard.prototype.GetCardName = function(){
     var card_type = this.model["card_type"];
     switch(card_type){
@@ -953,12 +1075,20 @@ PlayCard.prototype.GetCardName = function(){
     case PlayCard.CardType.DashCard:
         return "DashCard";
     }
+    return "";
 };
 
+/**
+ * @param {Race} race A race.
+ * @return {ICardEffect} card effect.
+ */
 PlayCard.prototype.Play = function(race){
     return this.card.Play(race);
 };
 
+/**
+ * @return {string} log message.
+ */
 PlayCard.prototype.LogMessage = function(){
     return this.card.LogMessage();
 };
@@ -978,6 +1108,9 @@ var PlayCardCommand = function(race, card){
     this.cardEffect_ = null;
 };
 
+/**
+ * Execute.
+ */
 PlayCardCommand.prototype.Execute = function(){
     var race = this.race_;
     var card = this.card_;
@@ -994,6 +1127,9 @@ PlayCardCommand.prototype.Execute = function(){
     ].join(""));
 };
 
+/**
+ * Undo.
+ */
 PlayCardCommand.prototype.Undo = function(){
     var card = this.card_;
     var cardEffect = this.cardEffect_;
@@ -1007,11 +1143,15 @@ PlayCardCommand.prototype.Undo = function(){
         " ",
         "card_id=",
         card.model["id"],
-    ].join(""))
+    ].join(""));
 };
 
 /**
  * @constructor
+ * @param {number} index .
+ * @param {number} number .
+ * @param {HorseFigure} runner .
+ * @param {number} len .
  */
 var Lane = function(index, number, runner, len){
     this.index = index;
@@ -1023,16 +1163,24 @@ var Lane = function(index, number, runner, len){
 
 Lane.GatePosition = 0;
 
+/**
+ * @return {boolean} Is gate position.
+ */
 Lane.prototype.IsGatePosition = function(){
-    return this.position === Lane.GatePosition
+    return this.position === Lane.GatePosition;
 };
 
+/**
+ * @return {boolean} Is goal position.
+ */
 Lane.prototype.IsGolePosition = function(){
     return this.len < this.position;
 };
 
 /**
  * @constructor
+ * @param {Array<HorseFigure>} runners The runners.
+ * @param {number} len The len.
  */
 var Racetrack = function(runners, len){
     this.runners = runners;
@@ -1046,6 +1194,7 @@ var Racetrack = function(runners, len){
 
 /**
  * @constructor
+ * @param {Race} race The race.
  */
 var GameBoard = function(race){
     this.race = race;
@@ -1059,14 +1208,18 @@ var GameBoard = function(race){
 
 /**
  * @constructor
+ * @param {Model} model The model.
  */
 var Race = function(model){
-    /** @type {Model} */
     this.model = model;
     /** @type {GameBoard} */
     this.gameBoard = new GameBoard(this);
 };
 
+/**
+ * @param {ICard} card A card.
+ * @return {ICardEffect} card effect.
+ */
 Race.prototype.Apply = function(card){
     return card.Play(this);
 };
@@ -1107,6 +1260,7 @@ Race.prototype.Ranks = function(){
 
 /**
  * @constructor
+ * @param {IScene} scene A scene.
  */
 var RepositoryDirector = function(scene){
     this.repository = new Repository();
@@ -1142,6 +1296,7 @@ RepositoryDirector.prototype.OnAwake = function(){
 
 /**
  * @param {string} name A name.
+ * @return {Object} object.
  */
 RepositoryDirector.prototype.Get = function(name){
     return this.repository.Find(name);
@@ -1158,6 +1313,9 @@ var FPS = function(){
 };
 FPS.prototype = new GameObject();
 
+/**
+ * Update.
+ */
 FPS.prototype.Update = function(){
     var engine = Game.Locator.locate(Engine);
     if(1000 <= engine.lastUpdate - this.baseTime){

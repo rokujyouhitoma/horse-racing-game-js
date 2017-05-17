@@ -21,7 +21,7 @@ IGameObject.prototype.Update = function(){};
 IGameObject.prototype.LastUpdate = function(){};
 
 /**
- * @param {number} delta The delta.
+ * @param {number} delta The delta. range is 0-1.
  */
 IGameObject.prototype.Render = function(delta){};
 
