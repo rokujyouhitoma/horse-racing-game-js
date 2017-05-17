@@ -1468,8 +1468,11 @@ RaceDirector.State = {
  * @param {ExEvent} e The event object.
  */
 RaceDirector.prototype.OnUpdate = function(e){
-    var race = Game.SceneDirector.CurrentScene().directors["RaceDirector"].race;
-    //TODO: xxx
+    var raceDirector = Game.SceneDirector.CurrentScene().directors["RaceDirector"];
+    if(!raceDirector){
+        return;
+    }
+    var race = raceDirector.race;
     if(!race){
         return;
     }
@@ -1558,7 +1561,6 @@ RaceDirector.prototype.OnPlacingSecond = function(e){
  * @param {ExEvent} e The event object.
  */
 RaceDirector.prototype.OnFinishedRace = function(e){
-    Game.SceneDirector.ToDepth(0);
     Game.SceneDirector.Push(new GameScene("Result"));
 };
 
