@@ -55,8 +55,8 @@ CustomSceneDirector.prototype.ToDepth = function(toDepth){
 };
 
 CustomSceneDirector.prototype.Replace = function(scene){
-    this.Pop();
-    this.Push(scene);
+    window.history.pushState({name: scene.name}, scene.name, "#" + scene.name);
+    this.director.Replace(scene);
 };
 
 /**
