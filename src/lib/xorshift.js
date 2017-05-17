@@ -13,7 +13,7 @@ var Xorshift = function(){
     /** @private */
     this.z_ = 0;
     /** @private */
-    this.z_ = 0;
+    this.w_ = 0;
     this.seed(Date.now());
 };
 

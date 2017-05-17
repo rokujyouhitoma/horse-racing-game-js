@@ -14,7 +14,7 @@ var Locator = function(container){
  */
 Locator.prototype.locate = function(obj){
     if(!(obj in this.container)){
-        // TODO: key using Function objct...
+        // TODO: key using Function object...
         this.container[obj] = new obj();
     }
     return this.container[obj];
