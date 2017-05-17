@@ -1625,28 +1625,28 @@ var GameScene = function(name){
 GameScene.prototype = new Scene();
 
 /**
- * On enter.
+ * Enter.
  */
 GameScene.prototype.OnEnter = function(){
     Game.Publisher.Publish(Events.GameScene.OnEnter, this);
 };
 
 /**
- * On exit.
+ * Exit.
  */
 GameScene.prototype.OnExit = function(){
     Game.Publisher.Publish(Events.GameScene.OnExit, this);
 };
 
 /**
- * On pause.
+ * Pause.
  */
 GameScene.prototype.OnPause = function(){
     Game.Publisher.Publish(Events.GameScene.OnPause, this);
 };
 
 /**
- * On resume.
+ * Resume.
  */
 GameScene.prototype.OnResume = function(){
     Game.Publisher.Publish(Events.GameScene.OnResume, this);
