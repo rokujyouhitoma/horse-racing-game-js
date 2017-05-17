@@ -78,6 +78,7 @@
 
 ## 2017.5.17
 
+ - リザルトシーンの追加
  - SceneDirector.prototype.Replace(scene)を追加
 
 ## 2017.5.16

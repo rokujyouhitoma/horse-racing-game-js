@@ -1443,12 +1443,13 @@ var RaceDirector = function(scene){
         [Events.Game.OnUpdate, this.OnUpdate.bind(this), null],
         [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
         [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
+        [Events.Race.OnPlacingFirst, this.OnPlacingFirst.bind(this), null],
+        [Events.Race.OnPlacingSecond, this.OnPlacingSecond.bind(this), null],
+        [Events.Race.OnFinishedRace, this.OnFinishedRace.bind(this), null],
     ];
     this.events.forEach(function(event){
         Game.Publisher.Subscribe(event[0], event[1], event[2]);
     });
-    this.OnPlacingFirstListener = this.OnPlacingFirst.bind(this);
-    this.OnPlacingSecondListener = this.OnPlacingSecond.bind(this);
     var row = Game.Locator.locate(MasterData).Get("Race")[0];
     var model = Game.Model("Race").Set(row);
     this.race = new Race(model);
@@ -1488,8 +1489,6 @@ RaceDirector.prototype.OnUpdate = function(e){
  * @param {ExEvent} e The event object.
  */
 RaceDirector.prototype.OnEnter = function(e){
-    Game.Publisher.Subscribe(Events.Race.OnPlacingFirst, this.OnPlacingFirstListener);
-    Game.Publisher.Subscribe(Events.Race.OnPlacingSecond, this.OnPlacingSecondListener);
     this.goals_ = [];
     this.state = RaceDirector.State.None;
 };
@@ -1498,13 +1497,12 @@ RaceDirector.prototype.OnEnter = function(e){
  * @param {ExEvent} e The event object.
  */
 RaceDirector.prototype.OnExit = function(e){
-    Game.Publisher.UnSubscribe(Events.Race.OnPlacingFirst, this.OnPlacingFirstListener);
-    Game.Publisher.UnSubscribe(Events.Race.OnPlacingSecond, this.OnPlacingSecondListener);
     this.events.forEach(function(event){
         Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
     });
     this.goals_ = [];
     this.state = RaceDirector.State.None;
+    this.race = null;
 };
 
 /**
@@ -1554,6 +1552,14 @@ RaceDirector.prototype.OnPlacingSecond = function(e){
         first: first,
         second: second,
     });
+};
+
+/**
+ * @param {ExEvent} e The event object.
+ */
+RaceDirector.prototype.OnFinishedRace = function(e){
+    Game.SceneDirector.ToDepth(0);
+    Game.SceneDirector.Push(new GameScene("Result"));
 };
 
 /**
@@ -1608,8 +1614,9 @@ var GameScene = function(name){
             ]);
         },
         "Result": function(scene){
-            return {
-            };
+            return new RenderLayers(scene, [
+                new TitleSceneLayer(scene),
+            ]);
         },
     };
     this.directors = directors[name](this);
