@@ -3,6 +3,7 @@
 /**
  * @constructor
  * @implements {ILayer}
+ * @param {IScene} scene A scene.
  */
 var TitleSceneLayer = function(scene){
     this.dom = null;
@@ -16,6 +17,9 @@ var TitleSceneLayer = function(scene){
     this.onClickListener = this.OnClick.bind(this);
 };
 
+/**
+ * @return {DocumentFragment} document fragment.
+ */
 TitleSceneLayer.prototype.Render = function(){
     var fragment = document.createDocumentFragment();
     var section = document.createElement("section");

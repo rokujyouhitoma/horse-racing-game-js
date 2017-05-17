@@ -3,6 +3,7 @@
 /**
  * @constructor
  * @implements {ILayer}
+ * @param {IScene} scene A scene.
  */
 var DebugMenuLayer = function(scene){
     this.scene = scene;
@@ -24,6 +25,9 @@ var DebugMenuLayer = function(scene){
     });
 };
 
+/**
+ * @return {DocumentFragment}
+ */
 DebugMenuLayer.prototype.Render = function(){
     var fragment = document.createDocumentFragment();
     var section = document.createElement("section");
@@ -31,7 +35,7 @@ DebugMenuLayer.prototype.Render = function(){
     var h1 = document.createElement("h1");
     h1.innerText = "Debug Menu";
     section.appendChild(h1);
-    fragment.appendChild(section)
+    fragment.appendChild(section);
     this.dom = section;
     var buttons = [
         ["Reset \uD83C\uDFAE", function(){Game.Publisher.Publish(Events.Debug.OnResetGame, this);}],
@@ -142,7 +146,7 @@ DebugMenuLayer.prototype.OnMove = function(e){
  * @param {ExEvent} e The event object.
  */
 DebugMenuLayer.prototype.OnCheckRelationship = function(e){
-    var checker = new RelationshipChecker()
+    var checker = new RelationshipChecker();
     checker.CheckAll([
         "HorseFigure",
         "MonsterCoin",

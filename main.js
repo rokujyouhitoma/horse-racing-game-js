@@ -15,6 +15,9 @@ var CustomSceneDirector = function(){
     window.addEventListener("popstate", this.RoutingLocationHash.bind(this));
 };
 
+/**
+ * Routing default.
+ */
 CustomSceneDirector.prototype.RoutingDefault = function(){
     Game.Publisher.Publish(Events.GameDirector.OnResetGame, this);
 };
@@ -24,7 +27,7 @@ CustomSceneDirector.prototype.RoutingDefault = function(){
  */
 CustomSceneDirector.prototype.Routing = function(name){
     this.ToDepth(0);
-    this.Push(new GameScene(name))
+    this.Push(new GameScene(name));
 };
 
 CustomSceneDirector.prototype.RoutingLocationHash = function(){
@@ -1118,6 +1121,9 @@ var RepositoryDirector = function(scene){
     Game.Publisher.Subscribe(Events.Game.OnAwake, this.OnAwake.bind(this));
 };
 
+/**
+ * Awake.
+ */
 RepositoryDirector.prototype.OnAwake = function(){
     var names = [
         "StepCard",
@@ -1134,6 +1140,9 @@ RepositoryDirector.prototype.OnAwake = function(){
     }, this);
 };
 
+/**
+ * @param {string} name A name.
+ */
 RepositoryDirector.prototype.Get = function(name){
     return this.repository.Find(name);
 };
@@ -1160,6 +1169,7 @@ FPS.prototype.Update = function(){
 
 /**
  * @constructor
+ * @param {IScene} scene A scene.
  */
 var PlayCardDirector = function(scene){
     this.scene = scene;
@@ -1268,6 +1278,7 @@ PlayCardDirector.prototype.Generator = function*(){
 
 /**
  * @constructor
+ * @param {IScene} scene A scene.
  */
 var RaceDirector = function(scene){
     this.events = [
@@ -1339,7 +1350,7 @@ RaceDirector.prototype.OnExit = function(e){
 };
 
 /**
- *
+ * Update state.
  */
 RaceDirector.prototype.UpdateState = function(){
     var state = this.state;
@@ -1390,7 +1401,7 @@ RaceDirector.prototype.OnPlacingSecond = function(e){
 /**
  * @interface
  */
-var ILayer = function(scene){};
+var ILayer = function(){};
 
 /**
  * @return {DocumentFragment} The document fragment.
@@ -1399,9 +1410,9 @@ ILayer.prototype.Render = function(){};
 
 /**
  * @constructor
- * @param {string} name Scene name.
  * @implements {IScene}
  * @extends {Scene}
+ * @param {string} name Scene name.
  */
 var GameScene = function(name){
     this.name = name;
@@ -1447,15 +1458,31 @@ var GameScene = function(name){
     this.layers = renderers[name](this);
 };
 GameScene.prototype = new Scene();
+
+/**
+ * On enter.
+ */
 GameScene.prototype.OnEnter = function(){
     Game.Publisher.Publish(Events.GameScene.OnEnter, this);
 };
+
+/**
+ * On exit.
+ */
 GameScene.prototype.OnExit = function(){
     Game.Publisher.Publish(Events.GameScene.OnExit, this);
 };
+
+/**
+ * On pause.
+ */
 GameScene.prototype.OnPause = function(){
     Game.Publisher.Publish(Events.GameScene.OnPause, this);
 };
+
+/**
+ * On resume.
+ */
 GameScene.prototype.OnResume = function(){
     Game.Publisher.Publish(Events.GameScene.OnResume, this);
 };
@@ -1474,7 +1501,7 @@ GameScene.prototype.OnResume = function(){
 ]);
 
 // main
-(window.onload = function(){
+window.addEventListener("load", function(){
     var engine = Game.Locator.locate(Engine);
     engine.FPS = 60;
     engine.objects = [

@@ -20,6 +20,11 @@ var ExEvent = function(type, target, opt_payload){
 
 /**
  * @constructor
+ * @param {Object} object The object.
+ * @param {string} type The type.
+ * @param {function(ExEvent)} listener The event listener function.
+ * @param {Object} publisher The publisher object.
+ * @param {Function} wrapper The wrapper.
  */
 var ExEventInfo = function(object, type, listener, publisher, wrapper){
     this.object = object;
@@ -63,7 +68,7 @@ ExEventTarget.prototype.addEventListener = function(type, listener, publisher){
  * @param {string} type The event type.
  * @param {function(ExEvent)} listener The event listener function.
  * @param {Object} publisher The publisher object.
-*/
+ */
 ExEventTarget.prototype.removeEventListener = function(type, listener, publisher){
     if(!(type in this.eventListeners_)){
         return;

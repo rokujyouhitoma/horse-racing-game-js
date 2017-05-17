@@ -11,6 +11,9 @@ RelationshipChecker.Conditions = {
     Equal: "Equal",
 };
 
+/**
+ * @param {string} modelName A model name.
+ */
 RelationshipChecker.prototype.Check = function(modelName){
     var masterData = Game.Locator.locate(MasterData);
     var meta = masterData.GetMeta(modelName);
@@ -20,7 +23,7 @@ RelationshipChecker.prototype.Check = function(modelName){
     var relationships = meta["relationships"];
     var errorMessages = [];
     relationships.forEach(function(relationship){
-        var from_rows = masterData.Get(modelName)
+        var from_rows = masterData.Get(modelName);
         if("filters" in relationship){
             var filters = relationship["filters"];
             filters.forEach(function(filter){
@@ -50,7 +53,7 @@ RelationshipChecker.prototype.Check = function(modelName){
             return v === from_name;
         });
         var to = relationship["to"];
-        var to_object = to["object"]
+        var to_object = to["object"];
         var to_name = to["name"];
         var to_index = meta.names.findIndex(function(v){
             return v === to_name;
@@ -69,17 +72,20 @@ RelationshipChecker.prototype.Check = function(modelName){
                                     " value=", value,
                                     " to: ", to_object, ".", to_name].join(""));
             }
-        })
+        });
     });
     if(0 < errorMessages.length){
         errorMessages.forEach(function(message){
-            console.error(message)
+            console.error(message);
         });
     } else {
         Game.Log("RelationshipChecker: ok");
     }
 };
 
+/**
+ * @param {Array<string>} modelNames The model names.
+ */
 RelationshipChecker.prototype.CheckAll = function(modelNames){
     modelNames.forEach(function(modelName){
         this.Check(modelName);

@@ -10,16 +10,19 @@ var SampleBall = function(){
     this.movement = 60;
 };
 
-SampleBall.prototype.Move = function(){
+/**
+ * Tick move.
+ */
+SampleBall.prototype.TickMove = function(){
     if(0 < this.direction) {
         this.n = Math.min(this.n + 1/this.movement, 1);
         if(1 <= this.n){
-            this.direction *= -1
+            this.direction *= -1;
         }
     } else {
-        this.n = Math.max(this.n - 1/this.movement, 0)
+        this.n = Math.max(this.n - 1/this.movement, 0);
         if(this.n <= 0){
-            this.direction *= -1
+            this.direction *= -1;
         }
     }
 };
@@ -27,6 +30,7 @@ SampleBall.prototype.Move = function(){
 /**
  * @constructor
  * @implements {ILayer}
+ * @param {IScene} scene A scene.
  */
 var SampleBallLayer = function(scene){
     this.scene = scene;
@@ -43,6 +47,9 @@ var SampleBallLayer = function(scene){
     this.ball = new SampleBall();
 };
 
+/**
+ * @return {DocumentFragment}
+ */
 SampleBallLayer.prototype.Render = function(){
     var fragment = document.createDocumentFragment();
     var canvas = document.createElement("canvas");
@@ -60,12 +67,12 @@ SampleBallLayer.prototype.Render = function(){
  */
 SampleBallLayer.prototype.OnUpdate = function(e){
     var ctx = this.ctx;
-    this.ball.Move();
+    this.ball.TickMove();
     var y = this.ball.easingFunction(this.ball.n) * 200 + 60;
     Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
         ctx.beginPath();
-        ctx.clearRect(0, 0, 320, 320)
-        ctx.arc(160, y, 60, 0, Math.PI*2, false)
+        ctx.clearRect(0, 0, 320, 320);
+        ctx.arc(160, y, 60, 0, Math.PI*2, false);
         ctx.fill();
         ctx.closePath();
     }.bind(this)));

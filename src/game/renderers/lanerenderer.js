@@ -5,8 +5,12 @@
  */
 var LaneRenderer = function(){};
 
-LaneRenderer.prototype.Render = function(dictionary){
-    var lane = dictionary["lane"];
+/**
+ * @param {Lane} lane The lane.
+ * @return {string} lane string.
+ */
+LaneRenderer.prototype.Render = function(lane){
+    /** @type {Lane} */
     var color = lane.runner.model["color"];
     return [
         this.ToArray(lane).reverse().join(""),
@@ -15,6 +19,10 @@ LaneRenderer.prototype.Render = function(dictionary){
     ].join("|");
 };
 
+/**
+ * @param {Lane} lane The lane.
+ * @return {Array<string>} lane strings.
+ */
 LaneRenderer.prototype.ToArray = function(lane){
     var array = [];
     var length = lane.len;

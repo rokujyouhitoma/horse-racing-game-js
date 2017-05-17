@@ -3,6 +3,7 @@
 /**
  * @constructor
  * @implements {ILayer}
+ * @param {IScene} scene A scene.
  */
 var MenuLayer = function(scene){
     this.dom = null;
@@ -15,6 +16,9 @@ var MenuLayer = function(scene){
     });
 };
 
+/**
+ * @return {DocumentFragment}
+ */
 MenuLayer.prototype.Render = function(){
     var fragment = document.createDocumentFragment();
     var section = document.createElement("section");

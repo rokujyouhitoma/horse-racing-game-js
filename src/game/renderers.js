@@ -16,7 +16,7 @@ var RenderLayers = function(scene, layers){
         Game.Publisher.Subscribe(event[0], event[1], event[2]);
     });
     var fragment = document.createDocumentFragment();
-    var section = document.createElement("section")
+    var section = document.createElement("section");
     section.className = "scene " + scene.name.toLowerCase();
     layers.forEach(function(layer){
         section.appendChild(layer.Render());
@@ -26,6 +26,9 @@ var RenderLayers = function(scene, layers){
     this.fragment = fragment;
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 RenderLayers.prototype.OnEnter = function(e){
     var fragment = this.fragment;
     var elements = document.getElementsByTagName("body");
@@ -37,7 +40,10 @@ RenderLayers.prototype.OnEnter = function(e){
     }
 };
 
-RenderLayers.prototype.OnExit = function(){
+/**
+ * @param {ExEvent} e The event object.
+ */
+RenderLayers.prototype.OnExit = function(e){
     this.dom.parentNode.removeChild(this.dom);    
     this.events.forEach(function(event){
         Game.Publisher.UnSubscribe(event[0], event[1], event[2]);

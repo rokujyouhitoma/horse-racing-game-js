@@ -7,9 +7,25 @@ var IScene = function(){
 };
 /** @type {string} */
 IScene.prototype.name;
+
+/**
+ * when scene is enter.
+ */
 IScene.prototype.OnEnter = function(){};
+
+/**
+ * when scene is exit.
+ */
 IScene.prototype.OnExit = function(){};
+
+/**
+ * when scene is pause.
+ */
 IScene.prototype.OnPause = function(){};
+
+/**
+ * when scene is resume.
+ */
 IScene.prototype.OnResume = function(){};
 
 /**
@@ -30,9 +46,25 @@ Scene.State = {
 
 /** @type {string} */
 Scene.prototype.name;
+
+/**
+ * when scene is enter.
+ */
 Scene.prototype.OnEnter = function(){};
+
+/**
+ * when scene is exit.
+ */
 Scene.prototype.OnExit = function(){};
+
+/**
+ * when scene is pause.
+ */
 Scene.prototype.OnPause = function(){};
+
+/**
+ * when scene is resume.
+ */
 Scene.prototype.OnResume = function(){};
 
 /**
@@ -42,6 +74,9 @@ var SceneDirector = function(){
     this.scenes = [];
 };
 
+/**
+ * @return {?IScene} current scene or null.
+ */
 SceneDirector.prototype.CurrentScene = function(){
     var scenes = this.scenes;
     var length = scenes.length;
@@ -136,6 +171,10 @@ SceneDirector.prototype.TriggerExit = function(scene){
     }
 };
 
+/**
+ * @private
+ * @param {IScene} scene A scene.
+ */
 SceneDirector.prototype.TriggerPause = function(scene){
     switch(scene.state){
     case Scene.State.Initial:

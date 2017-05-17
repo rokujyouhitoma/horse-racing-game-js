@@ -3,6 +3,7 @@
 /**
  * @constructor
  * @implements {ILayer}
+ * @param {IScene} scene A scene.
  */
 var LogMessageLayer = function(scene){
     this.dom = null;
@@ -17,6 +18,9 @@ var LogMessageLayer = function(scene){
     });
 };
 
+/**
+ * @return {DocumentFragment}
+ */
 LogMessageLayer.prototype.Render = function(){
     var fragment = document.createDocumentFragment();
     var section = document.createElement("section");

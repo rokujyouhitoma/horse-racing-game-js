@@ -5,10 +5,14 @@
  */
 var ICommand = function(){};
 
-/** */
+/**
+ * Execute.
+ */
 ICommand.prototype.Execute = function(){};
 
-/** */
+/**
+ * Undo.
+ */
 ICommand.prototype.Undo = function(){};
 
 /**
@@ -20,12 +24,16 @@ var FunctionCommand = function(func){
     this.func_ = func;
 };
 
-/** */
+/**
+ * Execute.
+ */
 FunctionCommand.prototype.Execute = function(){
     this.func_();
 };
 
-/** */
+/**
+ * Undo.
+ */
 FunctionCommand.prototype.Undo = function(){};
 
 /**
@@ -43,7 +51,9 @@ BasicExecuter.prototype.Push = function(command){
     this.commands_.push(command);
 };
 
-/** */
+/**
+ * Execute all command.
+ */
 BasicExecuter.prototype.ExecuteAll = function(){
     for(var command of this.Generator()){
         command.Execute();
@@ -78,11 +88,14 @@ SimpleCommandExecuter.prototype.Execute = function(command){
     this.position_ += 1;
 };
 
+/**
+ * Undo command.
+ */
 SimpleCommandExecuter.prototype.Undo = function(){
     if(this.commands_.length <= 0){
         return;
     }
     var command = this.commands_.pop();
     command.Undo();
-    this.position_ -= 1
+    this.position_ -= 1;
 };

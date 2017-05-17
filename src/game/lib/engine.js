@@ -6,19 +6,19 @@
 var IGameObject = function(){};
 
 /**
- *
+ * Start.
  */
 IGameObject.prototype.Start = function(){};
 
 /**
- *
+ * Update
  */
 IGameObject.prototype.Update = function(){};
 
 /**
- *
+ * Last update.
  */
-IGameObject.prototype.LastUpdate = function(delta){};
+IGameObject.prototype.LastUpdate = function(){};
 
 /**
  * @param {number} delta The delta.
@@ -26,7 +26,7 @@ IGameObject.prototype.LastUpdate = function(delta){};
 IGameObject.prototype.Render = function(delta){};
 
 /**
- *
+ * Destroy.
  */
 IGameObject.prototype.Destroy = function(){};
 
@@ -38,30 +38,45 @@ var GameObject = function(){
     this.objects = [];
 };
 
+/**
+ * Start.
+ */
 GameObject.prototype.Start = function(){
     this.objects.forEach(function(value){
         value.Start();
     });
 };
 
+/**
+ * Update.
+ */
 GameObject.prototype.Update = function(){
     this.objects.forEach(function(value){
         value.Update();
     });
 };
 
+/**
+ * Last update.
+ */
 GameObject.prototype.LastUpdate = function(){
     this.objects.forEach(function(value){
         value.LastUpdate();
     });
 };
 
+/**
+ * @param {number} delta The delta.
+ */
 GameObject.prototype.Render = function(delta){
     this.objects.forEach(function(value){
         value.Render(delta);
     });
 };
 
+/**
+ * Destroy.
+ */
 GameObject.prototype.Destroy = function(){
     this.objects.forEach(function(value){
         value.Destroy();
@@ -70,6 +85,7 @@ GameObject.prototype.Destroy = function(){
 
 /**
  * @constructor
+ * @param {Array<GameObject>} objects GameObjects.
  */
 var Engine = function(objects){
     this.objects = objects;
@@ -78,6 +94,9 @@ var Engine = function(objects){
     this.lastUpdate = Date.now();
 };
 
+/**
+ * The main loop.
+ */
 Engine.prototype.Loop = function(){
     var lag = 0;
     var MPU = 1000 / this.FPS;
@@ -107,24 +126,36 @@ Engine.prototype.Loop = function(){
     loop();
 };
 
+/**
+ * Start.
+ */
 Engine.prototype.Start = function(){
     this.objects.forEach(function(value){
         value.Start();
     });
 };
 
+/**
+ * Update.
+ */
 Engine.prototype.Update = function(){
     this.objects.forEach(function(value){
         value.Update();
     });
 };
 
+/**
+ * Last update after update.
+ */
 Engine.prototype.LastUpdate = function(){
     this.objects.forEach(function(value){
         value.LastUpdate();
     });
 };
 
+/**
+ * @param {number} delta The delta. range is 0-1.
+ */
 Engine.prototype.Render = function(delta){
     this.objects.forEach(function(value){
         value.Render(delta);

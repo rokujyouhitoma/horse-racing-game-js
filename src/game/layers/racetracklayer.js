@@ -3,6 +3,7 @@
 /**
  * @constructor
  * @implements {ILayer}
+ * @param {IScene} scene A scene.
  */
 var RacetrackLayer = function(scene){
     this.dom = null;
@@ -16,6 +17,9 @@ var RacetrackLayer = function(scene){
     });
 };
 
+/**
+ * @return {DocumentFragment}
+ */
 RacetrackLayer.prototype.Render = function(){
     var fragment = document.createDocumentFragment();
     var section = document.createElement("section");
@@ -40,9 +44,7 @@ RacetrackLayer.prototype.OnUpdate = function(e){
         return;
     }
     //TODO: innerHTMLは手抜き。createElementによるDOM操作が望ましい
-    this.dom.children[1].innerHTML = this.DOM({
-        "racetrack": race.gameBoard.racetrack,
-    });
+    this.dom.children[1].innerHTML = this.DOM(race.gameBoard.racetrack);
 };
 
 /**
@@ -62,18 +64,22 @@ RacetrackLayer.prototype.OnExit = function(e){
     });
 };
 
-RacetrackLayer.prototype.DOM = function(dictionary){
+/**
+ * @param {Racetrack} racetrack The racetrack.
+ * @return {string} lanes string.
+ */
+RacetrackLayer.prototype.DOM = function(racetrack){
     var laneRenderer = new LaneRenderer();
-    var racetrack = dictionary["racetrack"];
+    /** @type {Array<Lane>} */
     var lanes = racetrack.lanes;
     var text = [
         lanes.reduce(function(a, b, index){
             if(index == 1){
                 return [a, b].map(function(lane){
-                    return laneRenderer.Render({"lane": lane});
+                    return laneRenderer.Render(lane);
                 }).join("<br />");
             }
-            return [a, laneRenderer.Render({"lane": b})].join("<br />");
+            return [a, laneRenderer.Render(b)].join("<br />");
         })
     ].join("");
     return text;

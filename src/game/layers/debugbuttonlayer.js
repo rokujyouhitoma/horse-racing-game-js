@@ -3,6 +3,7 @@
 /**
  * @constructor
  * @implements {ILayer}
+ * @param {IScene} scene A scene.
  */
 var DebugButtonLayer = function(scene){
     this.scene = scene;
@@ -17,6 +18,9 @@ var DebugButtonLayer = function(scene){
     });
 };
 
+/**
+ * @return {DocumentFragment}
+ */
 DebugButtonLayer.prototype.Render = function(){
     var fragment = document.createDocumentFragment();
     var section = document.createElement("section");
@@ -52,6 +56,9 @@ DebugButtonLayer.prototype.OnExit = function(e){
     });
 };
 
+/**
+ * @param {ExEvent} e The event object.
+ */
 DebugButtonLayer.prototype.OnShowDebugMenu = function(e){
 //    Game.SceneDirector.Push(new GameScene("Debug"));
 };

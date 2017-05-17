@@ -6,7 +6,7 @@ CLOSURE_COMPIER = tools/closure-compiler/closure-compiler-v20170423.jar
 LIB_SOURCES = src/lib/xorshift.js \
 	src/lib/event.js \
 	src/lib/locator.js \
-	src/lib/router.js \
+	src/lib/router.js
 
 GAME_LIB_SOURCES = src/game/lib/scene.js \
 	src/game/lib/engine.js \
@@ -38,6 +38,7 @@ main-min.js: $(SOURCES)
 	--compilation_level ADVANCED_OPTIMIZATIONS \
 	--use_types_for_optimization \
 	--warning_level=VERBOSE \
+	--jscomp_warning=lintChecks \
 	--js_output_file $@ \
 	--js $(SOURCES) \
 	--debug \
