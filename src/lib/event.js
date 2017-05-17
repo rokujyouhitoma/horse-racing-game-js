@@ -27,10 +27,15 @@ var ExEvent = function(type, target, opt_payload){
  * @param {Function} wrapper The wrapper.
  */
 var ExEventInfo = function(object, type, listener, publisher, wrapper){
+    /** @public */
     this.object = object;
+    /** @public */
     this.type = type;
+    /** @public */
     this.listener = listener;
+    /** @public */
     this.publisher = publisher;
+    /** @public */
     this.wrapper = wrapper;
 };
 
@@ -102,14 +107,7 @@ ExEventTarget.prototype.dispatchEvent = function(type, opt_publisher, opt_payloa
             eventListener.type == type &&
             (!(eventListener.publisher) ||
              eventListener.publisher == opt_publisher)){
-            // TODO: Should be support for type = ExEvent?
-//            if(type instanceof ExEvent){
-//                type.target = this;
-//                type.payload = payload;
-//                eventListener.wrapper(type);
-//            } else {
-                eventListener.wrapper(new ExEvent(type, this, opt_payload));
-//            }
+            eventListener.wrapper(new ExEvent(type, this, opt_payload));
         }
     }, this);
 };
