@@ -857,7 +857,14 @@ StepCard.prototype.Play = function(race){
 StepCard.prototype.LogMessage = function(){
     var target_id = this.model["target_id"];
     var step = this.model["step"];
-    var race = Game.SceneDirector.CurrentScene().directors["RaceDirector"].race;
+    var raceDirector = Game.SceneDirector.CurrentScene().directors["RaceDirector"];
+    if(!raceDirector){
+        return "";
+    }
+    var race = raceDirector.race;
+    if(!race){
+        return "";
+    }
     var racetrack = race.gameBoard.racetrack;
     var figures = racetrack.lanes.filter(function(lane){
         return lane.runner.model["id"] === target_id;
@@ -1406,7 +1413,14 @@ PlayCardDirector.prototype.OnPlayCard = function(e){
         Game.Log("404 Card Not found.");
         return;
     }
-    var race = Game.SceneDirector.CurrentScene().directors["RaceDirector"].race;
+    var raceDirector = Game.SceneDirector.CurrentScene().directors["RaceDirector"];
+    if(!raceDirector){
+        return;
+    }
+    var race = raceDirector.race;
+    if(!race){
+        return;
+    }
     var command = new PlayCardCommand(race, card);
     this.position += 1;
     this.executer_.Execute(command);
@@ -1618,7 +1632,7 @@ var GameScene = function(name, opt_content){
         },
         "Result": function(scene){
             return new RenderLayers(scene, [
-                new TitleSceneLayer(scene),
+//                new TitleSceneLayer(scene),
             ]);
         },
     };

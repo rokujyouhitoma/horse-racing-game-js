@@ -78,6 +78,8 @@
 
 ## 2017.5.18
 
+ - Add Auto Play Card機能 for Debug
+ - Add UICustomCheckbox
  - リザルトシーンの実装を進める
 
 ## 2017.5.17

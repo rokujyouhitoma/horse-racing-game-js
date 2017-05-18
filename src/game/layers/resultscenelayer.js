@@ -6,6 +6,7 @@
  * @param {IScene} scene A scene.
  */
 var ResultSceneLayer = function(scene){
+    this.scene = scene;
     this.dom = null;
     this.events = [
         [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
@@ -23,9 +24,9 @@ var ResultSceneLayer = function(scene){
 ResultSceneLayer.prototype.Render = function(){
     var fragment = document.createDocumentFragment();
     var section = document.createElement("section");
-    section.className = "title";
+    section.className = "result";
     var h1 = document.createElement("h1");
-    h1.innerText = "\uD83C\uDFC7 -> \uD83C\uDFAE";
+    h1.innerText = "\uD83C\uDFC7 Result";
     section.appendChild(h1);
     var button = document.createElement("button");
     button.innerText = "Start \uD83C\uDFC7";

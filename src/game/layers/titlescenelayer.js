@@ -6,6 +6,7 @@
  * @param {IScene} scene A scene.
  */
 var TitleSceneLayer = function(scene){
+    this.scene = scene;
     this.dom = null;
     this.events = [
         [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],

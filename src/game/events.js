@@ -41,5 +41,6 @@ var Events = {
         OnPlayDashCard: "Events.Debug.OnPlayDashCard",
         OnMove: "Events.Debug.OnMove",
         OnCheckRelationship: "Events.Debug.OnCheckRelationship",
+        OnAutoPlayCard: "Events.Debug.OnAutoPlayCard",
     },
 };
