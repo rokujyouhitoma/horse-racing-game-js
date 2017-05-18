@@ -36,7 +36,7 @@
  - [x] マスターデータ/スタブデータ(Stub)
  - [x] レース(Race)
  - [ ] ゲームボード(GameBoard)
- - [ ] ゲームボード/スタート~道中~ゴール
+ - [x] ゲームボード/スタート~道中~ゴール
  - [x] ゲームボード/レーストラック(Racetrack)
  - [x] ゲームボード/レーストラック/レーン(Lane)
  - [ ] ゲームボード/オッズ表
@@ -78,9 +78,9 @@
 
 ## 2017.5.18
 
+ - リザルトシーン
  - Add Auto Play Card機能 for Debug
  - Add UICustomCheckbox
- - リザルトシーンの実装を進める
 
 ## 2017.5.17
 
@@ -364,14 +364,6 @@ SceneDirectorはSceneの
  - [mizchi's blog GWの進捗としてRPG作った / redux-saga でメインループ処理、JSONSchemaからのコード生成](http://mizchi.hatenablog.com/entry/2017/05/08/013632) の記事が僕のやる気を飛躍的にアップさせる薬となった。謝謝だぜmizchiちゃん おかげでひとつ強くなれた
 
 # 不具合
-
-## Raceオブジェクトへのアクセス
-
-以下のコードやばい
-
-```
-var race = Game.SceneDirector.CurrentScene().directors.RaceDirector.race;
-```
 
 ## 仕様バグ？
 
