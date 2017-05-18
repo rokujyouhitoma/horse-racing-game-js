@@ -1579,9 +1579,11 @@ ILayer.prototype.Render = function(){};
  * @implements {IScene}
  * @extends {Scene}
  * @param {string} name Scene name.
+ * @param {Object=} opt_content .
  */
-var GameScene = function(name){
+var GameScene = function(name, opt_content){
     this.name = name;
+    this.content = opt_content;
     var directors = {
         "Title": function(scene){
             return {};
@@ -1611,8 +1613,7 @@ var GameScene = function(name){
                 new LogMessageLayer(scene),
                 new DebugMenuLayer(scene),
                 new FPSLayer(scene),
-                new SampleBallLayer
-                (scene),
+                new SampleBallLayer(scene),
             ]);
         },
         "Result": function(scene){

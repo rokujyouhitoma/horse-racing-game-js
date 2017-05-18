@@ -18,6 +18,7 @@ SOURCES = $(LIB_SOURCES) \
 	$(GAME_LIB_SOURCES) \
 	src/game/events.js \
 	src/game/layers/titlescenelayer.js \
+	src/game/layers/resultscenelayer.js \
 	src/game/layers/menulayer.js \
 	src/game/layers/racetracklayer.js \
 	src/game/layers/logmessagelayer.js \
