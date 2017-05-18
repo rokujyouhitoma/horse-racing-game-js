@@ -29,10 +29,14 @@ ResultSceneLayer.prototype.Render = function(){
     h1.innerText = "\uD83C\uDFC7 Result";
     section.appendChild(h1);
     var button = document.createElement("button");
-    button.innerText = "Start \uD83C\uDFC7";
+    button.innerText = "Re Start \uD83C\uDFC7";
     button.addEventListener("click", this.onClickListener);
     section.appendChild(button);
     fragment.appendChild(section);
+    //modal
+    var modal = (new UIModal()).DOM();
+    modal.className = "modal";
+    fragment.appendChild(modal);
     this.dom = section;
     return fragment;
 };

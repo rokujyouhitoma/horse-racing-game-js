@@ -10,6 +10,7 @@ var CustomSceneDirector = function(){
     this.router.Registers([
         new Matcher(/^Race$/, this.Routing.bind(this)),
         new Matcher(/^Title$/, this.Routing.bind(this)),
+        new Matcher(/^Result$/, this.Routing.bind(this)),
         new Matcher(/.*/, this.RoutingDefault.bind(this)),
     ]);
     window.addEventListener("popstate", this.RoutingLocationHash.bind(this));

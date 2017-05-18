@@ -51,3 +51,16 @@ UICustomCheckbox.prototype.DOM = function(){
     dom.appendChild(span);
     return dom;
 };
+
+/**
+ * @constructor
+ */
+var UIModal = function(){};
+
+/**
+ * @return {Element} The button element.
+ */
+UIModal.prototype.DOM = function(){
+    var dom = document.createElement("div");
+    return dom;
+};
