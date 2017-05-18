@@ -3,33 +3,33 @@ JAVA = java
 
 CLOSURE_COMPIER = tools/closure-compiler/closure-compiler-v20170423.jar
 
-LIB_SOURCES = src/lib/xorshift.js \
-	src/lib/event.js \
-	src/lib/locator.js \
-	src/lib/router.js
+LIB_SOURCES = src/js/lib/xorshift.js \
+	src/js/lib/event.js \
+	src/js/lib/locator.js \
+	src/js/lib/router.js
 
-GAME_LIB_SOURCES = src/game/lib/scene.js \
-	src/game/lib/engine.js \
-	src/game/lib/repository.js \
-	src/game/lib/publisher.js \
-	src/game/lib/command.js
+GAME_LIB_SOURCES = src/js/game/lib/scene.js \
+	src/js/game/lib/engine.js \
+	src/js/game/lib/repository.js \
+	src/js/game/lib/publisher.js \
+	src/js/game/lib/command.js
 
 SOURCES = $(LIB_SOURCES) \
 	$(GAME_LIB_SOURCES) \
-	src/game/events.js \
-	src/game/layers/titlescenelayer.js \
-	src/game/layers/resultscenelayer.js \
-	src/game/layers/menulayer.js \
-	src/game/layers/racetracklayer.js \
-	src/game/layers/logmessagelayer.js \
-	src/game/layers/debugmenulayer.js \
-	src/game/layers/fpslayer.js \
-	src/game/layers/debugbuttonlayer.js \
-	src/game/layers/sampleballlayer.js \
-	src/game/renderers.js \
-	src/game/renderers/guiparts.js \
-	src/game/renderers/lanerenderer.js \
-	src/game/checker.js \
+	src/js/game/events.js \
+	src/js/game/layers/titlescenelayer.js \
+	src/js/game/layers/resultscenelayer.js \
+	src/js/game/layers/menulayer.js \
+	src/js/game/layers/racetracklayer.js \
+	src/js/game/layers/logmessagelayer.js \
+	src/js/game/layers/debugmenulayer.js \
+	src/js/game/layers/fpslayer.js \
+	src/js/game/layers/debugbuttonlayer.js \
+	src/js/game/layers/sampleballlayer.js \
+	src/js/game/renderers.js \
+	src/js/game/renderers/guiparts.js \
+	src/js/game/renderers/lanerenderer.js \
+	src/js/game/checker.js \
 	main.js
 
 all: main-min.js
