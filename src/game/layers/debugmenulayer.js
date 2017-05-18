@@ -207,7 +207,7 @@ DebugMenuLayer.prototype.OnAutoPlayCard = function(e){
             Game.Publisher.Publish(Events.Race.OnPlayCard, this);
             setTimeout(listener, interval);
         }
-        console.info("AutoPlay is: " + this.IsAutoPlayCard);
+//        console.info("AutoPlay is: " + this.IsAutoPlayCard);
     }.bind(this);
     if(this.IsAutoPlayCard){
         setTimeout(listener, interval);
