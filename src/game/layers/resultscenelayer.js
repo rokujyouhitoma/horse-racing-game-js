@@ -24,7 +24,7 @@ var ResultSceneLayer = function(scene){
 ResultSceneLayer.prototype.Render = function(){
     var fragment = document.createDocumentFragment();
     var section = document.createElement("section");
-    section.className = "result";
+    section.className = "layer result";
     var h1 = document.createElement("h1");
     h1.innerText = "\uD83C\uDFC7 Result";
     section.appendChild(h1);

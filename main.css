@@ -46,3 +46,24 @@ section.race section.history p {
 
 section.debug {
 }
+
+section.scene.result {
+    position:fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #000;
+    opacity: 0.5;
+    height: 100%;
+    min-height: 100%;
+    width: 100%;
+}
+
+section.layer.result {
+    position: fixed;
+    background-color: #000;
+    height: 200px;
+    width: 200px;
+    margin: 0 auto;
+}

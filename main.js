@@ -234,6 +234,7 @@ GameDirector.prototype.OnResetGame = function(e){
  * @param {ExEvent} e The event object.
  */
 GameDirector.prototype.OnToRaceScene = function(e){
+    Game.SceneDirector.ToDepth(0);
     Game.SceneDirector.Replace(new GameScene("Race"));
 };
 
@@ -1632,7 +1633,7 @@ var GameScene = function(name, opt_content){
         },
         "Result": function(scene){
             return new RenderLayers(scene, [
-//                new TitleSceneLayer(scene),
+                new ResultSceneLayer(scene),
             ]);
         },
     };
