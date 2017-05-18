@@ -634,6 +634,8 @@ MasterData.prototype.GetMeta = function(key){
  */
 var HorseFigure = function(model){
     this.model = model;
+    /** @type {Lane} */
+    this.lane = null;
 };
 HorseFigure.prototype = new GameObject();
 
@@ -1168,6 +1170,7 @@ var Lane = function(index, number, runner, len){
     this.runner = runner;
     this.len = len;
     this.position = Lane.GatePosition;
+    runner.lane = this;
 };
 
 Lane.GatePosition = 0;
@@ -1567,9 +1570,8 @@ RaceDirector.prototype.OnPlacingSecond = function(e){
     Game.Log("The first: " + first.model["type"]);
     Game.Log("The second: " + second.model["type"]);
     Game.Publisher.Publish(Events.Race.OnFinishedRace, this, {
-        race: this,
-        first: first,
-        second: second,
+        race: this.race,
+        placings: placings,
     });
 };
 
@@ -1577,7 +1579,14 @@ RaceDirector.prototype.OnPlacingSecond = function(e){
  * @param {ExEvent} e The event object.
  */
 RaceDirector.prototype.OnFinishedRace = function(e){
-    Game.SceneDirector.Push(new GameScene("Result"));
+    var payload = e.payload;
+    var race = payload["race"];
+    var placings = payload["placings"];
+    var content = {
+        race: race,
+        placings: placings,
+    };
+    Game.SceneDirector.Push(new GameScene("Result", content));
 };
 
 /**

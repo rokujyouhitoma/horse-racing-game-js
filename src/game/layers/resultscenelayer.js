@@ -28,8 +28,21 @@ ResultSceneLayer.prototype.Render = function(){
     var h1 = document.createElement("h1");
     h1.innerText = "\uD83C\uDFC7 Result";
     section.appendChild(h1);
+    var content = this.scene.content;
+    if(content && content.placings){
+        var p = document.createElement("p");
+        p.innerText = content.placings.map(function(horse, index){
+            return horse.lane.number;
+        }).join("-");
+        section.appendChild(p);
+        content.placings.forEach(function(horse, index){
+            var p = document.createElement("p");
+            p.innerText = (index+1) + ": " + horse.model["type"];
+            section.appendChild(p);
+        });
+    }
     var button = document.createElement("button");
-    button.innerText = "Re Start \uD83C\uDFC7";
+    button.innerText = "Next \uD83C\uDFC7";
     button.addEventListener("click", this.onClickListener);
     section.appendChild(button);
     fragment.appendChild(section);
