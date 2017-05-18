@@ -41,7 +41,16 @@ DebugMenuLayer.prototype.Render = function(){
     section.appendChild(h1);
     fragment.appendChild(section);
     this.dom = section;
-    var buttons = [
+    this.checkboxs = [
+        ["Auto PlayCard", "change", function(e){Game.Publisher.Publish(Events.Debug.OnAutoPlayCard, this, {"checked":e.target.checked});}],
+    ].map(function(value){
+        var checkbox = (new UICustomCheckbox(value[0])).DOM();
+        checkbox.addEventListener(value[1], value[2]);
+        this.dom.appendChild(checkbox);
+        return checkbox;
+    }, this);
+    this.dom.appendChild(document.createElement("br"));
+    this.buttons = [
         ["Reset \uD83C\uDFAE", "click", function(){Game.Publisher.Publish(Events.Debug.OnResetGame, this);}],
         ["Reset \uD83C\uDFC7", "click", function(){Game.Publisher.Publish(Events.Debug.OnResetRace, this);}],
         ["Play PlayCard", "click", function(){Game.Publisher.Publish(Events.Debug.OnPlayCard, this);}],
@@ -52,21 +61,9 @@ DebugMenuLayer.prototype.Render = function(){
     ].map(function(value){
         var button = (new UIButton(value[0])).DOM();
         button.addEventListener(value[1], value[2]);
+        this.dom.appendChild(button);
         return button;
-    }).forEach(function(dom){
-        this.dom.appendChild(dom);
     }, this);
-    var checkboxs = [
-        ["Auto PlayCard", "change", function(e){Game.Publisher.Publish(Events.Debug.OnAutoPlayCard, this, {"checked":e.target.checked});}],
-    ].map(function(value){
-        var checkbox = (new UICustomCheckbox(value[0])).DOM();
-        checkbox.addEventListener(value[1], value[2]);
-        return checkbox;
-    }).map(function(dom){
-        this.dom.appendChild(dom);
-        return dom;
-    }, this);
-    this.checkboxs = checkboxs;
     var seed = document.createElement("p");
     seed.innerText = "seed: " + PlayCardDirector.Xorshift.s;
     this.dom.appendChild(seed);
