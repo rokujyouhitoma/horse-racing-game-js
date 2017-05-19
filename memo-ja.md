@@ -76,6 +76,10 @@
 
 # History
 
+## 2017.5.19
+
+ - Add closure stylesheets
+
 ## 2017.5.18
 
  - リザルトシーン

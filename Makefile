@@ -2,6 +2,7 @@
 JAVA = java
 
 CLOSURE_COMPIER = tools/closure-compiler/closure-compiler-v20170423.jar
+CLOSURE_STYLESHEETS = tools/closure-stylesheets/closure-stylesheets.jar
 
 LIB_SOURCES = src/js/lib/xorshift.js \
 	src/js/lib/event.js \
@@ -30,9 +31,11 @@ SOURCES = $(LIB_SOURCES) \
 	src/js/game/renderers/guiparts.js \
 	src/js/game/renderers/lanerenderer.js \
 	src/js/game/checker.js \
-	main.js
+	src/js/main.js
 
-all: main-min.js
+STYLESHEETS = src/css/main.css
+
+all: main-min.js main-min.css
 
 main-min.js: $(SOURCES)
 	$(JAVA) -jar $(CLOSURE_COMPIER) \
@@ -47,3 +50,9 @@ main-min.js: $(SOURCES)
 //	--jscomp_warning=reportUnknownTypes \
 //	--formatting=PRINT_INPUT_DELIMITER \
 //	--compilation_level=WHITESPACE_ONLY \
+
+main-min.css:
+	$(JAVA) -jar $(CLOSURE_STYLESHEETS) \
+	$(STYLESHEETS) \
+	--output-file $@ \
+	--pretty-print
