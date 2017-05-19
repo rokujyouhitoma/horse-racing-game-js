@@ -1570,8 +1570,8 @@ RaceDirector.prototype.OnPlacingSecond = function(e){
     Game.Log("The first: " + first.model["type"]);
     Game.Log("The second: " + second.model["type"]);
     Game.Publisher.Publish(Events.Race.OnFinishedRace, this, {
-        race: this.race,
-        placings: placings,
+        "race": this.race,
+        "placings": placings,
     });
 };
 
@@ -1583,8 +1583,8 @@ RaceDirector.prototype.OnFinishedRace = function(e){
     var race = payload["race"];
     var placings = payload["placings"];
     var content = {
-        race: race,
-        placings: placings,
+        "race": race,
+        "placings": placings,
     };
     Game.SceneDirector.Push(new GameScene("Result", content));
 };

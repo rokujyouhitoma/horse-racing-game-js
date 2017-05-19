@@ -29,13 +29,13 @@ ResultSceneLayer.prototype.Render = function(){
     h1.innerText = "\uD83C\uDFC7 Result";
     section.appendChild(h1);
     var content = this.scene.content;
-    if(content && content.placings){
+    if(content && content["placings"]){
         var p = document.createElement("p");
-        p.innerText = content.placings.map(function(horse, index){
+        p.innerText = content["placings"].map(function(horse, index){
             return horse.lane.number;
         }).join("-");
         section.appendChild(p);
-        content.placings.forEach(function(horse, index){
+        content["placings"].forEach(function(horse, index){
             var p = document.createElement("p");
             p.innerText = (index+1) + ": " + horse.model["type"];
             section.appendChild(p);
