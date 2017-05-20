@@ -1207,16 +1207,19 @@ var Racetrack = function(runners, len){
 /**
  * @constructor
  * @param {Race} race The race.
+ * @param {Racetrack} racetrack The race track.
+ * @param {OddsTable} oddsTable The odds table.
  */
-var GameBoard = function(race){
+var GameBoard = function(race, racetrack, oddsTable){
     this.race = race;
-    this.racetrack = null;
-    var master = Game.Locator.locate(MasterData);
-    var length = this.race.model["len"];
-    this.racetrack = new Racetrack(master.Get("HorseFigure").map(function(row){
-        return new HorseFigure(Game.Model("HorseFigure").Set(row));
-    }), length);
+    this.racetrack = racetrack;
+    this.oddsTable = oddsTable;
 };
+
+/**
+ * @constructor
+ */
+var OddsTable = function(){};
 
 /**
  * @constructor
@@ -1224,8 +1227,12 @@ var GameBoard = function(race){
  */
 var Race = function(model){
     this.model = model;
-    /** @type {GameBoard} */
-    this.gameBoard = new GameBoard(this);
+    var master = Game.Locator.locate(MasterData);
+    var racetrack = new Racetrack(master.Get("HorseFigure").map(function(row){
+        return new HorseFigure(Game.Model("HorseFigure").Set(row));
+    }), model["len"]);
+    var oddsTable = new OddsTable();
+    this.gameBoard = new GameBoard(this, racetrack, oddsTable);
 };
 
 /**
