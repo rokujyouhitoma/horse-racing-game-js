@@ -32,7 +32,6 @@ buildin._min_max = function(args, implementation_of) {
     var length = args.length;
     var first = args[0];
     var last = args[length - 1];
-
     if (implementation_of === "min") {
         if (typeof last === "object" && last.hasOwnProperty('key')) {
             throw new NotImplementedError();
@@ -140,22 +139,17 @@ string.count = function(str, sub, start, end, count) {
     start = start ? start : 0;
     end = end ? end : str.length;
     count = count ? count : 0;
-
     if (end < start) {
         return 0;
     }
-
     var p = str.indexOf(sub);
     if (p === -1) {
         return count;
     }
-
     count += 1;
-
     if (count === str.length) {
         return count;
     }
-
     return string.count(str.slice(start, end), sub, start, end, count);
 };
 
@@ -387,8 +381,8 @@ StringIO.prototype['close'] = StringIO.prototype.close;
  * @return {boolean} .
  */
 StringIO.prototype.isatty = function() {
-  _complain_ifclosed(this.closed);
-  return false;
+    _complain_ifclosed(this.closed);
+    return false;
 };
 StringIO.prototype['isatty'] = StringIO.prototype.isatty;
 
@@ -840,13 +834,11 @@ var _UNSET = {};
  * @constructor
  * @extends {Object}
  */
-var Template = function(template_string, name, loader, compress_whitespace,
-                        autoescape) {
+var Template = function(template_string, name, loader, compress_whitespace, autoescape) {
     name = name ? name : '<string>';
     loader = loader ? loader : null;
     compress_whitespace = compress_whitespace ? compress_whitespace : null;
     autoescape = autoescape ? autoescape : _UNSET;
-
     this.name = name;
     if (compress_whitespace === null) {
         compress_whitespace = string.endswith(name, '.html') ||
@@ -862,23 +854,19 @@ var Template = function(template_string, name, loader, compress_whitespace,
     this.namespace = loader ? loader.namespace : {};
     var reader = new _TemplateReader(name, escape_.native_str(template_string));
     this.file = new _File(_parse(reader, this));
-
     /**
      * @type {string}
      */
     this.code = this._generate_js(loader, compress_whitespace);
-
     /**
      * @type {string}
      */
     var startFragment = 'return function(namespace) {for(var key in namespace) {this[key] = namespace[key];}';
-
     /**
      * @type {string}
      */
     var endFragment = '};';
     this.code = startFragment + this.code + endFragment;
-
     try {
         this.compiled = new Function(this.code);
     } catch (e) {
@@ -895,21 +883,18 @@ inherits(Template, Object);
  */
 Template.prototype.generate = function(kwargs) {
     kwargs = kwargs ? kwargs : {};
-
     var namespace = {
         'escape': escape_.xhtml_escape,
         'xhtml_escape': escape_.xhtml_escape
     };
-
     var key;
     for (key in this.namespace) {
         namespace[key] = this.namespace[key];
     }
-
     for (key in kwargs) {
         namespace[key] = kwargs[key];
     }
-
+    //TODO: xxx
     //namespace['_execute'] = this.compiled();
     //var execute = namespace['_execute'];
     namespace._execute = this.compiled();
@@ -988,7 +973,6 @@ var BaseLoader = function(autoescape, namespace) {
     //in the template namespace, such as "xhtml_escape".
     autoescape = autoescape ? autoescape : _DEFAULT_AUTOESCAPE;
     namespace = namespace ? namespace : null;
-
     this.autoescape = autoescape;
     this.namespace = namespace;
     this.templates = {};
@@ -1046,7 +1030,6 @@ BaseLoader.prototype._create_template = function(name) {
  * @extends {BaseLoader}
  */
 var Loader = function() {
-    //TODO: xxx
     throw new NotImplementedError();
 };
 inherits(Loader, BaseLoader);
@@ -1055,7 +1038,6 @@ inherits(Loader, BaseLoader);
  * resolve path
  */
 Loader.prototype.resolve_path = function() {
-    //TODO: xxx
     throw new NotImplementedError();
 };
 
@@ -1063,7 +1045,6 @@ Loader.prototype.resolve_path = function() {
  * create template
  */
 Loader.prototype._create_template = function() {
-    //TODO: xxx
     throw new NotImplementedError();
 };
 
@@ -1090,7 +1071,6 @@ DictLoader.prototype.resolve_path = function(name, parent_path) {
         !string.startwith(parent_path, '<') &&
         !string.startwith(parent_path, '/') &&
         !string.startwith(name, '/')) {
-
         //TODO: xxx
         //var file_dir = posixpath.dirname(parent_path);
         //name = posixpath.normpath(posixpath.join(file_dir, name));
@@ -1240,7 +1220,6 @@ _NamedBlock.prototype.generate = function(writer) {
  */
 _NamedBlock.prototype.find_named_blocks = function(loader, named_blocks) {
     named_blocks[this.name] = this;
-//    base(this, 'find_named_blocks', loader, named_blocks);
     _NamedBlock.__super__['find_named_blocks'].apply(this, [loader, named_blocks]);
 };
 _NamedBlock.prototype['find_named_blocks'] = _NamedBlock.prototype.find_named_blocks;
@@ -1295,10 +1274,8 @@ _IncludeBlock.prototype.generate = function(writer) {
  */
 var _ApplyBlock = function(method, body) {
     body = body ? body : null;
-
     this.method = method;
     this.body = body;
-
     throw new NotImplementedError();
 };
 inherits(_ApplyBlock, _Node);
@@ -1359,7 +1336,6 @@ _IntermediateControlBlock.prototype.generate = function(writer) {
  */
 var _Statement = function(statement) {
     this.statement = statement;
-
     throw new NotImplementedError();
 };
 inherits(_Statement, _Node);
@@ -1372,7 +1348,6 @@ inherits(_Statement, _Node);
  */
 var _Expression = function(expression, row) {
     row = row ? row : false;
-
     this.expression = expression;
     this.row = row;
 };
@@ -1413,7 +1388,6 @@ inherits(_Text, _Node);
  */
 _Text.prototype.generate = function(writer) {
     var value = this.value;
-
     // Compress lots of white space to a single character. If the whitespace
     // breaks a line, have it continue to break a line, but just with a
     // single \n character
@@ -1421,7 +1395,6 @@ _Text.prototype.generate = function(writer) {
         value = value.replace(/([\t ]+)/g, ' ', value);
         value = value.replace(/(\s*\n\s*)/g, '\n', value);
     }
-
     //JavaScript specific implements.
     if (string.contains(value, '\n')) {
         value = value.replace(/(\n)/g, '\\n', value);
@@ -1429,7 +1402,6 @@ _Text.prototype.generate = function(writer) {
     if (string.contains(value, '"')) {
         value = value.replace(/(")/g, '\\"', value);
     }
-
     if (value) {
         writer.write_line('_buffer.push("' + value + '");');
     }
@@ -1457,8 +1429,7 @@ inherits(ParseError, Error);
  * @constructor
  * @extends {Object}
  */
-var _CodeWriter = function(file, named_blocks, loader, current_template,
-                           compress_whitespace) {
+var _CodeWriter = function(file, named_blocks, loader, current_template, compress_whitespace) {
     this.file = file;
     this.named_blocks = named_blocks;
     this.loader = loader;
@@ -1498,11 +1469,9 @@ inherits(_TemplateReader, Object);
 _TemplateReader.prototype.find = function(needle, start, end) {
     start = start ? start : 0;
     end = end ? end : null;
-
     assert(start >= 0);
     var pos = this.pos;
     start += pos;
-
     var index;
     if (end === null) {
         index = string.find(this.text, needle, start, end);
@@ -1523,7 +1492,6 @@ _TemplateReader.prototype.find = function(needle, start, end) {
  */
 _TemplateReader.prototype.consume = function(count) {
     count = count ? count : null;
-
     if (count === null) {
         count = this.text.length - this.pos;
     }
@@ -1585,35 +1553,29 @@ function _format_code(code) {
  */
 var _parse = function(reader, template, in_block) {
     in_block = in_block ? in_block : null;
-
     var body = new _ChunkList([]);
     while (true) {
         // Find next template directive
         var curly = 0;
-
         var contents;
         var end;
         var block;
-
         while (true) {
             curly = reader.find('{', curly);
             if (curly === -1 || curly + 1 === reader.remaining()) {
                 // EOF
                 if (in_block) {
-                    throw new ParseError('Missing {%% end %%} block for ' +
-                                         in_block);
+                    throw new ParseError('Missing {%% end %%} block for ' + in_block);
                 }
                 body.chunks.push(new _Text(reader.consume()));
                 return body;
             }
-
             // If the first curly brace is not the start of a special token,
             // start searching from the character after it
             if (!array.contains(['{', '%'], reader.__getitem__(curly + 1))) {
                 curly += 1;
                 continue;
             }
-
             // When there are more than 2 curlies in a row, use the
             // innermost ones.  This is useful when generating languages
             // like latex where curlies are also meaningful
@@ -1625,15 +1587,12 @@ var _parse = function(reader, template, in_block) {
             }
             break;
         }
-
         // Append any text before the special token
         if (curly > 0) {
             body.chunks.push(new _Text(reader.consume(curly)));
         }
-
         var start_brace = reader.consume(2);
         var line = reader.line;
-
         // Template directives may be escaped as "{{!" or "{%!".
         // In this case output the braces and consume the "!".
         // This is especially useful in conjunction with jquery templates,
@@ -1643,24 +1602,20 @@ var _parse = function(reader, template, in_block) {
             body.chunks.push(new _Text(start_brace));
             continue;
         }
-
         // Expression
         if (start_brace === '{{') {
             end = reader.find('}}');
             if (end === -1 || reader.find('\n', 0, end) !== -1) {
-                throw new ParseError('Missing end expression }} on line ' +
-                                     String(line));
+                throw new ParseError('Missing end expression }} on line ' + String(line));
             }
             contents = string.strip(reader.consume(end));
             reader.consume(2);
             if (!contents) {
-                throw new ParseError('Empty expression on line ' +
-                                     String(line));
+                throw new ParseError('Empty expression on line ' + String(line));
             }
             body.chunks.push(new _Expression(contents));
             continue;
         }
-
         // Block
         assert(start_brace == '{%', start_brace);
         end = reader.find('%}');
@@ -1672,12 +1627,10 @@ var _parse = function(reader, template, in_block) {
         if (contents === '') {
             throw new ParseError('Empty block tag ({%% %%}) on line ' + line);
         }
-
         var partition = contents.split(' ');
         var operator = partition.shift();
         var suffix = partition.join('');
         //console.log('operator, suffix: ' + operator + ', ' + suffix);
-
         // Intermediate ('else', 'elif', etc) blocks
         var intermediate_blocks = {
             'else': ['if', 'for', 'while'],
@@ -1685,31 +1638,24 @@ var _parse = function(reader, template, in_block) {
             'except': ['try'],
             'finally': ['try']
         };
-
         var allowed_parents = object.get(intermediate_blocks, operator);
         if (allowed_parents !== null) {
             if (!in_block) {
-                throw new ParseError(operator + ' outside ' + allowed_parents +
-                                     ' block');
+                throw new ParseError(operator + ' outside ' + allowed_parents + ' block');
             }
             if (allowed_parents instanceof Array && !array.contains(allowed_parents, in_block)) {
-                throw new ParseError(operator +
-                                     ' block cannot be attached to ' +
-                                     in_block + 'block');
+                throw new ParseError(operator +' block cannot be attached to ' + in_block + 'block');
             }
             body.chunks.push(new _IntermediateControlBlock(contents));
             continue;
-
         // End tag
         } else if (operator === 'end') {
             if (!in_block) {
                 throw new ParseError('Extra {%% end %%} block on line ' + line);
             }
             return body;
-
         } else if (array.contains(['extends', 'include', 'set', 'import', 'from',
-                                 'comment', 'autoescape', 'raw', 'module'],
-                                operator)) {
+                                   'comment', 'autoescape', 'raw', 'module'], operator)) {
             if (operator === 'end') {
                 continue;
             }
@@ -1726,8 +1672,7 @@ var _parse = function(reader, template, in_block) {
             else if (operator === 'include') {
                 suffix = suffix.replace(/[\"\']/g, ''); //TODO: xxx
                 if (!suffix) {
-                    throw new ParseError('include missing file path on line ' +
-                                         line);
+                    throw new ParseError('include missing file path on line ' + line);
                 }
                 block = new _IncludeBlock(suffix, reader);
             }
@@ -1748,14 +1693,12 @@ var _parse = function(reader, template, in_block) {
             }
             body.chunks.push(block);
             continue;
-        } else if (array.contains(['apply', 'block', 'try', 'if', 'for', 'while'],
-                                  operator)) {
+        } else if (array.contains(['apply', 'block', 'try', 'if', 'for', 'while'], operator)) {
             // parse inner body recursively
             var block_body = _parse(reader, template, operator);
             if (operator === 'apply') {
                 if (!suffix) {
-                    throw new ParseError('apply missing method name on line ' +
-                                         line);
+                    throw new ParseError('apply missing method name on line ' + line);
                 }
                 block = new _ApplyBlock(suffix, block_body);
             } else if (operator === 'block') {
