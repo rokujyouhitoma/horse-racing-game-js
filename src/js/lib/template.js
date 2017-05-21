@@ -251,7 +251,6 @@ string.startwith = function(str, substr) {
  * @extends {Error}
  */
 var NotImplementedError = function(message) {
-    base(this, message);
     this.name = 'NotImplementedError';
 };
 inherits(NotImplementedError, Error);
@@ -263,7 +262,6 @@ inherits(NotImplementedError, Error);
  * @extends {Error}
  */
 var AssertionError = function(message) {
-    base(this, message);
     this.name = 'AssertionError';
 };
 inherits(AssertionError, Error);
@@ -275,7 +273,6 @@ inherits(AssertionError, Error);
  * @extends {Error}
  */
 var ValueError = function(message) {
-    base(this, message);
     this.name = 'ValueError';
 };
 inherits(ValueError, Error);
@@ -297,7 +294,6 @@ var IOError = function(var_args) {
     else {
         throw new NotImplementedError();
     }
-    base(this, message);
     this.name = 'IOError';
 };
 inherits(IOError, Error);
@@ -309,7 +305,6 @@ inherits(IOError, Error);
  * @extends {Error}
  */
 var StopIteration = function(message) {
-   base(this, message);
    this.name = 'StopIteration';
 };
 inherits(StopIteration, Error);
@@ -368,10 +363,7 @@ function _complain_ifclosed(closed) {
  * @extends {Object}
  */
 var StringIO = function(buf) {
-    base(this);
-
     buf = buf ? buf : '';
-
     this.buf = buf;
     this.len = buf.length;
     this.buflist = [];
@@ -976,8 +968,7 @@ Template.prototype._generate_js = function(loader, compress_whitespace) {
         ancestor.find_named_blocks(loader, named_blocks);
     }
     this.file.find_named_blocks(loader, named_blocks);
-    var writer = new _CodeWriter(buffer, named_blocks, loader, this,
-                                 compress_whitespace);
+    var writer = new _CodeWriter(buffer, named_blocks, loader, this, compress_whitespace);
     ancestors[0].generate(writer);
     return buffer.getvalue();
 };
@@ -1108,8 +1099,7 @@ Loader.prototype._create_template = function() {
  * @extends {BaseLoader}
  */
 var DictLoader = function(dict) {
-    //var args = Array.prototype.slice.call(arguments, 1);
-    base(this);
+    DictLoader.__super__.constructor.apply(this);
     this.dict = dict;
 };
 inherits(DictLoader, BaseLoader);
@@ -1275,7 +1265,8 @@ _NamedBlock.prototype.generate = function(writer) {
  */
 _NamedBlock.prototype.find_named_blocks = function(loader, named_blocks) {
     named_blocks[this.name] = this;
-    base(this, 'find_named_blocks', loader, named_blocks);
+//    base(this, 'find_named_blocks', loader, named_blocks);
+    _NamedBlock.__super__['find_named_blocks'].apply(this, [loader, named_blocks])
 };
 _NamedBlock.prototype['find_named_blocks'] = _NamedBlock.prototype.find_named_blocks;
 
@@ -1475,8 +1466,6 @@ _Text.prototype.generate = function(writer) {
  * @extends {Error}
  */
 var ParseError = function(message) {
-    base(this, message);
-
     // Raised for template syntax errors.
     this.name = 'ParseError';
     this.message = message || '';
