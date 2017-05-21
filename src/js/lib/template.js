@@ -253,6 +253,7 @@ string.startwith = function(str, substr) {
  * @extends {Error}
  */
 var NotImplementedError = function(message) {
+    NotImplementedError.__super__.constructor.apply(this, [message]);
     this.name = 'NotImplementedError';
 };
 inherits(NotImplementedError, Error);
@@ -264,6 +265,7 @@ inherits(NotImplementedError, Error);
  * @extends {Error}
  */
 var AssertionError = function(message) {
+    AssertionError.__super__.constructor.apply(this, [message]);
     this.name = 'AssertionError';
 };
 inherits(AssertionError, Error);
@@ -275,6 +277,7 @@ inherits(AssertionError, Error);
  * @extends {Error}
  */
 var ValueError = function(message) {
+    ValueError.__super__.constructor.apply(this, [message]);
     this.name = 'ValueError';
 };
 inherits(ValueError, Error);
@@ -296,6 +299,7 @@ var IOError = function(var_args) {
     else {
         throw new NotImplementedError();
     }
+    IOError.__super__.constructor.apply(this, [message]);
     this.name = 'IOError';
 };
 inherits(IOError, Error);
@@ -307,6 +311,7 @@ inherits(IOError, Error);
  * @extends {Error}
  */
 var StopIteration = function(message) {
+   StopIteration.__super__.constructor.apply(this, [message]);
    this.name = 'StopIteration';
 };
 inherits(StopIteration, Error);
@@ -1468,6 +1473,7 @@ _Text.prototype.generate = function(writer) {
  * @extends {Error}
  */
 var ParseError = function(message) {
+    ParseError.__super__.constructor.apply(this, [message]);
     // Raised for template syntax errors.
     this.name = 'ParseError';
     this.message = message || '';
