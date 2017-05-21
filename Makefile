@@ -7,7 +7,8 @@ CLOSURE_STYLESHEETS = tools/closure-stylesheets/closure-stylesheets.jar
 LIB_SOURCES = src/js/lib/xorshift.js \
 	src/js/lib/event.js \
 	src/js/lib/locator.js \
-	src/js/lib/router.js
+	src/js/lib/router.js \
+	src/js/lib/template.js
 
 GAME_LIB_SOURCES = src/js/game/lib/scene.js \
 	src/js/game/lib/engine.js \

@@ -78,6 +78,7 @@
 
 ## 2017.5.21
 
+ - Add template engine.
  - entityオブジェクトをentities.jsに分離
  - レース結果のオッズを計算
 
