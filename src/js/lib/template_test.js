@@ -1,26 +1,33 @@
-var describe = function(name, func){
-    func();
-};
+/**
+ * Original code is here.
+ * https://raw.githubusercontent.com/rokujyouhitoma/js-templateengine/develop/tests/template_spec.js
+ */
 
-var it = function(name, func){
-    func();
-};
-
-var expect = function(value){
-    var Test = function(value){
-        this.value = value;
+var describe = function(dname, func){
+    var dname = dname;
+    this.it = function(name, func){
+        var name = name;
+        this.name = name;
+        var expect = function(value){
+            var Test = function(value){
+                this.value = value;
+            };
+            Test.prototype.toEqual = function(v){
+                if (this.value != v) {
+                    console.error(dname, name, this.value, v);
+                }
+            };
+            Test.prototype.toBeTruthy = function(v){
+                if(v){
+                    console.error(dname, name, this.value, v);
+                }
+            };
+            return new Test(value);
+        };
+        this.expect = expect;
+        func.call(this);
     };
-    Test.prototype.toEqual = function(v){
-        if (this.value != v) {
-            console.error(this.value, v);
-        }
-    };
-    Test.prototype.toBeTruthy = function(v){
-        if(v){
-            console.error(this.value, v);
-        }
-    };
-    return new Test(value);
+    func.call(this);
 };
 
 describe('Template', function() {

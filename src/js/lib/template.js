@@ -971,9 +971,8 @@ Template.prototype._generate_js = function(loader, compress_whitespace) {
     ancestors.reverse();
     var key;
     var ancestor;
-
-    for (key in ancestors) {
-        ancestor = ancestors[key];
+    for(var i = 0; i < ancestors.length; i++){
+        ancestor = ancestors[i];
         ancestor.find_named_blocks(loader, named_blocks);
     }
     this.file.find_named_blocks(loader, named_blocks);
@@ -1170,8 +1169,8 @@ _Node.prototype.generate = function(writer) {
 _Node.prototype.find_named_blocks = function(loader, named_blocks) {
     var key;
     var children = this.each_child();
-    for (key in children) {
-        var child = children[key];
+    for(var i = 0; i < children.length; i++){
+        var child = children[i];
         child.find_named_blocks(loader, named_blocks);
     }
 };
