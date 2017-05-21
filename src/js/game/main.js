@@ -1327,13 +1327,16 @@ RaceDirector.prototype.OnFinishedRace = function(e){
     }).sort(function(a, b){
         return a - b;
     });
-    console.log(order);
-    var x = Game.Locator.locate(MasterData).Get("Odds").filter(function(row){
+    var oddses = Game.Locator.locate(MasterData).Get("Odds").map(function(row){
+        return new Odds(Game.Model("Odds").Set(row));
+    }).filter(function(odds){
+        return odds.model["first_id"] == order[0] && odds.model["second_id"] == order[1];
     });
-    console.log(x);
+    var odds = oddses[0];
     Game.SceneDirector.Push(new GameScene("Result", {
         "race": race,
         "placings": placings,
+        "odds": odds.model["odds"],
     }));
 };
 

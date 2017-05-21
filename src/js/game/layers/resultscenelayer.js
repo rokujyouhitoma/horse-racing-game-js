@@ -29,6 +29,11 @@ ResultSceneLayer.prototype.Render = function(){
     h1.innerText = "\uD83C\uDFC7 Result";
     section.appendChild(h1);
     var content = this.scene.content;
+    if(content && content["odds"]){
+        var p = document.createElement("p");
+        p.innerText = "odds: " + content["odds"];
+        section.appendChild(p);
+    }
     if(content && content["placings"]){
         var p = document.createElement("p");
         p.innerText = content["placings"].map(function(horse){
