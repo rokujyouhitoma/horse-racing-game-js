@@ -30,8 +30,9 @@ SOURCES = $(LIB_SOURCES) \
 	src/js/game/renderers.js \
 	src/js/game/renderers/guiparts.js \
 	src/js/game/renderers/lanerenderer.js \
+	src/js/game/entities.js \
 	src/js/game/checker.js \
-	src/js/main.js
+	src/js/game/main.js
 
 STYLESHEETS = src/css/main.css
 

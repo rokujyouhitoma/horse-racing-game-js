@@ -31,7 +31,7 @@ ResultSceneLayer.prototype.Render = function(){
     var content = this.scene.content;
     if(content && content["placings"]){
         var p = document.createElement("p");
-        p.innerText = content["placings"].map(function(horse, index){
+        p.innerText = content["placings"].map(function(horse){
             return horse.lane.number;
         }).join("-");
         section.appendChild(p);
