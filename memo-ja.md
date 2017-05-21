@@ -27,6 +27,7 @@
  - [x] Utility/Fisher–Yates shuffle(Utility.FisherYatesShuffle)
  - [x] Xorshift(シードベースの乱数生成器ならなんでもいい) ただし、分布を未検証(Xorshift)
  - [x] ディスパッチャ(Router, Matcher)
+ - [x] 主にHTML向けテンプレートエンジン(Template)
 
 ## ゲーム
 
@@ -78,6 +79,7 @@
 
 ## 2017.5.21
 
+ - Templateを部分的に適用し使い勝手を確認
  - Add template engine.
  - entityオブジェクトをentities.jsに分離
  - レース結果のオッズを計算

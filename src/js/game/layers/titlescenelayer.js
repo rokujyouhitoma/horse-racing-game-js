@@ -22,6 +22,15 @@ var TitleSceneLayer = function(scene){
  * @return {DocumentFragment} document fragment.
  */
 TitleSceneLayer.prototype.Render = function(){
+    var text = "<section class='title'><h1>{{title}}</h1><button>{{start}}</button></section>";
+    var template = new Template(text);
+    var tmp = document.createElement("template");
+    tmp.innerHTML = template.generate({
+        title: "\uD83C\uDFC7 -> \uD83C\uDFAE",
+        start: "Start \uD83C\uDFC7",
+    });
+    tmp.content.children[0].children[1].addEventListener("click", this.onClickListener);
+/*
     var fragment = document.createDocumentFragment();
     var section = document.createElement("section");
     section.className = "title";
@@ -33,7 +42,9 @@ TitleSceneLayer.prototype.Render = function(){
     button.addEventListener("click", this.onClickListener);
     section.appendChild(button);
     fragment.appendChild(section);
-    this.dom = section;
+*/
+    var fragment = tmp.content;
+    this.dom = fragment.children[0];
     return fragment;
 };
 

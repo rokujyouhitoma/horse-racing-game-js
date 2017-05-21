@@ -827,10 +827,10 @@ var _UNSET = {};
  * We compile into Python from the given template_string. You can generate
  * the template from variables with generate().
  * @param {string} template_string .
- * @param {string} name .
- * @param {?BaseLoader=} loader .
+ * @param {string=} name .
+ * @param {BaseLoader=} loader .
  * @param {?boolean=} compress_whitespace .
- * @param {?Object=} autoescape .
+ * @param {Object=} autoescape .
  * @constructor
  * @extends {Object}
  */
