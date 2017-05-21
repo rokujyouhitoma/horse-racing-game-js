@@ -46,7 +46,6 @@ function base(self, opt_methodName, var_args) {
     }
 }
 
-
 /*
  * be based on Python class methods.
  */
@@ -252,6 +251,7 @@ string.startwith = function(str, substr) {
  * @extends {Error}
  */
 var NotImplementedError = function(message) {
+    base(this, message);
     this.name = 'NotImplementedError';
 };
 inherits(NotImplementedError, Error);
@@ -263,6 +263,7 @@ inherits(NotImplementedError, Error);
  * @extends {Error}
  */
 var AssertionError = function(message) {
+    base(this, message);
     this.name = 'AssertionError';
 };
 inherits(AssertionError, Error);
@@ -274,6 +275,7 @@ inherits(AssertionError, Error);
  * @extends {Error}
  */
 var ValueError = function(message) {
+    base(this, message);
     this.name = 'ValueError';
 };
 inherits(ValueError, Error);
@@ -295,6 +297,7 @@ var IOError = function(var_args) {
     else {
         throw new NotImplementedError();
     }
+    base(this, message);
     this.name = 'IOError';
 };
 inherits(IOError, Error);
@@ -306,6 +309,7 @@ inherits(IOError, Error);
  * @extends {Error}
  */
 var StopIteration = function(message) {
+   base(this, message);
    this.name = 'StopIteration';
 };
 inherits(StopIteration, Error);
@@ -364,7 +368,10 @@ function _complain_ifclosed(closed) {
  * @extends {Object}
  */
 var StringIO = function(buf) {
+    base(this);
+
     buf = buf ? buf : '';
+
     this.buf = buf;
     this.len = buf.length;
     this.buflist = [];
@@ -460,7 +467,7 @@ StringIO.prototype['tell'] = StringIO.prototype.tell;
 
 /**
  * @param {number} n .
- * @return {string} .
+ * @return {string} r .
  */
 StringIO.prototype.read = function(n) {
     n = n ? n : -1;
@@ -513,7 +520,7 @@ StringIO.prototype['readline'] = StringIO.prototype.readline;
 
 /**
  * @param {number} sizehint .
- * @return {Array<string>} lines.
+ * @return {Array<string>} .
  */
 StringIO.prototype.readlines = function(sizehint) {
     sizehint = sizehint ? sizehint : 0;
@@ -956,7 +963,7 @@ Template.prototype['generate'] = Template.prototype.generate;
  * @protected
  */
 Template.prototype._generate_js = function(loader, compress_whitespace) {
-    /** @type {StringIO} */
+    /** @type {StringIO} } */
     var buffer = new StringIO();
     // named_blocks maps from names to _NamedBlock objects
     var named_blocks = {};
@@ -964,12 +971,14 @@ Template.prototype._generate_js = function(loader, compress_whitespace) {
     ancestors.reverse();
     var key;
     var ancestor;
-    for(var i = 0; i < ancestors.length; i++){
-        ancestor = ancestors[i];
+
+    for (key in ancestors) {
+        ancestor = ancestors[key];
         ancestor.find_named_blocks(loader, named_blocks);
     }
     this.file.find_named_blocks(loader, named_blocks);
-    var writer = new _CodeWriter(buffer, named_blocks, loader, this, compress_whitespace);
+    var writer = new _CodeWriter(buffer, named_blocks, loader, this,
+                                 compress_whitespace);
     ancestors[0].generate(writer);
     return buffer.getvalue();
 };
@@ -1086,7 +1095,7 @@ Loader.prototype.resolve_path = function() {
 };
 
 /**
- * @override
+ * create template
  */
 Loader.prototype._create_template = function() {
     //TODO: xxx
@@ -1142,7 +1151,6 @@ inherits(_Node, Object);
 
 /**
  * @return {Array} .
- * @constructor
  */
 _Node.prototype.each_child = function() {
     return [];
@@ -1162,30 +1170,26 @@ _Node.prototype.generate = function(writer) {
 _Node.prototype.find_named_blocks = function(loader, named_blocks) {
     var key;
     var children = this.each_child();
-    for(var i = 0; i < children; i++){
-        var child = children[i];
+    for (key in children) {
+        var child = children[key];
         child.find_named_blocks(loader, named_blocks);
     }
 };
 _Node.prototype['find_named_blocks'] = _Node.prototype.find_named_blocks;
 
 /**
- * @constructor
  * @param {_ChunkList} body .
+ * @constructor
+ * @extends {_Node}
  */
 var _File = function(body) {
     this.body = body;
 };
-
-/**
- * @return {Array.<_ChunkList>} .
- */
-_File.prototype.each_child = function() {
-    return [this.body];
-};
+inherits(_File, _Node);
 
 /**
  * @param {_CodeWriter} writer .
+ * @override
  */
 _File.prototype.generate = function(writer) {
     writer.write_line('_buffer = [];');
@@ -1193,11 +1197,18 @@ _File.prototype.generate = function(writer) {
     writer.write_line('return _buffer.join("");');
 };
 
-_File.prototype.find_named_blocks = _Node.prototype.find_named_blocks;
+/**
+ * @return {Array.<_ChunkList>} .
+ * @override
+ */
+_File.prototype.each_child = function() {
+    return [this.body];
+};
 
 /**
- * @constructor
  * @param {Array} chunks .
+ * @constructor
+ * @extends {_Node}
  */
 var _ChunkList = function(chunks) {
     this.chunks = chunks;
@@ -1206,6 +1217,7 @@ inherits(_ChunkList, _Node);
 
 /**
  * @param {_CodeWriter} writer .
+ * @override
  */
 _ChunkList.prototype.generate = function(writer) {
     var i = 0;
@@ -1218,6 +1230,7 @@ _ChunkList.prototype.generate = function(writer) {
 
 /**
  * @return {Array} .
+ * @override
  */
 _ChunkList.prototype.each_child = function() {
     return this.chunks;
@@ -1228,6 +1241,7 @@ _ChunkList.prototype.each_child = function() {
  * @param {_ChunkList} body .
  * @param {Template} template .
  * @constructor
+ * @extends {_Node}
  */
 var _NamedBlock = function(name, body, template) {
     this.name = name;
@@ -1238,6 +1252,7 @@ inherits(_NamedBlock, _Node);
 
 /**
  * @return {Array.<string>} .
+ * @override
  */
 _NamedBlock.prototype.each_child = function() {
     return [this.body];
@@ -1245,6 +1260,7 @@ _NamedBlock.prototype.each_child = function() {
 
 /**
  * @param {_CodeWriter} writer .
+ * @override
  */
 _NamedBlock.prototype.generate = function(writer) {
     var block = writer.named_blocks[this.name];
@@ -1323,9 +1339,10 @@ var _ApplyBlock = function(method, body) {
 inherits(_ApplyBlock, _Node);
 
 /**
- * @constructor
  * @param {string} statement .
  * @param {_ChunkList} body .
+ * @constructor
+ * @extends {_Node}
  */
 var _ControlBlock = function(statement, body) {
     this.statement = statement;
@@ -1335,6 +1352,7 @@ inherits(_ControlBlock, _Node);
 
 /**
  * @return {Array.<_ChunkList>} .
+ * @override
  */
 _ControlBlock.prototype.each_child = function() {
     return [this.body];
@@ -1342,6 +1360,7 @@ _ControlBlock.prototype.each_child = function() {
 
 /**
  * @param {_CodeWriter} writer .
+ * @override
  */
 _ControlBlock.prototype.generate = function(writer) {
     writer.write_line(this.statement);
@@ -1457,6 +1476,8 @@ _Text.prototype.generate = function(writer) {
  * @extends {Error}
  */
 var ParseError = function(message) {
+    base(this, message);
+
     // Raised for template syntax errors.
     this.name = 'ParseError';
     this.message = message || '';
@@ -1788,4 +1809,3 @@ var _parse = function(reader, template, in_block) {
         }
     }
 };
-
