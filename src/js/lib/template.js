@@ -21,6 +21,8 @@ function inherits(childCtor, parentCtor) {
  * @param {*=} opt_methodName The method name if calling a super method.
  * @param {...*} var_args The rest of the arguments.
  * @return {*} The return value of the superclass method.
+ * @suppress {es5Strict}
+ * @deprecated
  */
 function base(self, opt_methodName, var_args) {
     var caller = arguments.callee.caller;
@@ -1266,7 +1268,7 @@ _NamedBlock.prototype.generate = function(writer) {
 _NamedBlock.prototype.find_named_blocks = function(loader, named_blocks) {
     named_blocks[this.name] = this;
 //    base(this, 'find_named_blocks', loader, named_blocks);
-    _NamedBlock.__super__['find_named_blocks'].apply(this, [loader, named_blocks])
+    _NamedBlock.__super__['find_named_blocks'].apply(this, [loader, named_blocks]);
 };
 _NamedBlock.prototype['find_named_blocks'] = _NamedBlock.prototype.find_named_blocks;
 
