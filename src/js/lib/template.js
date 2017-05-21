@@ -16,38 +16,6 @@ function inherits(childCtor, parentCtor) {
     childCtor.prototype.constructor = childCtor;
 }
 
-/**
- * @param {!Object} self Should always be "this".
- * @param {*=} opt_methodName The method name if calling a super method.
- * @param {...*} var_args The rest of the arguments.
- * @return {*} The return value of the superclass method.
- * @suppress {es5Strict}
- * @deprecated
- */
-function base(self, opt_methodName, var_args) {
-    var caller = arguments.callee.caller;
-    if (caller.__super__) {
-        return caller.__super__.constructor.apply(
-            self, Array.prototype.slice.call(arguments, 1));
-    }
-    var args = Array.prototype.slice.call(arguments, 2);
-    var foundCaller = false;
-    for (var ctor = self.constructor; ctor; ctor = ctor.__super__ &&
-         ctor.__super__.constructor) {
-        if (ctor.prototype[opt_methodName] === caller) {
-            foundCaller = true;
-        } else if (foundCaller) {
-            return ctor.prototype[opt_methodName].apply(self, args);
-        }
-    }
-    if (self[opt_methodName] === caller) {
-        return self.constructor.prototype[opt_methodName].apply(self, args);
-    } else {
-        throw new Error('base called from a method of one name to a method of' +
-                        ' a different name');
-    }
-}
-
 /*
  * be based on Python class methods.
  */
