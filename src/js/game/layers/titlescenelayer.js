@@ -27,7 +27,6 @@ TitleSceneLayer.prototype.Render = function(){
         title: "\uD83C\uDFC7 -> \uD83C\uDFAE",
         start: "Start \uD83C\uDFC7",
     });
-    fragment.children[0].children[1].addEventListener("click", this.onClickListener);
     this.dom = fragment.children[0];
     return fragment;
 };
@@ -35,7 +34,9 @@ TitleSceneLayer.prototype.Render = function(){
 /**
  * @param {ExEvent} e The event object.
  */
-TitleSceneLayer.prototype.OnEnter = function(e){};
+TitleSceneLayer.prototype.OnEnter = function(e){
+    this.dom.children[1].addEventListener("click", this.onClickListener);
+};
 
 /**
  * @param {ExEvent} e The event object.
