@@ -77,6 +77,11 @@
 
 # History
 
+## 2017.5.22
+
+ - Templatesを追加
+ - Templateを適用
+
 ## 2017.5.21
 
  - Templateを部分的に適用し使い勝手を確認

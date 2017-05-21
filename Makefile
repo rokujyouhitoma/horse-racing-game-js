@@ -19,6 +19,7 @@ GAME_LIB_SOURCES = src/js/game/lib/scene.js \
 SOURCES = $(LIB_SOURCES) \
 	$(GAME_LIB_SOURCES) \
 	src/js/game/events.js \
+	src/js/game/templates.js \
 	src/js/game/layers/titlescenelayer.js \
 	src/js/game/layers/resultscenelayer.js \
 	src/js/game/layers/menulayer.js \
