@@ -1000,7 +1000,7 @@ BaseLoader.prototype.resolve_path = function(name, parent_path) {
 /**
  * Loads a template.
  * @param {string} name .
- * @param {?string} parent_path .
+ * @param {?string=} parent_path .
  * @return {Template} .
  */
 BaseLoader.prototype.load = function(name, parent_path) {
