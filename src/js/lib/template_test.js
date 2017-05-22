@@ -17,7 +17,7 @@ var describe = function(dname, func){
                 }
             };
             Test.prototype.toBeTruthy = function(){
-                if(v){
+                if(!this.value){
                     console.error(dname, name, this.value);
                 }
             };
