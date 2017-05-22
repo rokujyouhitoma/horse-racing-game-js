@@ -119,7 +119,7 @@ describe('Template', function() {
         //      ).toEqual("expr {{jquery expr}}");
     });
 
-  it('test_unicode_template', function() {
+    it('test_unicode_template', function() {
         //TODO: xxx
     });
 
@@ -142,7 +142,10 @@ describe('Template', function() {
     });
 
     it('test_comment', function() {
-        //TODO: xxx
+        var template = new Template("{% comment this is comment. %}");
+        expect(template.generate()).toEqual("");
+        var template = new Template("{% comment this is comment too. %}xyz");
+        expect(template.generate()).toEqual("xyz");
     });
 
     /*

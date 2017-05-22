@@ -1633,9 +1633,18 @@ var _parse = function(reader, template, in_block) {
                 throw new ParseError('Extra {%% end %%} block on line ' + line);
             }
             return body;
-        } else if (array.contains(['extends', 'include', 'set', 'import', 'from',
-                                   'comment', 'autoescape', 'raw', 'module'], operator)) {
-            if (operator === 'end') {
+        } else if (array.contains([
+            'extends',
+            'include',
+            'set',
+//            'import',
+//            'from',
+            'comment',
+//            'autoescape',
+            'raw',
+            'module'
+        ], operator)) {
+            if (operator === 'comment') {
                 continue;
             }
             if (operator === 'extends') {
