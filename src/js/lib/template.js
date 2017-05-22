@@ -713,7 +713,7 @@ to the current autoescape setting and inserted into the output.  Other
 template directives use ``{% %}``.  These tags may be escaped as ``{{!``
 and ``{%!`` if you need to include a literal ``{{`` or ``{%`` in the output.
 
-//NO SUPPORTED.
+//SUPPORTED.
 ``{% apply *function* %}...{% end %}``
     Applies a function to the output of all template code between ``apply``
     and ``end``::
@@ -1299,7 +1299,6 @@ var _ApplyBlock = function(method, line, body) {
     this.method = method;
     this.line = line;
     this.body = body;
-    throw new NotImplementedError();
 };
 inherits(_ApplyBlock, _Node);
 
@@ -1308,7 +1307,16 @@ inherits(_ApplyBlock, _Node);
  * @override
  */
 _ApplyBlock.prototype.generate = function(writer) {
-    throw new NotImplementedError();
+    var method_name = '_apply' + writer.apply_counter;
+    writer.apply_counter += 1;
+    writer.write_line('function ' + method_name + '(){', this.line);
+    statement.with_stmt(writer.indent(), function(){
+        writer.write_line('var _buffer = [];', this.line);
+        this.body.generate(writer);
+        writer.write_line('return _buffer.join("");', this.line);
+    }.bind(this));
+    writer.write_line('}', this.line);
+    writer.write_line('_buffer.push(' + this.method + '(' + method_name + '()));' , this.line);
 };
 
 /**

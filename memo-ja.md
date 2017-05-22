@@ -77,6 +77,10 @@
 
 # History
 
+## 2017.5.23
+
+ - Templateでapplyブロックをサポート
+
 ## 2017.5.22
 
  - Tempalteを改善

@@ -142,7 +142,11 @@ describe('Template', function() {
     });
 
     it('test_apply', function() {
-        //TODO: xxx
+        function upper(s){
+            return s.toUpperCase();
+        }
+        var template = new Template("{% apply upper %}foo{% end %}");
+        expect(template.generate({upper: upper})).toEqual("FOO");
     });
 
     it('test_if', function() {
