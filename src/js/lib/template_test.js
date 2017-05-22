@@ -55,6 +55,11 @@ describe('Template', function() {
         expect(template.generate()).toEqual('2 + 2 = 3');
     });
 
+    it('test_comment', function() {
+        var template = new Template('Hello{# TODO i18n #} {{ name }}!');
+        expect(template.generate({name:'Ben'})).toEqual('Hello Ben!');
+    });
+
     it('test_include', function() {
         var loader = new DictLoader({
             "index.html": '{% include "header.html" %}\nbody text',

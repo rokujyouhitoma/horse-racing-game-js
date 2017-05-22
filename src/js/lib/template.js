@@ -1594,7 +1594,7 @@ var _parse = function(reader, template, in_block, in_loop) {
             }
             // If the first curly brace is not the start of a special token,
             // start searching from the character after it
-            if (!array.contains(['{', '%'], reader.__getitem__(curly + 1))) {
+            if (!array.contains(['{', '%', '#'], reader.__getitem__(curly + 1))) {
                 curly += 1;
                 continue;
             }
@@ -1622,6 +1622,16 @@ var _parse = function(reader, template, in_block, in_loop) {
         if (reader.remaining() && reader.__getitem__(0) === '!') {
             reader.consume(1);
             body.chunks.push(new _Text(start_brace, line));
+            continue;
+        }
+        // Comment
+        if (start_brace === '{#') {
+            end = reader.find('#}');
+            if (end === -1) {
+                throw new ParseError('Missing end comment on line ' + String(line));
+            }
+            contents = string.strip(reader.consume(end));
+            reader.consume(2);
             continue;
         }
         // Expression
