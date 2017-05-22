@@ -1034,7 +1034,7 @@ Loader.prototype._create_template = function() {
  * @extends {BaseLoader}
  */
 var DictLoader = function(dict) {
-    DictLoader.__super__.constructor.apply(this);
+    DictLoader.__super__.constructor.apply(this, arguments);
     this.dict = dict;
 };
 inherits(DictLoader, BaseLoader);

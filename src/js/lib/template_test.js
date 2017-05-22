@@ -68,12 +68,7 @@ describe('Template', function() {
         expect(loader.load('index.html').generate()
               ).toEqual('header text\nbody text');
     });
-    
-    it('test_set', function() {
-        var template = new Template('{% set x = 1; %}{{x}}');
-        expect(template.generate()).toEqual('1');
-    });
-    
+        
     it('test_extends', function() {
         var loader = new DictLoader({
             "base.html": '<title>{% block title %}default title{% end %}</title>\n' +
@@ -85,7 +80,6 @@ describe('Template', function() {
         expect(loader.load('page.html').generate()
               ).toEqual("<title>page title</title>\n<body>page body</body>");
     });
-
 
     it('relative_load', function() {
         var loader = new DictLoader({
@@ -123,6 +117,7 @@ describe('Template', function() {
         expect(isParseError('{%')).toBeTruthy();
         expect(new Template('{{!').generate()).toEqual('{{');
         expect(new Template('{%!').generate()).toEqual('{%');
+        expect(new Template('{#!').generate()).toEqual('{#');
 
         //TODO: xxx
         //expect(new Template("{{ 'expr' }} {{ !jquery expr }}").generate()
@@ -138,7 +133,10 @@ describe('Template', function() {
     });
 
     it('test_custom_namespace', function() {
-        //TODO: xxx
+        var loader = new DictLoader({
+            "test.html": "{{ inc(5) }}"
+        }, namespace={"inc": function(x){ return x + 1; }});
+        expect(loader.load("test.html").generate()).toEqual("6");
     });
 
     it('test_apply', function() {
@@ -161,7 +159,13 @@ describe('Template', function() {
     /*
      * my test code.
      */
+    
+    it('test_set', function() {
+        var template = new Template('{% set x = 1; %}{{x}}');
+        expect(template.generate()).toEqual('1');
+    });
 
+    
     it('test_variable', function() {
         var loader = new DictLoader({
             "base.html": ""
