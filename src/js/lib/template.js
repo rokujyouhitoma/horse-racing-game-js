@@ -6,6 +6,34 @@
  */
 
 /**
+ * @interface
+ */
+var IWithItem = function(){};
+
+/**
+ * __enter__
+ * @return {IWithItem} .
+ */
+IWithItem.prototype.__enter__ = function(){};
+
+/**
+ * __exit__
+ */
+IWithItem.prototype.__exit__ = function(){};
+
+var statement = {};
+
+/**
+ * @param {IWithItem} item .
+ * @param {function(?IWithItem)} func .
+ */
+statement.with_stmt = function(item, func){
+    var with_item = item.__enter__();
+    func(with_item);
+    item.__exit__();
+};
+
+/**
  * @param {Function} childCtor Child class constructor.
  * @param {Function} parentCtor Parent class constructor.
  */
@@ -198,6 +226,15 @@ string.strip = function(str) {
 string.startwith = function(str, substr) {
     var parttern = new RegExp('^' + substr);
     return (str.search(parttern) === 0);
+};
+
+/**
+ * @param {string} str .
+ * @param {number} count .
+ * @return {string} .
+ */
+string.__mul__ = function(str, count) {
+    return str.repeat(count);
 };
 
 /*
@@ -850,16 +887,11 @@ var Template = function(template_string, name, loader, compress_whitespace, auto
     var parsed = _parse(reader, this);
     this.file = new _File(parsed);
     /** @type {string} */
-    var startFragment = 'return function(namespace){for(var key in namespace){this[key]=namespace[key];}';
-    /** @type {string} */
-    var codeFragment = this._generate_js(loader, compress_whitespace);
-    /** @type {string} */
-    var endFragment = '};';
-    this.code = startFragment + codeFragment + endFragment;
+    this.code = this._generate_js(loader, compress_whitespace);
     try {
         this.compiled = new Function(this.code);
     } catch (e) {
-        console.log('code: ' + this.code);
+        console.error('code: ' + this.code);
         throw e;
     }
 };
@@ -1117,9 +1149,14 @@ inherits(_File, _Node);
  * @override
  */
 _File.prototype.generate = function(writer) {
-    writer.write_line('_buffer = [];', this.line);
-    this.body.generate(writer);
-    writer.write_line('return _buffer.join("");', this.line);
+    writer.write_line('return function(namespace){', this.line);
+    statement.with_stmt(writer.indent(), function(){
+        writer.write_line('for(var key in namespace){this[key]=namespace[key];}', this.line);
+        writer.write_line('_buffer = [];', this.line);
+        this.body.generate(writer);
+        writer.write_line('return _buffer.join("");', this.line);
+    }.bind(this));
+    writer.write_line('};', this.line);
 };
 
 /**
@@ -1311,7 +1348,9 @@ _ControlBlock.prototype.each_child = function() {
 _ControlBlock.prototype.generate = function(writer) {
     writer.write_line(this.statement, this.line);
     writer.write_line('{', this.line);
-    this.body.generate(writer);
+    statement.with_stmt(writer.indent(), function(){
+        this.body.generate(writer);
+    }.bind(this));
     writer.write_line('}', this.line);
 };
 
@@ -1456,16 +1495,49 @@ var _CodeWriter = function(file, named_blocks, loader, current_template, compres
     this.current_template = current_template;
     this.compress_whitespace = compress_whitespace;
     this.apply_counter = 0;
+    this._indent = 0;
 };
 inherits(_CodeWriter, Object);
 
 /**
+ * @return {number} indent .
+ */
+_CodeWriter.prototype.indent_size = function(){
+    return this._indent;
+};
+
+/**
+ * @return {IWithItem} .
+ */
+_CodeWriter.prototype.indent = function(){
+    /**
+     * @constructor
+     * @implements {IWithItem}
+     */
+    var Indenter = function(){};
+    Indenter.prototype.__enter__ = function(){
+        this._indent += 1;
+        return this;
+    }.bind(this);
+    Indenter.prototype.__exit__ = function(){
+        assert(this._indent > 0);
+        this._indent -= 1;
+    }.bind(this);
+    return new Indenter();
+};
+
+/**
  * @param {string} line .
  * @param {number} line_number .
+ * @param {?number=} indent .
  */
-_CodeWriter.prototype.write_line = function(line, line_number) {
+_CodeWriter.prototype.write_line = function(line, line_number, indent) {
+    indent = indent ? indent : null;
+    if(indent == null){
+        indent = this._indent;
+    }
     var line_comment = ' //' + this.current_template.name + ":" + line_number;
-    this.file.write(line + line_comment + '\n');
+    this.file.write(string.__mul__('\t', indent) + line + line_comment + '\n');
 };
 
 /**
