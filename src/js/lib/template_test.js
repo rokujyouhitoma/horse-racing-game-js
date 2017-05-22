@@ -65,7 +65,7 @@ describe('Template', function() {
     });
     
     it('test_set', function() {
-        var template = new Template('{% set x = x; %}{{x}}');
+        var template = new Template('{% set x = 1; %}{{x}}');
         expect(template.generate()).toEqual('1');
     });
     
