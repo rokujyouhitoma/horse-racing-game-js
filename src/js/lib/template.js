@@ -706,7 +706,7 @@ and ``{%!`` if you need to include a literal ``{{`` or ``{%`` in the output.
         {% extends "base.html" %}
         {% block title %}My page title{% end %}
 
-//NO SUPPORTED.
+//SUPPORTED.
 ``{% comment ... %}``
     A comment which will be removed from the template output.  Note that
     there is no ``{% end %}`` tag; the comment goes from the word ``comment``
@@ -719,11 +719,11 @@ and ``{%!`` if you need to include a literal ``{{`` or ``{%`` in the output.
     template.  Anything in the child template not contained in a ``block``
     tag will be ignored.  For an example, see the ``{% block %}`` tag.
 
-//NO SUPPORTED.
-``{% for *var* in *expr* %}...{% end %}``
+//SUPPORTED.
+``{% for (*var* in *expr*) %}...{% end %}``
     Same as the python ``for`` statement.
 
-//DEPRECATED
+//DEPRECATED.
 ``{% from *x* import *y* %}``
     Same as the python ``import`` statement.
 
@@ -732,7 +732,7 @@ and ``{%!`` if you need to include a literal ``{{`` or ``{%`` in the output.
     Conditional statement - outputs the first section whose condition is
     true.  (The ``elif`` and ``else`` sections are optional)
 
-//DEPRECATED
+//DEPRECATED.
 ``{% import *module* %}``
     Same as the python ``import`` statement.
 
@@ -744,26 +744,26 @@ and ``{%!`` if you need to include a literal ``{{`` or ``{%`` in the output.
     Alternately, ``{% module Template(filename, **kwargs) %}`` may be used
     to include another template with an isolated namespace.
 
-//DEPRECATED
+//DEPRECATED.
 ``{% module *expr* %}``
     Renders a `~tornado.web.UIModule`.  The output of the ``UIModule`` is
     not escaped::
 
         {% module Template("foo.html", arg=42) %}
 
-//NO SUPPORTED
+//NO SUPPORTED.
 ``{% raw *expr* %}``
     Outputs the result of the given expression without autoescaping.
 
-//NO SUPPORTED
+//SUPPORTED.
 ``{% set *x* = *y* %}``
     Sets a local variable.
 
-//NO SUPPORTED
+//NO SUPPORTED.
 ``{% try %}...{% except %}...{% finally %}...{% end %}``
     Same as the python ``try`` statement.
 
-//NO SUPPORTED
+//NO SUPPORTED.
 ``{% while *condition* %}... {% end %}``
     Same as the python ``while`` statement.
 */
@@ -1108,6 +1108,7 @@ _Node.prototype['find_named_blocks'] = _Node.prototype.find_named_blocks;
  */
 var _File = function(body) {
     this.body = body;
+    this.line = 0;
 };
 inherits(_File, _Node);
 
@@ -1116,9 +1117,9 @@ inherits(_File, _Node);
  * @override
  */
 _File.prototype.generate = function(writer) {
-    writer.write_line('_buffer = [];');
+    writer.write_line('_buffer = [];', this.line);
     this.body.generate(writer);
-    writer.write_line('return _buffer.join("");');
+    writer.write_line('return _buffer.join("");', this.line);
 };
 
 /**
@@ -1163,13 +1164,15 @@ _ChunkList.prototype.each_child = function() {
  * @param {string} name .
  * @param {_ChunkList} body .
  * @param {Template} template .
+ * @param {number} line .
  * @constructor
  * @extends {_Node}
  */
-var _NamedBlock = function(name, body, template) {
+var _NamedBlock = function(name, body, template, line) {
     this.name = name;
     this.body = body;
     this.template = template;
+    this.line = line;
 };
 inherits(_NamedBlock, _Node);
 
@@ -1216,12 +1219,14 @@ inherits(_ExtendsBlock, _Node);
 /**
  * @param {string} name .
  * @param {_TemplateReader} reader .
+ * @param {number} line .
  * @constructor
  * @extends {_Node}
  */
-var _IncludeBlock = function(name, reader) {
+var _IncludeBlock = function(name, reader, line) {
     this.name = name;
     this.template_name = reader.name;
+    this.line = line;
 };
 inherits(_IncludeBlock, _Node);
 
@@ -1247,26 +1252,46 @@ _IncludeBlock.prototype.generate = function(writer) {
 
 /**
  * @param {string} method .
+ * @param {number} line .
  * @param {_ChunkList} body .
  * @constructor
  * @extends {_Node}
  */
-var _ApplyBlock = function(method, body) {
+var _ApplyBlock = function(method, line, body) {
     body = body ? body : null;
     this.method = method;
+    this.line = line;
     this.body = body;
     throw new NotImplementedError();
 };
 inherits(_ApplyBlock, _Node);
 
 /**
+ * @param {_CodeWriter} writer .
+ * @override
+ */
+_ApplyBlock.prototype.generate = function(writer) {
+    throw new NotImplementedError();
+};
+
+/**
+ * @return {Array.<_ChunkList>} .
+ * @override
+ */
+_ApplyBlock.prototype.each_child = function() {
+    return [this.body];
+};
+
+/**
  * @param {string} statement .
+ * @param {number} line .
  * @param {_ChunkList} body .
  * @constructor
  * @extends {_Node}
  */
-var _ControlBlock = function(statement, body) {
+var _ControlBlock = function(statement, line, body) {
     this.statement = statement;
+    this.line = line;
     this.body = body;
 };
 inherits(_ControlBlock, _Node);
@@ -1284,19 +1309,21 @@ _ControlBlock.prototype.each_child = function() {
  * @override
  */
 _ControlBlock.prototype.generate = function(writer) {
-    writer.write_line(this.statement);
-    writer.write_line('{');
+    writer.write_line(this.statement, this.line);
+    writer.write_line('{', this.line);
     this.body.generate(writer);
-    writer.write_line('}');
+    writer.write_line('}', this.line);
 };
 
 /**
  * @param {string} statement .
+ * @param {number} line .
  * @constructor
  * @extends {_Node}
  */
-var _IntermediateControlBlock = function(statement) {
+var _IntermediateControlBlock = function(statement, line) {
     this.statement = statement;
+    this.line = line;
 };
 inherits(_IntermediateControlBlock, _Node);
 
@@ -1305,16 +1332,18 @@ inherits(_IntermediateControlBlock, _Node);
  * @override
  */
 _IntermediateControlBlock.prototype.generate = function(writer) {
-    writer.write_line('}' + this.statement + '{');
+    writer.write_line('}' + this.statement + '{', this.line);
 };
 
 /**
  * @param {string} statement .
+ * @param {number} line .
  * @constructor
  * @extends {_Node}
  */
-var _Statement = function(statement) {
+var _Statement = function(statement, line) {
     this.statement = statement;
+    this.line = line;
 };
 inherits(_Statement, _Node);
 
@@ -1323,18 +1352,20 @@ inherits(_Statement, _Node);
  * @override
  */
 _Statement.prototype.generate = function(writer) {
-    writer.write_line(this.statement);
+    writer.write_line(this.statement, this.line);
 };
 
 /**
  * @param {string} expression .
+ * @param {number} line .
  * @param {?boolean=} row .
  * @constructor
  * @extends {_Node}
  */
-var _Expression = function(expression, row) {
+var _Expression = function(expression, line, row) {
     row = row ? row : false;
     this.expression = expression;
+    this.line = line;
     this.row = row;
 };
 inherits(_Expression, _Node);
@@ -1344,27 +1375,30 @@ inherits(_Expression, _Node);
  * @override
  */
 _Expression.prototype.generate = function(writer) {
-    writer.write_line('var _tmp = ' + this.expression + ';');
-    writer.write_line('_buffer.push(_tmp);');
+    writer.write_line('var _tmp = ' + this.expression + ';', this.line);
+    writer.write_line('_buffer.push(_tmp);', this.line);
 };
 
 /**
  * @param {string} expression .
+ * @param {number} line .
  * @constructor
  * @extends {_Expression}
  */
-var _Module = function(expression) {
+var _Module = function(expression, line) {
     throw new NotImplementedError();
 };
 inherits(_Module, _Expression);
 
 /**
  * @param {string} value .
+ * @param {number} line .
  * @constructor
  * @extends {_Node}
  */
-var _Text = function(value) {
+var _Text = function(value, line) {
     this.value = value;
+    this.line = line;
 };
 inherits(_Text, _Node);
 
@@ -1389,7 +1423,7 @@ _Text.prototype.generate = function(writer) {
         value = value.replace(/(")/g, '\\"', value);
     }
     if (value) {
-        writer.write_line('_buffer.push("' + value + '");');
+        writer.write_line('_buffer.push("' + value + '");', this.line);
     }
 };
 
@@ -1427,9 +1461,11 @@ inherits(_CodeWriter, Object);
 
 /**
  * @param {string} line .
+ * @param {number} line_number .
  */
-_CodeWriter.prototype.write_line = function(line) {
-    this.file.write(line + '\n');
+_CodeWriter.prototype.write_line = function(line, line_number) {
+    var line_comment = ' //' + this.current_template.name + ":" + line_number;
+    this.file.write(line + line_comment + '\n');
 };
 
 /**
@@ -1441,7 +1477,7 @@ _CodeWriter.prototype.write_line = function(line) {
 var _TemplateReader = function(name, text) {
     this.name = name;
     this.text = text;
-    this.line = 0;
+    this.line = 1;
     this.pos = 0;
 };
 inherits(_TemplateReader, Object);
@@ -1535,10 +1571,12 @@ function _format_code(code) {
  * @param {_TemplateReader} reader .
  * @param {Template} template .
  * @param {?string=} in_block .
+ * @param {?string=} in_loop .
  * @return {_ChunkList} body.
  */
-var _parse = function(reader, template, in_block) {
+var _parse = function(reader, template, in_block, in_loop) {
     in_block = in_block ? in_block : null;
+    in_loop = in_loop ? in_loop : null;
     var body = new _ChunkList([]);
     while (true) {
         // Find next template directive
@@ -1553,7 +1591,7 @@ var _parse = function(reader, template, in_block) {
                 if (in_block) {
                     throw new ParseError('Missing {%% end %%} block for ' + in_block);
                 }
-                body.chunks.push(new _Text(reader.consume()));
+                body.chunks.push(new _Text(reader.consume(), reader.line));
                 return body;
             }
             // If the first curly brace is not the start of a special token,
@@ -1575,7 +1613,7 @@ var _parse = function(reader, template, in_block) {
         }
         // Append any text before the special token
         if (curly > 0) {
-            body.chunks.push(new _Text(reader.consume(curly)));
+            body.chunks.push(new _Text(reader.consume(curly), reader.line));
         }
         var start_brace = reader.consume(2);
         var line = reader.line;
@@ -1585,7 +1623,7 @@ var _parse = function(reader, template, in_block) {
         // which also use double braces.
         if (reader.remaining() && reader.__getitem__(0) === '!') {
             reader.consume(1);
-            body.chunks.push(new _Text(start_brace));
+            body.chunks.push(new _Text(start_brace, line));
             continue;
         }
         // Expression
@@ -1599,7 +1637,7 @@ var _parse = function(reader, template, in_block) {
             if (!contents) {
                 throw new ParseError('Empty expression on line ' + String(line));
             }
-            body.chunks.push(new _Expression(contents));
+            body.chunks.push(new _Expression(contents, line));
             continue;
         }
         // Block
@@ -1619,9 +1657,9 @@ var _parse = function(reader, template, in_block) {
         // Intermediate ('else', 'elif', etc) blocks
         var intermediate_blocks = {
             'else': ['if', 'for', 'while'],
-            'elif': ['if'],
-            'except': ['try'],
-            'finally': ['try']
+//            'elif': ['if'],
+//            'except': ['try'],
+//            'finally': ['try']
         };
         var allowed_parents = object.get(intermediate_blocks, operator);
         if (allowed_parents !== null) {
@@ -1631,7 +1669,7 @@ var _parse = function(reader, template, in_block) {
             if (allowed_parents instanceof Array && !array.contains(allowed_parents, in_block)) {
                 throw new ParseError(operator +' block cannot be attached to ' + in_block + 'block');
             }
-            body.chunks.push(new _IntermediateControlBlock(contents));
+            body.chunks.push(new _IntermediateControlBlock(contents, line));
             continue;
         // End tag
         } else if (operator === 'end') {
@@ -1668,22 +1706,22 @@ var _parse = function(reader, template, in_block) {
                 if (!suffix) {
                     throw new ParseError('include missing file path on line ' + line);
                 }
-                block = new _IncludeBlock(suffix, reader);
+                block = new _IncludeBlock(suffix, reader, line);
             }
             else if (operator === 'set') {
                 if (!suffix) {
                     throw new ParseError('set missing statement on line ' + line);
                 }
-                block = new _Statement(suffix);
+                block = new _Statement(suffix, line);
             }
             else if (operator === 'autoescape') {
                 throw new NotImplementedError('xxx: autoescape');
             }
             else if (operator === 'raw') {
-                block = new _Expression(suffix, true);
+                block = new _Expression(suffix, line, true);
             }
             else if (operator === 'module') {
-                block = new _Module(suffix);
+                block = new _Module(suffix, line);
             }
             body.chunks.push(block);
             continue;
@@ -1694,14 +1732,14 @@ var _parse = function(reader, template, in_block) {
                 if (!suffix) {
                     throw new ParseError('apply missing method name on line ' + line);
                 }
-                block = new _ApplyBlock(suffix, block_body);
+                block = new _ApplyBlock(suffix, line, block_body);
             } else if (operator === 'block') {
                 if (!suffix) {
                     throw new ParseError('block missing name on line ' + line);
                 }
-                block = new _NamedBlock(suffix, block_body, template);
+                block = new _NamedBlock(suffix, block_body, template, line);
             } else {
-                block = new _ControlBlock(contents, block_body);
+                block = new _ControlBlock(contents, line, block_body);
             }
             body.chunks.push(block);
             continue;

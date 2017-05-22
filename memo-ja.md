@@ -79,6 +79,7 @@
 
 ## 2017.5.22
 
+ - Tempalteを改善
  - Templatesを追加
  - Templateを適用
 
