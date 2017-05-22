@@ -1616,7 +1616,6 @@ var _parse = function(reader, template, in_block) {
         var partition = contents.split(' ');
         var operator = partition.shift();
         var suffix = partition.join('');
-        //console.log('operator, suffix: ' + operator + ', ' + suffix);
         // Intermediate ('else', 'elif', etc) blocks
         var intermediate_blocks = {
             'else': ['if', 'for', 'while'],
@@ -1648,8 +1647,8 @@ var _parse = function(reader, template, in_block) {
 //            'from',
             'comment',
 //            'autoescape',
-            'raw',
-            'module'
+//            'raw',
+//            'module'
         ], operator)) {
             if (operator === 'comment') {
                 continue;
