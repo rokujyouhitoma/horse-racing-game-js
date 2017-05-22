@@ -565,10 +565,8 @@ StringIO.prototype['write'] = StringIO.prototype.write;
  * @param {Array|Object} iterable .
  */
 StringIO.prototype.writelines = function(iterable) {
-    var key;
-    var line;
-    for (key in iterable) {
-        line = iterable[key];
+    for (var key in iterable) {
+        var line = iterable[key];
         this.write(line);
     }
 };
