@@ -21,16 +21,11 @@ var RacetrackLayer = function(scene){
  * @return {DocumentFragment}
  */
 RacetrackLayer.prototype.Render = function(){
-    var fragment = document.createDocumentFragment();
-    var section = document.createElement("section");
-    section.className = "racetrack";
-    var h1 = document.createElement("h1");
-    h1.innerText = "Racetrack";
-    section.appendChild(h1);
-    var div = document.createElement("div");
-    section.appendChild(div);
-    this.dom = section;
-    fragment.appendChild(section);
+    var templates = Game.Locator.locate(Templates);
+    var fragment = templates.Generate("racetracklayer", {
+        title: "Racetrack",
+    });
+    this.dom = fragment.children[0];
     return fragment;
 };
 

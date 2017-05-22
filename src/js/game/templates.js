@@ -6,6 +6,7 @@
 var Templates = function(){
     this.loader = new DictLoader(/** @dict */{
         "titlescenelayer": "<section class='title'><h1>{{title}}</h1><button>{{start}}</button></section>",
+        "racetracklayer": "<section class='racetrack'><h1>{{title}}</h1><div></div></section>",
     });
 };
 
