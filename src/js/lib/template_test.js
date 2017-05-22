@@ -63,7 +63,12 @@ describe('Template', function() {
         expect(loader.load('index.html').generate()
               ).toEqual('header text\nbody text');
     });
-
+    
+    it('test_set', function() {
+        var template = new Template('{% set x = x; %}{{x}}');
+        expect(template.generate()).toEqual('1');
+    });
+    
     it('test_extends', function() {
         var loader = new DictLoader({
             "base.html": '<title>{% block title %}default title{% end %}</title>\n' +

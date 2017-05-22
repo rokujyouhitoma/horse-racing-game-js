@@ -1315,9 +1315,16 @@ _IntermediateControlBlock.prototype.generate = function(writer) {
  */
 var _Statement = function(statement) {
     this.statement = statement;
-    throw new NotImplementedError();
 };
 inherits(_Statement, _Node);
+
+/**
+ * @param {_CodeWriter} writer .
+ * @override
+ */
+_Statement.prototype.generate = function(writer) {
+    writer.write_line(this.statement);
+};
 
 /**
  * @param {string} expression .
