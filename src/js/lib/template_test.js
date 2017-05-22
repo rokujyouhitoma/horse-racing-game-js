@@ -135,7 +135,7 @@ describe('Template', function() {
     it('test_custom_namespace', function() {
         var loader = new DictLoader({
             "test.html": "{{ inc(5) }}"
-        }, namespace={"inc": function(x){ return x + 1; }});
+        }, null, {"inc": function(x){ return x + 1; }});
         expect(loader.load("test.html").generate()).toEqual("6");
     });
 
