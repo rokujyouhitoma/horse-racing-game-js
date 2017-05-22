@@ -1,3 +1,5 @@
+//"use strict";
+
 /**
  * Original code is here.
  * https://raw.githubusercontent.com/rokujyouhitoma/js-templateengine/develop/tests/template_spec.js
