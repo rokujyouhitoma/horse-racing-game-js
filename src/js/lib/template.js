@@ -83,9 +83,8 @@ var array = {};
  * @return {boolean} .
  */
 array.contains = function(arr, value) {
-    var i = 0;
     var length = arr.length;
-    for (; i < length; ++i) {
+    for (var i = 0; i < length; ++i) {
         if (arr[i] === value) {
             return true;
         }
@@ -196,12 +195,7 @@ string.strip = function(str) {
  */
 string.startwith = function(str, substr) {
     var parttern = new RegExp('^' + substr);
-    if (str.search(parttern) === 0) {
-        return true;
-    }
-    else {
-        return false;
-    }
+    return (str.search(parttern) === 0);
 };
 
 /*
@@ -853,20 +847,15 @@ var Template = function(template_string, name, loader, compress_whitespace, auto
     }
     this.namespace = loader ? loader.namespace : {};
     var reader = new _TemplateReader(name, escape_.native_str(template_string));
-    this.file = new _File(_parse(reader, this));
-    /**
-     * @type {string}
-     */
-    this.code = this._generate_js(loader, compress_whitespace);
-    /**
-     * @type {string}
-     */
-    var startFragment = 'return function(namespace) {for(var key in namespace) {this[key] = namespace[key];}';
-    /**
-     * @type {string}
-     */
+    var parsed = _parse(reader, this);
+    this.file = new _File(parsed);
+    /** @type {string} */
+    var startFragment = 'return function(namespace){for(var key in namespace){this[key]=namespace[key];}';
+    /** @type {string} */
+    var codeFragment = this._generate_js(loader, compress_whitespace);
+    /** @type {string} */
     var endFragment = '};';
-    this.code = startFragment + this.code + endFragment;
+    this.code = startFragment + codeFragment + endFragment;
     try {
         this.compiled = new Function(this.code);
     } catch (e) {
@@ -887,22 +876,18 @@ Template.prototype.generate = function(kwargs) {
         'escape': escape_.xhtml_escape,
         'xhtml_escape': escape_.xhtml_escape
     };
-    var key;
-    for (key in this.namespace) {
+    for (var key in this.namespace) {
         namespace[key] = this.namespace[key];
     }
-    for (key in kwargs) {
+    for (var key in kwargs) {
         namespace[key] = kwargs[key];
     }
-    //TODO: xxx
-    //namespace['_execute'] = this.compiled();
-    //var execute = namespace['_execute'];
     namespace._execute = this.compiled();
     var execute = namespace._execute;
     try {
         return execute(namespace);
     } catch (x) {
-        console.log(x);
+        console.error(x);
         throw new Error(x);
     }
 };
@@ -921,10 +906,8 @@ Template.prototype._generate_js = function(loader, compress_whitespace) {
     var named_blocks = {};
     var ancestors = this._get_ancestors(loader);
     ancestors.reverse();
-    var key;
-    var ancestor;
     for(var i = 0; i < ancestors.length; i++){
-        ancestor = ancestors[i];
+        var ancestor = ancestors[i];
         ancestor.find_named_blocks(loader, named_blocks);
     }
     this.file.find_named_blocks(loader, named_blocks);
@@ -940,10 +923,8 @@ Template.prototype._generate_js = function(loader, compress_whitespace) {
  */
 Template.prototype._get_ancestors = function(loader) {
     var ancestors = [this.file];
-    var key;
-    var chunk;
-    for (key in this.file.body.chunks) {
-        chunk = this.file.body.chunks[key];
+    for (var key in this.file.body.chunks) {
+        var chunk = this.file.body.chunks[key];
         if (chunk instanceof _ExtendsBlock) {
             if (!loader) {
                 throw new ParseError('{% extends %} block found, but no' +
@@ -1112,7 +1093,6 @@ _Node.prototype.generate = function(writer) {
  * @param {Object} named_blocks .
  */
 _Node.prototype.find_named_blocks = function(loader, named_blocks) {
-    var key;
     var children = this.each_child();
     for(var i = 0; i < children.length; i++){
         var child = children[i];
@@ -1164,10 +1144,9 @@ inherits(_ChunkList, _Node);
  * @override
  */
 _ChunkList.prototype.generate = function(writer) {
-    var i = 0;
     var chunks = this.chunks;
     var len = chunks.length;
-    for (; i < len; ++i) {
+    for (var i = 0; i < len; ++i) {
         chunks[i].generate(writer);
     }
 };

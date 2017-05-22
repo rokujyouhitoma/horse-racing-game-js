@@ -7,19 +7,18 @@ var describe = function(dname, func){
     var dname = dname;
     this.it = function(name, func){
         var name = name;
-        this.name = name;
         var expect = function(value){
             var Test = function(value){
                 this.value = value;
             };
             Test.prototype.toEqual = function(v){
                 if (this.value != v) {
-                    console.error(dname, name, this.value, v);
+                    console.error(dname, name, this.value, " not equal to ", v);
                 }
             };
-            Test.prototype.toBeTruthy = function(v){
+            Test.prototype.toBeTruthy = function(){
                 if(v){
-                    console.error(dname, name, this.value, v);
+                    console.error(dname, name, this.value);
                 }
             };
             return new Test(value);
