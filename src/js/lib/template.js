@@ -1159,9 +1159,13 @@ _File.prototype.generate = function(writer) {
     writer.write_line('return function(namespace){', this.line);
     statement.with_stmt(writer.indent(), function(){
         writer.write_line('eval(namespace.macro_variables(namespace));', this.line); //TODO: suggest that not use eval.
-        writer.write_line('var _buffer = [];', this.line);
-        this.body.generate(writer);
-        writer.write_line('return _buffer.join("");', this.line);
+        writer.write_line('return function(){', this.line);
+        statement.with_stmt(writer.indent(), function(){
+            writer.write_line('var _buffer = [];', this.line);
+            this.body.generate(writer);
+            writer.write_line('return _buffer.join("");', this.line);
+        }.bind(this));
+        writer.write_line('}();', this.line);
     }.bind(this));
     writer.write_line('};', this.line);
 };
@@ -1551,7 +1555,7 @@ _CodeWriter.prototype.write_line = function(line, line_number, indent) {
     if(indent == null){
         indent = this._indent;
     }
-    var line_comment = ' //' + this.current_template.name + ":" + line_number;
+    var line_comment = ' /*' + this.current_template.name + ':' + line_number + '*/';
     this.file.write(string.__mul__('\t', indent) + line + line_comment + '\n');
 };
 
