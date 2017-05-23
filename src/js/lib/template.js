@@ -1717,7 +1717,11 @@ var _parse = function(reader, template, in_block, in_loop) {
         var suffix = partition.join(' ');
         // Intermediate ('else', 'elif', etc) blocks
         var intermediate_blocks = {
-            'else': ['if', 'for', 'while'],
+            'else': [
+                'if',
+//                'for',
+//                'while'
+            ],
 //            'elif': ['if'],
             'catch(e)': ['try'],
         };

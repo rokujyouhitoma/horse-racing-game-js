@@ -191,6 +191,20 @@ describe('Template', function() {
         expect(result).toEqual("013456");
     });
 
+    it('test_break_outside_loop', function() {
+        var isParseError = function(template) {
+            try {
+                new Template(template);
+            } catch (x) {
+                if (x.name === 'ParseError') {
+                    return true;
+                }
+            }
+            return false;
+        };
+        expect(isParseError('{% break %}')).toBeTruthy();
+    });
+    
     /*
      * my test code.
      */
@@ -198,12 +212,6 @@ describe('Template', function() {
     it('test_set', function() {
         var template = new Template('{% set var x = 1; %}{{x}}');
         expect(template.generate()).toEqual('1');
-    });
-    
-    it('test_variable', function() {
-        var loader = new DictLoader({
-            "base.html": ""
-        });
     });
 
     it('test_...?', function() {
@@ -300,7 +308,7 @@ describe('Template', function() {
                 + '');
     });
 
-    it('test generate', function() {
+    it('test_generate', function() {
         var template = new Template('{{ add(1, 2) }}');
 
         /**
@@ -314,12 +322,12 @@ describe('Template', function() {
         expect(template.generate({add:add})).toEqual('3');
     });
 
-    it('Expression.', function() {
+    it('test_simple_expression', function() {
         var template = new Template('<html>{{ myvalue }}</html>');
         expect(template.generate({myvalue:'xxx'})).toEqual('<html>xxx</html>');
     });
 
-    it('Block.', function() {
+    it('test_simple_block', function() {
         var template = new Template('{% block title %}Default title{% end %}');
         expect(template.generate()).toEqual('Default title');
     });
