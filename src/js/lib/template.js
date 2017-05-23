@@ -145,15 +145,7 @@ var string = {};
  */
 string.contains = function(value, fragment) {
     var result = value.search(fragment);
-    if (result === -1) {
-        return false;
-    }
-    else if (result > -1) {
-        return true;
-    }
-    else {
-        throw new Error('string.contains: ' + result);
-    }
+    return (-1 < result);
 };
 
 /**
@@ -572,9 +564,8 @@ StringIO.prototype.write = function(s) {
     }
     if (spos > slen) {
         var str;
-        var i;
         var len = spos - slen;
-        for (i = 0; i < len; i++) {
+        for (var i = 0; i < len; ++i) {
             str += "\0";
         }
         this.buflist.push(str);
@@ -801,9 +792,8 @@ escape_['_XHTML_ESCAPEDICT'] = {'&': '&amp;',
 escape_.xhtml_escape = function(value) {
     var match;
     var chr;
-    var i = 0;
     var length = escape_['_XHTML_ESCAPE'].length;
-    for (;i < length; ++i) {
+    for (var i = 0; i < length; ++i) {
         chr = escape_['_XHTML_ESCAPE'][i];
         match = new RegExp(chr, 'g');
         value = value.replace(match, escape_['_XHTML_ESCAPEDICT'][chr]);
@@ -916,7 +906,7 @@ Template.prototype._generate_js = function(loader, compress_whitespace) {
     var named_blocks = {};
     var ancestors = this._get_ancestors(loader);
     ancestors.reverse();
-    for(var i = 0; i < ancestors.length; i++){
+    for(var i = 0; i < ancestors.length; ++i){
         var ancestor = ancestors[i];
         ancestor.find_named_blocks(loader, named_blocks);
     }
@@ -1104,7 +1094,7 @@ _Node.prototype.generate = function(writer) {
  */
 _Node.prototype.find_named_blocks = function(loader, named_blocks) {
     var children = this.each_child();
-    for(var i = 0; i < children.length; i++){
+    for(var i = 0; i < children.length; ++i){
         var child = children[i];
         child.find_named_blocks(loader, named_blocks);
     }
