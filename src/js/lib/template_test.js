@@ -160,7 +160,7 @@ describe('Template', function() {
         expect(template.generate()).toEqual("");
     });
 
-    it('test_comment', function() {
+    it('test_comment_directive', function() {
         var template = new Template("{% comment this is comment. %}");
         expect(template.generate()).toEqual("");
         var template = new Template("{% comment this is comment too. %}xyz");
