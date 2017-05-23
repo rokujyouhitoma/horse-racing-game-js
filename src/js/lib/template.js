@@ -793,7 +793,7 @@ and ``{%!`` if you need to include a literal ``{{`` or ``{%`` in the output.
     Outputs the result of the given expression without autoescaping.
 
 //SUPPORTED.
-``{% set *x* = *y* %}``
+``{% set var *x* = *y* %}``
     Sets a local variable.
 
 //SUPPORTED.
