@@ -155,6 +155,11 @@ describe('Template', function() {
         expect(template.generate({x:3})).toEqual("no");
     });
 
+    it('test_if_empty_body', function() {
+        var template = new Template("{% if (true) %}{% else %}{% end %}");
+        expect(template.generate()).toEqual("");
+    });
+
     it('test_comment', function() {
         var template = new Template("{% comment this is comment. %}");
         expect(template.generate()).toEqual("");
@@ -167,10 +172,9 @@ describe('Template', function() {
      */
     
     it('test_set', function() {
-        var template = new Template('{% set x = 1; %}{{x}}');
+        var template = new Template('{% set var x = 1; %}{{x}}');
         expect(template.generate()).toEqual('1');
     });
-
     
     it('test_variable', function() {
         var loader = new DictLoader({

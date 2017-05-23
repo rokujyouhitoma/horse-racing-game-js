@@ -1151,8 +1151,9 @@ inherits(_File, _Node);
 _File.prototype.generate = function(writer) {
     writer.write_line('return function(namespace){', this.line);
     statement.with_stmt(writer.indent(), function(){
+        //TODO: bugs
         writer.write_line('for(var key in namespace){this[key]=namespace[key];}', this.line);
-        writer.write_line('_buffer = [];', this.line);
+        writer.write_line('var _buffer = [];', this.line);
         this.body.generate(writer);
         writer.write_line('return _buffer.join("");', this.line);
     }.bind(this));
@@ -1802,7 +1803,9 @@ var _parse = function(reader, template, in_block, in_loop) {
                 if (!suffix) {
                     throw new ParseError('set missing statement on line ' + line);
                 }
-                block = new _Statement(suffix, line);
+                //TODO: xxx
+                //block = new _Statement(suffix, line);
+                block = new _Statement(partition.join(' '), line);
             }
             else if (operator === 'autoescape') {
                 throw new NotImplementedError('xxx: autoescape');
