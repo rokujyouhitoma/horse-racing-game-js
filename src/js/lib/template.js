@@ -109,7 +109,7 @@ var array = {};
 
 /**
  * @param {Array} arr .
- * @param {string} value .
+ * @param {?string} value .
  * @return {boolean} .
  */
 array.contains = function(arr, value) {
@@ -1446,17 +1446,30 @@ _Text.prototype.generate = function(writer) {
 };
 
 /**
+ * Raised for template syntax errors.
  * @param {string} message .
+ * @param {?string=} filename .
+ * @param {?number=} lineno .
  * @constructor
  * @extends {Error}
  */
-var ParseError = function(message) {
+var ParseError = function(message, filename, lineno) {
+    filename = filename ? filename : null;
+    lineno = lineno ? lineno : null;
     ParseError.__super__.constructor.apply(this, [message]);
-    // Raised for template syntax errors.
     this.name = 'ParseError';
     this.message = message || '';
+    this.filename = filename;
+    this.lineno = lineno;
 };
 inherits(ParseError, Error);
+
+/**
+ * @return {string} .
+ */
+ParseError.prototype.toString = function(){
+    return this.message + " at " + this.filename + ":" + this.lineno;
+};
 
 /**
  * @param {StringIO} file .
@@ -1612,11 +1625,11 @@ _TemplateReader.prototype.__str__ = function() {
 };
 
 /**
- * @param {string} code .
+ * @param {string} msg .
  */
-function _format_code(code) {
-    throw new NotImplementedError('xxx: _format_code');
-}
+_TemplateReader.prototype.raise_parse_error = function(msg) {
+    throw new ParseError(msg, this.name, this.line);
+};
 
 /**
  * @param {_TemplateReader} reader .
@@ -1640,7 +1653,7 @@ var _parse = function(reader, template, in_block, in_loop) {
             if (curly === -1 || curly + 1 === reader.remaining()) {
                 // EOF
                 if (in_block) {
-                    throw new ParseError('Missing {%% end %%} block for ' + in_block);
+                    reader.raise_parse_error('Missing {%% end %%} block for ' + in_block);
                 }
                 body.chunks.push(new _Text(reader.consume(), reader.line));
                 return body;
@@ -1681,7 +1694,7 @@ var _parse = function(reader, template, in_block, in_loop) {
         if (start_brace === '{#') {
             end = reader.find('#}');
             if (end === -1) {
-                throw new ParseError('Missing end comment on line ' + String(line));
+                reader.raise_parse_error('Missing end comment on line ' + String(line));
             }
             contents = string.strip(reader.consume(end));
             reader.consume(2);
@@ -1691,12 +1704,12 @@ var _parse = function(reader, template, in_block, in_loop) {
         if (start_brace === '{{') {
             end = reader.find('}}');
             if (end === -1 || reader.find('\n', 0, end) !== -1) {
-                throw new ParseError('Missing end expression }} on line ' + String(line));
+                reader.raise_parse_error('Missing end expression }} on line ' + String(line));
             }
             contents = string.strip(reader.consume(end));
             reader.consume(2);
             if (!contents) {
-                throw new ParseError('Empty expression on line ' + String(line));
+                reader.raise_parse_error('Empty expression on line ' + String(line));
             }
             body.chunks.push(new _Expression(contents, line));
             continue;
@@ -1705,12 +1718,12 @@ var _parse = function(reader, template, in_block, in_loop) {
         assert(start_brace == '{%', start_brace);
         end = reader.find('%}');
         if (end === -1 || reader.find('\n', 0, end) !== -1) {
-            throw new ParseError('Missing end block %%} on line ' + line);
+            reader.raise_parse_error('Missing end block %%} on line ' + line);
         }
         contents = string.strip(reader.consume(end));
         reader.consume(2);
         if (contents === '') {
-            throw new ParseError('Empty block tag ({%% %%}) on line ' + line);
+            reader.raise_parse_error('Empty block tag ({%% %%}) on line ' + line);
         }
         var partition = contents.split(' ');
         var operator = partition.shift();
@@ -1722,23 +1735,23 @@ var _parse = function(reader, template, in_block, in_loop) {
 //                'for',
 //                'while'
             ],
-//            'elif': ['if'],
+            'elif': ['if'],
             'catch(e)': ['try'],
         };
         var allowed_parents = object.get(intermediate_blocks, operator);
         if (allowed_parents !== null) {
             if (!in_block) {
-                throw new ParseError(operator + ' outside ' + allowed_parents + ' block');
+                reader.raise_parse_error(operator + ' outside ' + allowed_parents + ' block');
             }
             if (allowed_parents instanceof Array && !array.contains(allowed_parents, in_block)) {
-                throw new ParseError(operator +' block cannot be attached to ' + in_block + 'block');
+                reader.raise_parse_error(operator +' block cannot be attached to ' + in_block + 'block');
             }
             body.chunks.push(new _IntermediateControlBlock(contents, line));
             continue;
         // End tag
         } else if (operator === 'end') {
             if (!in_block) {
-                throw new ParseError('Extra {%% end %%} block on line ' + line);
+                reader.raise_parse_error('Extra {%% end %%} block on line ' + line);
             }
             return body;
         } else if (array.contains([
@@ -1755,20 +1768,20 @@ var _parse = function(reader, template, in_block, in_loop) {
             if (operator === 'extends') {
                 suffix = suffix.replace(/[\"\']/g, ''); //TODO: xxx
                 if (!suffix) {
-                    throw new ParseError('extends missing file path on line ' +line);
+                    reader.raise_parse_error('extends missing file path on line ' +line);
                 }
                 block = new _ExtendsBlock(suffix);
             }
             else if (operator === 'include') {
                 suffix = suffix.replace(/[\"\']/g, ''); //TODO: xxx
                 if (!suffix) {
-                    throw new ParseError('include missing file path on line ' + line);
+                    reader.raise_parse_error('include missing file path on line ' + line);
                 }
                 block = new _IncludeBlock(suffix, reader, line);
             }
             else if (operator === 'set') {
                 if (!suffix) {
-                    throw new ParseError('set missing statement on line ' + line);
+                    reader.raise_parse_error('set missing statement on line ' + line);
                 }
                 block = new _Statement(suffix, line);
             }
@@ -1794,12 +1807,12 @@ var _parse = function(reader, template, in_block, in_loop) {
             }
             if (operator === 'apply') {
                 if (!suffix) {
-                    throw new ParseError('apply missing method name on line ' + line);
+                    reader.raise_parse_error('apply missing method name on line ' + line);
                 }
                 block = new _ApplyBlock(suffix, line, block_body);
             } else if (operator === 'block') {
                 if (!suffix) {
-                    throw new ParseError('block missing name on line ' + line);
+                    reader.raise_parse_error('block missing name on line ' + line);
                 }
                 block = new _NamedBlock(suffix, block_body, template, line);
             } else {
@@ -1809,12 +1822,12 @@ var _parse = function(reader, template, in_block, in_loop) {
             continue;
         } else if (array.contains(['break', 'continue'], operator)) {
             if (!in_loop) {
-                throw new ParseError(operator + ' outside ["for", "while"] block');
+                reader.raise_parse_error(operator + ' outside ["for", "while"] block');
             }
             body.chunks.push(new _Statement(contents, line));
             continue;
         } else {
-            throw new ParseError('unknown operator: ' + operator);
+            reader.raise_parse_error('unknown operator: ' + operator);
         }
     }
 };
