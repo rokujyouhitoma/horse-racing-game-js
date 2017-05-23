@@ -214,6 +214,13 @@ describe('Template', function() {
         expect(template.generate()).toEqual('1');
     });
 
+    it('test_if_else_if', function() {
+        var template = new Template('{% if (x === 1) %}1{% else if (x === 2) %}2{% else %}3{% end %}');
+        expect(template.generate({x: 1})).toEqual('1');
+        expect(template.generate({x: 2})).toEqual('2');
+        expect(template.generate({x: 3})).toEqual('3');
+    });
+
     it('test_...?', function() {
         var loader = new DictLoader({
             "base.html": ''
