@@ -175,6 +175,22 @@ describe('Template', function() {
         expect(template.generate()).toEqual("xyz");
     });
 
+    it('test_break_continue', function() {
+        var template = new Template("{% for (var i = 0; i < 10; i++) %}" +
+                                    "  {% if (i === 2) %}" +
+                                    "    {% continue %}" +
+                                    "  {% end %}" +
+                                    "  {{ i }}" +
+                                    "  {% if (i === 6) %}" +
+                                    "    {% break %}" +
+                                    "  {% end %}" +
+                                    "{% end %}");
+        var result = template.generate();
+        // remove extraneous whitespace
+        result = result.split(" ").join("");
+        expect(result).toEqual("013456");
+    });
+
     /*
      * my test code.
      */

@@ -644,13 +644,6 @@ Basic usage looks like::
     var t = new Template("<html>{{ myvalue }}</html>");
     console.log(t.generate({myvalue:"XXX"}));
 
-//NOTICE: NO SUPPORTED.
-//Loader is a class that loads templates from a root directory and caches
-//the compiled templates::
-//
-//    var loader = template.Loader("/home/btaylor")
-//    console.log(loader.load("test.html").generate({myvalue:"XXX"}));
-
 We compile all templates to raw JavaScript. Error-reporting is currently... uh,
 interesting. Syntax for the templates::
 
@@ -661,7 +654,7 @@ interesting. Syntax for the templates::
       </head>
       <body>
         <ul>
-          {% for key in students %}
+          {% for (key in students) %}
             {% block student %}
               <li>{{ students[key].name }}</li>
             {% end %}
@@ -676,16 +669,8 @@ interesting. Syntax for the templates::
     {% block title %}A bolder title{% end %}
 
     {% block student %}
-      <li><span style="bold">{{ student.name }}</span></li>
+      <li><span style="bold">{{ students[key].name }}</span></li>
     {% end %}
-
-Unlike most other template systems, we do not put any restrictions on the
-expressions you can include in your statements. if and for blocks get
-translated exactly into Python, you can do complex expressions like::
-
-   {% for student in [p for p in people if p.student and p.age > 23] %}
-     <li>{{ escape(student.name) }}</li>
-   {% end %}
 
 Translating directly to JavaScript means you can apply functions to expressions
 easily, like the escape() function in the examples above. You can pass
@@ -758,20 +743,13 @@ and ``{%!`` if you need to include a literal ``{{`` or ``{%`` in the output.
 
 //SUPPORTED.
 ``{% for (*var* in *expr*) %}...{% end %}``
-    Same as the javascript ``for`` statement.
-
-//DEPRECATED.
-``{% from *x* import *y* %}``
-    Same as the python ``import`` statement.
+    Same as the javascript ``for`` statement.  ``{% break %}`` and
+    ``{% continue %}`` may be used inside the loop.
 
 //SUPPORTED.
-``{% if *condition* %}...{% elif *condition* %}...{% else %}...{% end %}``
+``{% if (*condition*) %}...{% else if (*condition*) %}...{% else %}...{% end %}``
     Conditional statement - outputs the first section whose condition is
-    true.  (The ``elif`` and ``else`` sections are optional)
-
-//DEPRECATED.
-``{% import *module* %}``
-    Same as the python ``import`` statement.
+    true.  (The ``else if`` and ``else`` sections are optional)
 
 //SUPPORTED.
 ``{% include *filename* %}``
@@ -780,13 +758,6 @@ and ``{%!`` if you need to include a literal ``{{`` or ``{%`` in the output.
     directive (the ``{% autoescape %}`` directive is an exception).
     Alternately, ``{% module Template(filename, **kwargs) %}`` may be used
     to include another template with an isolated namespace.
-
-//DEPRECATED.
-``{% module *expr* %}``
-    Renders a `~tornado.web.UIModule`.  The output of the ``UIModule`` is
-    not escaped::
-
-        {% module Template("foo.html", arg=42) %}
 
 //NO SUPPORTED.
 ``{% raw *expr* %}``
@@ -798,7 +769,7 @@ and ``{%!`` if you need to include a literal ``{{`` or ``{%`` in the output.
 
 //SUPPORTED.
 ``{% try %}...{% catch(e) %}...{% end %}``
-Same as the javascript ``try`` statement.
+    Same as the javascript ``try`` statement.
 
 //NO SUPPORTED.
 ``{% while *condition* %}... {% end %}``
@@ -1827,7 +1798,16 @@ var _parse = function(reader, template, in_block, in_loop) {
             continue;
         } else if (array.contains(['apply', 'block', 'try', 'if', 'for', 'while'], operator)) {
             // parse inner body recursively
-            var block_body = _parse(reader, template, operator);
+            var block_body;
+            if (array.contains(['for', 'while'], operator)) {
+                block_body = _parse(reader, template, operator, operator);
+            } else if (operator === 'apply') {
+                // apply creates a nested function so syntactically it's not
+                // in the loop.
+                block_body = _parse(reader, template, operator, null);
+            } else {
+                block_body = _parse(reader, template, operator, in_loop)
+            }
             if (operator === 'apply') {
                 if (!suffix) {
                     throw new ParseError('apply missing method name on line ' + line);
@@ -1842,6 +1822,12 @@ var _parse = function(reader, template, in_block, in_loop) {
                 block = new _ControlBlock(contents, line, block_body);
             }
             body.chunks.push(block);
+            continue;
+        } else if (array.contains(['break', 'continue'], operator)) {
+            if (!in_loop) {
+                throw new ParseError(operator + ' outside ["for", "while"] block');
+            }
+            body.chunks.push(new _Statement(contents, line));
             continue;
         } else {
             throw new ParseError('unknown operator: ' + operator);
