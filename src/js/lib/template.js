@@ -1790,7 +1790,7 @@ var _parse = function(reader, template, in_block, in_loop) {
                 // in the loop.
                 block_body = _parse(reader, template, operator, null);
             } else {
-                block_body = _parse(reader, template, operator, in_loop)
+                block_body = _parse(reader, template, operator, in_loop);
             }
             if (operator === 'apply') {
                 if (!suffix) {
