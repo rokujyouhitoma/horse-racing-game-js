@@ -1409,17 +1409,6 @@ _Expression.prototype.generate = function(writer) {
 };
 
 /**
- * @param {string} expression .
- * @param {number} line .
- * @constructor
- * @extends {_Expression}
- */
-var _Module = function(expression, line) {
-    throw new NotImplementedError();
-};
-inherits(_Module, _Expression);
-
-/**
  * @param {string} value .
  * @param {number} line .
  * @constructor
@@ -1752,12 +1741,9 @@ var _parse = function(reader, template, in_block, in_loop) {
             'extends',
             'include',
             'set',
-//            'import',
-//            'from',
             'comment',
 //            'autoescape',
 //            'raw',
-//            'module'
         ], operator)) {
             if (operator === 'comment') {
                 continue;
@@ -1768,9 +1754,6 @@ var _parse = function(reader, template, in_block, in_loop) {
                     throw new ParseError('extends missing file path on line ' +line);
                 }
                 block = new _ExtendsBlock(suffix);
-            }
-            else if (array.contains(['import', 'from'], operator)) {
-                throw new NotImplementedError('xxx: import or from');
             }
             else if (operator === 'include') {
                 suffix = suffix.replace(/[\"\']/g, ''); //TODO: xxx
@@ -1790,9 +1773,6 @@ var _parse = function(reader, template, in_block, in_loop) {
             }
             else if (operator === 'raw') {
                 block = new _Expression(suffix, line, true);
-            }
-            else if (operator === 'module') {
-                block = new _Module(suffix, line);
             }
             body.chunks.push(block);
             continue;

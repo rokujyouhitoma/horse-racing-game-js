@@ -354,6 +354,11 @@ SceneDirectorはSceneの
  - [野良C++erの雑記帳 2010-09-26 定量的な考え方は割と工学の基礎。今回は乱暴だけど。 Xorshift アルゴリズムの偏りを除去するのに必要な「読み飛ばし」回数を見積もる](http://d.hatena.ne.jp/gintenlabo/20100926/1285521107)
  - [野良C++erの雑記帳 2010-09-28 いくらなんでも乱暴すぎた。てか記事にするなら実際に試せと（ｒｙ Xorshift の初期値読み飛ばしについて検証してみた。](http://d.hatena.ne.jp/gintenlabo/20100928/1285702435)
 
+### Template
+
+ - Tornado(Python)のtornado.templateをJavaScriptに移植
+ - import, from, module構文はJavaScriptで不要、そぐわないのでサポート範囲から外す
+
 # 用語集
 
 一部競馬用語から借用。
