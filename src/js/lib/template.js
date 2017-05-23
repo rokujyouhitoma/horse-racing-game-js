@@ -1754,7 +1754,7 @@ var _parse = function(reader, template, in_block, in_loop) {
         }
         var partition = contents.split(' ');
         var operator = partition.shift();
-        var suffix = partition.join('');
+        var suffix = partition.join(' ');
         // Intermediate ('else', 'elif', etc) blocks
         var intermediate_blocks = {
             'else': ['if', 'for', 'while'],
@@ -1813,9 +1813,7 @@ var _parse = function(reader, template, in_block, in_loop) {
                 if (!suffix) {
                     throw new ParseError('set missing statement on line ' + line);
                 }
-                //TODO: xxx
-                //block = new _Statement(suffix, line);
-                block = new _Statement(partition.join(' '), line);
+                block = new _Statement(suffix, line);
             }
             else if (operator === 'autoescape') {
                 throw new NotImplementedError('xxx: autoescape');
