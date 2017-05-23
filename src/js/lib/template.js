@@ -906,7 +906,14 @@ Template.prototype.generate = function(kwargs) {
     kwargs = kwargs ? kwargs : {};
     var namespace = {
         'escape': escape_.xhtml_escape,
-        'xhtml_escape': escape_.xhtml_escape
+        'xhtml_escape': escape_.xhtml_escape,
+        'macro_variables': function(obj){
+            var buf = [];
+            for(var key in obj){
+                buf.push('var ' + key + ' = ' + 'namespace["' + key + '"];');
+            }
+            return buf.join("");
+        },
     };
     for (var key in this.namespace) {
         namespace[key] = this.namespace[key];
@@ -1151,8 +1158,7 @@ inherits(_File, _Node);
 _File.prototype.generate = function(writer) {
     writer.write_line('return function(namespace){', this.line);
     statement.with_stmt(writer.indent(), function(){
-        //TODO: bugs
-        writer.write_line('for(var key in namespace){this[key]=namespace[key];}', this.line);
+        writer.write_line('eval(namespace.macro_variables(namespace));', this.line); //TODO: suggest that not use eval.
         writer.write_line('var _buffer = [];', this.line);
         this.body.generate(writer);
         writer.write_line('return _buffer.join("");', this.line);
