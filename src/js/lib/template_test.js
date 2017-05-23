@@ -160,6 +160,14 @@ describe('Template', function() {
         expect(template.generate()).toEqual("");
     });
 
+    it('test_try', function() {
+        var template = new Template("{% try %}try{% set y = 1/x; %}" +
+                                    "{% catch(e) %}-catch" +
+                                    "{% end %}-end");
+        expect(template.generate({x:1})).toEqual("try-end");
+        expect(template.generate({})).toEqual("try-catch-end");
+    });
+
     it('test_comment_directive', function() {
         var template = new Template("{% comment this is comment. %}");
         expect(template.generate()).toEqual("");

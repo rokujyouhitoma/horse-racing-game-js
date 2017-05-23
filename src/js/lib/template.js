@@ -796,9 +796,9 @@ and ``{%!`` if you need to include a literal ``{{`` or ``{%`` in the output.
 ``{% set *x* = *y* %}``
     Sets a local variable.
 
-//NO SUPPORTED.
-``{% try %}...{% except %}...{% finally %}...{% end %}``
-    Same as the python ``try`` statement.
+//SUPPORTED.
+``{% try %}...{% catch(e) %}...{% end %}``
+Same as the javascript ``try`` statement.
 
 //NO SUPPORTED.
 ``{% while *condition* %}... {% end %}``
@@ -1759,8 +1759,7 @@ var _parse = function(reader, template, in_block, in_loop) {
         var intermediate_blocks = {
             'else': ['if', 'for', 'while'],
 //            'elif': ['if'],
-//            'except': ['try'],
-//            'finally': ['try']
+            'catch(e)': ['try'],
         };
         var allowed_parents = object.get(intermediate_blocks, operator);
         if (allowed_parents !== null) {
