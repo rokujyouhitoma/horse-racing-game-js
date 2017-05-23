@@ -758,7 +758,7 @@ and ``{%!`` if you need to include a literal ``{{`` or ``{%`` in the output.
 
 //SUPPORTED.
 ``{% for (*var* in *expr*) %}...{% end %}``
-    Same as the python ``for`` statement.
+    Same as the javascript ``for`` statement.
 
 //DEPRECATED.
 ``{% from *x* import *y* %}``
