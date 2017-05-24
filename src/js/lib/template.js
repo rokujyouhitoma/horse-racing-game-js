@@ -753,7 +753,13 @@ and ``{%!`` if you need to include a literal ``{{`` or ``{%`` in the output.
     Same as the javascript ``try`` statement.
 
 ``{% while (*condition*) %}... {% end %}``
-    Same as the python ``while`` statement.
+    Same as the javascript ``while`` statement. ``{% break %}`` and
+    ``{% continue %}`` may be used inside the loop.
+
+``{% whitespace *mode* %}``
+    Sets the whitespace mode for the remainder of the current file
+    (or until the next ``{% whitespace %}`` directive). See
+    `filter_whitespace` for available options.
 */
 
 /**
@@ -800,8 +806,34 @@ escape_.native_str = function(value) {
 };
 
 /** @const */ var _DEFAULT_AUTOESCAPE = 'xhtml_escape';
-//var _UNSET = new Object();
 var _UNSET = {};
+
+/**
+ * Transform whitespace in ``text`` according to ``mode``.
+ *  Available modes are:
+ *  * ``all``: Return all whitespace unmodified.
+ *  * ``single``: Collapse consecutive whitespace with a single whitespace
+ *    character, preserving newlines.
+ *  * ``oneline``: Collapse all runs of whitespace into a single space
+ *    character, removing all newlines in the process.
+ * @param {string} mode .
+ * @param {string} text .
+ * @return {string} .
+ */
+var filter_whitespace = function(mode, text) {
+    if (mode === 'all') {
+        return text;
+    } else if (mode === 'single') {
+        text = text.replace(/([\t ]+)/g, ' ', text);
+        text = text.replace(/(\s*\n\s*)/g, '\n', text);
+        return text;
+    } else if (mode === 'oneline') {
+        text = text.replace(/(\s+)/g, ' ', text);
+        return text;
+    } else {
+        throw new Error("invalid whitespace mode " + mode);
+    }
+};
 
 /**
  * A compiled template.
@@ -810,21 +842,31 @@ var _UNSET = {};
  * @param {string} template_string .
  * @param {string=} name .
  * @param {BaseLoader=} loader .
- * @param {?boolean=} compress_whitespace .
  * @param {Object=} autoescape .
+ * @param {?string=} whitespace .
  * @constructor
  * @extends {Object}
  */
-var Template = function(template_string, name, loader, compress_whitespace, autoescape) {
+var Template = function(template_string, name, loader, autoescape, whitespace) {
     name = name ? name : '<string>';
     loader = loader ? loader : null;
-    compress_whitespace = compress_whitespace ? compress_whitespace : null;
     autoescape = autoescape ? autoescape : _UNSET;
+    whitespace = whitespace ? whitespace : null;
     this.name = name;
-    if (compress_whitespace === null) {
-        compress_whitespace = string.endswith(name, '.html') ||
-            string.endswith(name, '.js');
+    if (!whitespace) {
+        if(loader && loader.whitespace){
+            whitespace = loader.whitespace;
+        } else {
+            // Whitespace defaults by filename.
+            if (string.endswith(name, '.html') || string.endswith(name, '.js')) {
+                whitespace = 'single';
+            } else {
+                whitespace = 'all';
+            }
+        }
     }
+    // Validate the whitespace setting.
+    filter_whitespace(whitespace, '');
     if (autoescape !== _UNSET) {
         this.autoescape = autoescape;
     } else if (loader) {
@@ -833,11 +875,11 @@ var Template = function(template_string, name, loader, compress_whitespace, auto
         this.autoescape = _DEFAULT_AUTOESCAPE;
     }
     this.namespace = loader ? loader.namespace : {};
-    var reader = new _TemplateReader(name, escape_.native_str(template_string));
+    var reader = new _TemplateReader(name, escape_.native_str(template_string), whitespace);
     var parsed = _parse(reader, this);
     this.file = new _File(parsed);
     /** @type {string} */
-    this.code = this._generate_js(loader, compress_whitespace);
+    this.code = this._generate_js(loader);
     try {
         this.compiled = new Function(this.code);
     } catch (e) {
@@ -884,11 +926,10 @@ Template.prototype['generate'] = Template.prototype.generate;
 
 /**
  * @param {BaseLoader} loader .
- * @param {boolean} compress_whitespace .
  * @return {string} .
  * @protected
  */
-Template.prototype._generate_js = function(loader, compress_whitespace) {
+Template.prototype._generate_js = function(loader) {
     /** @type {StringIO} } */
     var buffer = new StringIO();
     // named_blocks maps from names to _NamedBlock objects
@@ -900,7 +941,7 @@ Template.prototype._generate_js = function(loader, compress_whitespace) {
         ancestor.find_named_blocks(loader, named_blocks);
     }
     this.file.find_named_blocks(loader, named_blocks);
-    var writer = new _CodeWriter(buffer, named_blocks, loader, this, compress_whitespace);
+    var writer = new _CodeWriter(buffer, named_blocks, loader, this);
     ancestors[0].generate(writer);
     return buffer.getvalue();
 };
@@ -928,23 +969,27 @@ Template.prototype._get_ancestors = function(loader) {
 
 /**
  * Base class for template loaders.
+ *
+ * Creates a template loader.
+ *
+ * root_directory may be the empty string if this loader does not
+ * use the filesystem.
+ *
+ * autoescape must be either None or a string naming a function
+ * in the template namespace, such as "xhtml_escape".
  * @param {string} autoescape .
  * @param {Object} namespace .
+ * @param {?string} whitespace .
  * @constructor
  * @extends {Object}
  */
-var BaseLoader = function(autoescape, namespace) {
-    //Creates a template loader.
-    //
-    //root_directory may be the empty string if this loader does not
-    //use the filesystem.
-    //
-    //autoescape must be either None or a string naming a function
-    //in the template namespace, such as "xhtml_escape".
+var BaseLoader = function(autoescape, namespace, whitespace) {
     autoescape = autoescape ? autoescape : _DEFAULT_AUTOESCAPE;
     namespace = namespace ? namespace : null;
+    whitespace = whitespace ? whitespace : null;
     this.autoescape = autoescape;
     this.namespace = namespace;
+    this.whitespace = whitespace;
     this.templates = {};
 };
 inherits(BaseLoader, Object);
@@ -1393,12 +1438,14 @@ _Expression.prototype.generate = function(writer) {
 /**
  * @param {string} value .
  * @param {number} line .
+ * @param {string} whitespace .
  * @constructor
  * @extends {_Node}
  */
-var _Text = function(value, line) {
+var _Text = function(value, line, whitespace) {
     this.value = value;
     this.line = line;
+    this.whitespace = whitespace;
 };
 inherits(_Text, _Node);
 
@@ -1411,9 +1458,8 @@ _Text.prototype.generate = function(writer) {
     // Compress lots of white space to a single character. If the whitespace
     // breaks a line, have it continue to break a line, but just with a
     // single \n character
-    if (writer.compress_whitespace && !(string.contains(value, '<pre>'))) {
-        value = value.replace(/([\t ]+)/g, ' ', value);
-        value = value.replace(/(\s*\n\s*)/g, '\n', value);
+    if (!(string.contains(value, '<pre>'))) {
+        value = filter_whitespace(this.whitespace, value);
     }
     //JavaScript specific implements.
     if (string.contains(value, '\n')) {
@@ -1458,16 +1504,14 @@ ParseError.prototype.toString = function(){
  * @param {Object} named_blocks .
  * @param {BaseLoader} loader .
  * @param {Template} current_template .
- * @param {boolean} compress_whitespace .
  * @constructor
  * @extends {Object}
  */
-var _CodeWriter = function(file, named_blocks, loader, current_template, compress_whitespace) {
+var _CodeWriter = function(file, named_blocks, loader, current_template) {
     this.file = file;
     this.named_blocks = named_blocks;
     this.loader = loader;
     this.current_template = current_template;
-    this.compress_whitespace = compress_whitespace;
     this.apply_counter = 0;
     this._indent = 0;
 };
@@ -1517,12 +1561,14 @@ _CodeWriter.prototype.write_line = function(line, line_number, indent) {
 /**
  * @param {string} name Name.
  * @param {string} text Text.
+ * @param {string} whitespace .
  * @constructor
  * @extends {Object}
  */
-var _TemplateReader = function(name, text) {
+var _TemplateReader = function(name, text, whitespace) {
     this.name = name;
     this.text = text;
+    this.whitespace = whitespace;
     this.line = 1;
     this.pos = 0;
 };
@@ -1637,7 +1683,7 @@ var _parse = function(reader, template, in_block, in_loop) {
                 if (in_block) {
                     reader.raise_parse_error('Missing {%% end %%} block for ' + in_block);
                 }
-                body.chunks.push(new _Text(reader.consume(), reader.line));
+                body.chunks.push(new _Text(reader.consume(), reader.line, reader.whitespace));
                 return body;
             }
             // If the first curly brace is not the start of a special token,
@@ -1659,7 +1705,7 @@ var _parse = function(reader, template, in_block, in_loop) {
         }
         // Append any text before the special token
         if (curly > 0) {
-            body.chunks.push(new _Text(reader.consume(curly), reader.line));
+            body.chunks.push(new _Text(reader.consume(curly), reader.line, reader.whitespace));
         }
         var start_brace = reader.consume(2);
         var line = reader.line;
@@ -1669,7 +1715,7 @@ var _parse = function(reader, template, in_block, in_loop) {
         // which also use double braces.
         if (reader.remaining() && reader.__getitem__(0) === '!') {
             reader.consume(1);
-            body.chunks.push(new _Text(start_brace, line));
+            body.chunks.push(new _Text(start_brace, line, reader.whitespace));
             continue;
         }
         // Comment
@@ -1737,6 +1783,7 @@ var _parse = function(reader, template, in_block, in_loop) {
             'set',
             'comment',
             'autoescape',
+            'whitespace',
             'raw',
         ], operator)) {
             if (operator === 'comment') {
@@ -1768,6 +1815,13 @@ var _parse = function(reader, template, in_block, in_loop) {
                     fn = null;
                 }
                 template.autoescape = fn;
+                continue;
+            }
+            else if (operator === 'whitespace') {
+                var mode = string.strip(suffix);
+                // Validate the selected mode
+                filter_whitespace(mode, '');
+                reader.whitespace = mode;
                 continue;
             }
             else if (operator === 'raw') {

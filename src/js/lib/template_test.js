@@ -221,6 +221,34 @@ describe('AutoEscapeTest', function() {
         expect(render("raw_expression.html")).toEqual("expr: &lt;&gt;&amp;&quot;\n" +
                                                       "raw: <>&\"");
     });
+
+    it('test_whitespace_by_loader', function(){
+        var templates = {
+            "foo.html": "\t\tfoo\n\n",
+            "bar.txt": "\t\tbar\n\n",
+        };
+        var loader = new DictLoader(templates, null, null, 'all');
+        expect(loader.load("foo.html").generate()).toEqual('\t\tfoo\n\n');
+        expect(loader.load("bar.txt").generate()).toEqual('\t\tbar\n\n');
+        var loader = new DictLoader(templates, null, null, 'single');
+        expect(loader.load("foo.html").generate()).toEqual(' foo\n');
+        expect(loader.load("bar.txt").generate()).toEqual(' bar\n');
+        var loader = new DictLoader(templates, null, null, 'oneline');
+        expect(loader.load("foo.html").generate()).toEqual(' foo ');
+        expect(loader.load("bar.txt").generate()).toEqual(' bar ');
+    });
+
+    it('test_whitespace_directive', function(){
+        var loader = new DictLoader({
+            "foo.html": "{% whitespace oneline %}\n"
+                + "{% for (var i=0; i < 3; i++) %}\n"
+                + "  {{ i }}\n"
+                + "{% end %}\n"
+                + "{% whitespace all %}\n"
+                + "    pre\tformatted\n"
+        });
+        expect(loader.load("foo.html").generate()).toEqual('  0  1  2  \n    pre\tformatted\n');
+    });
 });
 
 describe('Template', function() {
