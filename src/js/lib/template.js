@@ -788,28 +788,29 @@ var escape_ = {};
 /**
  * @type {Array.<string>}
  */
-escape_['_XHTML_ESCAPE'] = ['&', '<', '>', '"'];
+escape_['_XHTML_ESCAPE'] = ['&', '<', '>', '"', '\''];
 
 /**
  * @enum {string}
  */
-escape_['_XHTML_ESCAPEDICT'] = {'&': '&amp;',
-                                '<': '&lt;',
-                                '>': '&gt;',
-                                '"': '&quot;'};
+escape_['_XHTML_ESCAPE_DICT'] = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    '\'': '&#39;',
+};
 
 /**
  * @param {string} value Target escape value.
  * @return {string} escaped value.
  */
 escape_.xhtml_escape = function(value) {
-    var match;
-    var chr;
     var length = escape_['_XHTML_ESCAPE'].length;
     for (var i = 0; i < length; ++i) {
-        chr = escape_['_XHTML_ESCAPE'][i];
-        match = new RegExp(chr, 'g');
-        value = value.replace(match, escape_['_XHTML_ESCAPEDICT'][chr]);
+        var chr = escape_['_XHTML_ESCAPE'][i];
+        var match = new RegExp(chr, 'g');
+        value = value.replace(match, escape_['_XHTML_ESCAPE_DICT'][chr]);
     }
     return value;
 };
@@ -851,6 +852,18 @@ var filter_whitespace = function(mode, text) {
     } else {
         throw new Error("invalid whitespace mode " + mode);
     }
+};
+
+/**
+ * @param {Object} obj .
+ * @return {string} .
+ */
+var js_variables = function(obj){
+    var buf = [];
+    for(var key in obj){
+        buf.push('var ' + key + ' = ' + 'namespace["' + key + '"];');
+    }
+    return buf.join("");
 };
 
 /**
@@ -917,13 +930,6 @@ Template.prototype.generate = function(kwargs) {
     var namespace = {
         'escape': escape_.xhtml_escape,
         'xhtml_escape': escape_.xhtml_escape,
-        'macro_variables': function(obj){
-            var buf = [];
-            for(var key in obj){
-                buf.push('var ' + key + ' = ' + 'namespace["' + key + '"];');
-            }
-            return buf.join("");
-        },
     };
     for (var key in this.namespace) {
         namespace[key] = this.namespace[key];
@@ -1171,7 +1177,7 @@ inherits(_File, _Node);
 _File.prototype.generate = function(writer) {
     writer.write_line('return function(namespace){', this.line);
     statement.with_stmt(writer.indent(), function(){
-        writer.write_line('eval(namespace.macro_variables(namespace));', this.line); //TODO: suggest that not use eval.
+        writer.write_line('eval(js_variables(namespace));', this.line); //TODO: suggest that not use eval.
         writer.write_line('return function(){', this.line);
         statement.with_stmt(writer.indent(), function(){
             writer.write_line('var _buffer = [];', this.line);
