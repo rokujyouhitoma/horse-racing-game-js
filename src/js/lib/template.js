@@ -689,7 +689,6 @@ to the current autoescape setting and inserted into the output.  Other
 template directives use ``{% %}``.  These tags may be escaped as ``{{!``
 and ``{%!`` if you need to include a literal ``{{`` or ``{%`` in the output.
 
-//SUPPORTED.
 ``{% apply *function* %}...{% end %}``
     Applies a function to the output of all template code between ``apply``
     and ``end``::
@@ -706,7 +705,6 @@ and ``{%!`` if you need to include a literal ``{{`` or ``{%`` in the output.
         {% autoescape xhtml_escape %}
         {% autoescape None %}
 
-//SUPPORTED.
 ``{% block *name* %}...{% end %}``
     Indicates a named, replaceable block for use with ``{% extends %}``.
     Blocks in the parent template will be replaced with the contents of
@@ -719,30 +717,25 @@ and ``{%!`` if you need to include a literal ``{{`` or ``{%`` in the output.
         {% extends "base.html" %}
         {% block title %}My page title{% end %}
 
-//SUPPORTED.
 ``{% comment ... %}``
     A comment which will be removed from the template output.  Note that
     there is no ``{% end %}`` tag; the comment goes from the word ``comment``
     to the closing ``%}`` tag.
 
-//SUPPORTED.
 ``{% extends *filename* %}``
     Inherit from another template.  Templates that use ``extends`` should
     contain one or more ``block`` tags to replace content from the parent
     template.  Anything in the child template not contained in a ``block``
     tag will be ignored.  For an example, see the ``{% block %}`` tag.
 
-//SUPPORTED.
 ``{% for (*var* in *expr*) %}...{% end %}``
     Same as the javascript ``for`` statement.  ``{% break %}`` and
     ``{% continue %}`` may be used inside the loop.
 
-//SUPPORTED.
 ``{% if (*condition*) %}...{% else if (*condition*) %}...{% else %}...{% end %}``
     Conditional statement - outputs the first section whose condition is
     true.  (The ``else if`` and ``else`` sections are optional)
 
-//SUPPORTED.
 ``{% include *filename* %}``
     Includes another template file.  The included file can see all the local
     variables as if it were copied directly to the point of the ``include``
@@ -750,15 +743,12 @@ and ``{%!`` if you need to include a literal ``{{`` or ``{%`` in the output.
     Alternately, ``{% module Template(filename, **kwargs) %}`` may be used
     to include another template with an isolated namespace.
 
-//NO SUPPORTED.
 ``{% raw *expr* %}``
     Outputs the result of the given expression without autoescaping.
 
-//SUPPORTED.
 ``{% set var *x* = *y* %}``
     Sets a local variable.
 
-//SUPPORTED.
 ``{% try %}...{% catch(e) %}...{% end %}``
     Same as the javascript ``try`` statement.
 
@@ -1377,15 +1367,15 @@ _Statement.prototype.generate = function(writer) {
 /**
  * @param {string} expression .
  * @param {number} line .
- * @param {?boolean=} row .
+ * @param {?boolean=} raw .
  * @constructor
  * @extends {_Node}
  */
-var _Expression = function(expression, line, row) {
-    row = row ? row : false;
+var _Expression = function(expression, line, raw) {
+    raw = raw ? raw : false;
     this.expression = expression;
     this.line = line;
-    this.row = row;
+    this.raw = raw;
 };
 inherits(_Expression, _Node);
 
@@ -1395,6 +1385,9 @@ inherits(_Expression, _Node);
  */
 _Expression.prototype.generate = function(writer) {
     writer.write_line('var _tmp = ' + this.expression + ';', this.line);
+    if(!this.raw && (writer.current_template.autoescape != null)) {
+        writer.write_line('_tmp = ' + writer.current_template.autoescape + '(String(_tmp));', this.line);
+    }
     writer.write_line('_buffer.push(_tmp);', this.line);
 };
 
@@ -1744,8 +1737,8 @@ var _parse = function(reader, template, in_block, in_loop) {
             'include',
             'set',
             'comment',
-//            'autoescape',
-//            'raw',
+            'autoescape',
+            'raw',
         ], operator)) {
             if (operator === 'comment') {
                 continue;
@@ -1771,7 +1764,12 @@ var _parse = function(reader, template, in_block, in_loop) {
                 block = new _Statement(suffix, line);
             }
             else if (operator === 'autoescape') {
-                throw new NotImplementedError('xxx: autoescape');
+                var fn = string.strip(suffix);
+                if (fn === 'null') {
+                    fn = null;
+                }
+                template.autoescape = fn;
+                continue;
             }
             else if (operator === 'raw') {
                 block = new _Expression(suffix, line, true);

@@ -31,7 +31,7 @@ var describe = function(dname, func){
     func.call(this);
 };
 
-describe('Template', function() {
+describe('TemplateTest', function() {
     it('test_simple', function() {
         var template = new Template('Hello {{ name}}!');
         expect(template.generate({name:'Ben'})).toEqual('Hello Ben!');
@@ -204,7 +204,26 @@ describe('Template', function() {
         };
         expect(isParseError('{% break %}')).toBeTruthy();
     });
-    
+});
+
+describe('AutoEscapeTest', function() {
+    var templates = {
+        "raw_expression.html": "{% autoescape xhtml_escape %}" +
+            "expr: {{ name }}\n" +
+            "raw: {% raw name %}",
+    };
+
+    it('test_raw_expression', function() {
+        var loader = new DictLoader(templates);
+        function render(name) {
+            return loader.load(name).generate({name:'<>&"'})
+        }
+        expect(render("raw_expression.html")).toEqual("expr: &lt;&gt;&amp;&quot;\n" +
+                                                      "raw: <>&\"");
+    });
+});
+
+describe('Template', function() {
     /*
      * my test code.
      */

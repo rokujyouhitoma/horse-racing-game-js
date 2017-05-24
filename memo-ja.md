@@ -77,6 +77,10 @@
 
 # History
 
+## 2017.5.24
+
+ - Templateでraw構文をサポート
+
 ## 2017.5.23
 
  - Templateでapplyブロックをサポート
