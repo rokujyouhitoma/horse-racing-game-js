@@ -1572,7 +1572,7 @@ _CodeWriter.prototype.write_line = function(line, line_number, indent) {
     if(indent == null){
         indent = this._indent;
     }
-    var line_comment = ' /*' + this.current_template.name + ':' + line_number + '*/';
+    var line_comment = ' // ' + this.current_template.name + ':' + line_number;
     this.file.write(string.__mul__('\t', indent) + line + line_comment + '\n');
 };
 
