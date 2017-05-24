@@ -1,11 +1,12 @@
 "use strict";
 
 /*
- * Porting from tornado/template.py.
+ * Porting from tornado/template.py([Tornado](https://github.com/tornadoweb/tornado)).
  * Copyright 2011-2017 Ike Tohru<ike.tohru@gmail.com>
  *
- * Original codes(tornado/template.py by Tornado project) are using Python and licensed under the Apache License, Version 2.0
- * Please see below. There are quoted by tornado/template.py file.
+ * NOTICE:
+ *  Original codes(tornado/template.py by Tornado) are using Python and licensed under the Apache License, Version 2.0
+ *  Please see below. There are quoted by tornado/template.py file.
 #
 # Copyright 2009 Facebook
 #
