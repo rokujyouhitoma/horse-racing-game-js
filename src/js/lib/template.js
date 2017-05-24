@@ -752,8 +752,7 @@ and ``{%!`` if you need to include a literal ``{{`` or ``{%`` in the output.
 ``{% try %}...{% catch(e) %}...{% end %}``
     Same as the javascript ``try`` statement.
 
-//NO SUPPORTED.
-``{% while *condition* %}... {% end %}``
+``{% while (*condition*) %}... {% end %}``
     Same as the python ``while`` statement.
 */
 

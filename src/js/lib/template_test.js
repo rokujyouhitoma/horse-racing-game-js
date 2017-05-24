@@ -240,6 +240,16 @@ describe('Template', function() {
         expect(template.generate({x: 3})).toEqual('3');
     });
 
+    it('test_while', function() {
+        var template = new Template('{% set var i = 0; %}' +
+                                    '{% while (i < students.length) %}' +
+                                    '<bold>{{ students[i].name }}</bold>' +
+                                    '{% set i += 1; %}' +
+                                    '{% end %}');
+        var students = [{name: 'Ben'}, {name: 'Armin'}];
+        expect(template.generate({students: students})).toEqual('<bold>Ben</bold><bold>Armin</bold>');
+    });
+
     it('test_...?', function() {
         var loader = new DictLoader({
             "base.html": ''
