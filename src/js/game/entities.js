@@ -39,7 +39,9 @@ var Race = function(model){
     var racetrack = new Racetrack(master.Get("HorseFigure").map(function(row){
         return new HorseFigure(Game.Model("HorseFigure").Set(row));
     }), model["len"]);
-    var oddsTable = new OddsTable();
+    var oddsTable = new OddsTable(master.Get("Odds").map(function(row){
+        return new Odds(Game.Model("Odds").Set(row));
+    }));
     this.gameBoard = new GameBoard(this, racetrack, oddsTable);
 };
 

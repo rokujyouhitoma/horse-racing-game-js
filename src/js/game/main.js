@@ -173,7 +173,7 @@ Game.Entity = function(name, model){
         "RankCard": RankCard,
         "DashCard": DashCard,
         "PlayCard": PlayCard,
-        //TODO: xxx
+        "Odds": Odds,
     }[name])(model);
 };
 
@@ -1006,9 +1006,33 @@ var GameBoard = function(race, racetrack, oddsTable){
 };
 
 /**
+ * @param {Odds} odds .
  * @constructor
  */
-var OddsTable = function(){};
+var OddsEntry = function(odds){
+    this.odds = odds;
+    this.bets = [];
+};
+
+/**
+ * @param {Array<Odds>} oddses .
+ * @constructor
+ */
+var OddsTable = function(oddses){
+    var table = {};
+    var length = oddses.length;
+    for (var i = 0; i < length; i++){
+        var odds = oddses[i];
+        var a = odds.model["first_id"];
+        var b = odds.model["second_id"];
+        var o = odds.model["odds"];
+        if (!table[a]) {
+            table[a] = {};
+        }
+        table[a][b] = new OddsEntry(o);
+    }
+    console.log(table);
+};
 
 /**
  * @constructor
@@ -1328,7 +1352,8 @@ RaceDirector.prototype.OnFinishedRace = function(e){
         return a - b;
     });
     var oddses = Game.Locator.locate(MasterData).Get("Odds").map(function(row){
-        return new Odds(Game.Model("Odds").Set(row));
+        var model = Game.Model("Odds").Set(row);
+        return Game.Entity("Odds", model);
     }).filter(function(odds){
         return odds.model["first_id"] == order[0] && odds.model["second_id"] == order[1];
     });
