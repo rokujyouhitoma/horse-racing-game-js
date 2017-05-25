@@ -20,8 +20,7 @@
  - [x] クラスを一度だけインスタンス化して、格納する仕組み(Locator)
  - [x] モデルオブジェクト(Model)
  - [x] データ集合に対するFindById系のクエリシステム => Repositoryオブジェクトで代用(Repository)
- - [x] レンダラーオブジェクト
- - [ ] レンダラーオブジェクトがどうしてもモデル、ディレクターオブジェクトと密結合してしまうので、疎結合に
+ - [x] レンダラーオブジェクトがどうしてもモデル、ディレクターオブジェクトと密結合してしまうので、疎結合に
  - [x] マスターデータのリレーションチェッカー(RelationshipChecker)
  - [ ] マスターデータのバリューチェッカー(ValueChecker)
  - [x] Utility/Fisher–Yates shuffle(Utility.FisherYatesShuffle)
