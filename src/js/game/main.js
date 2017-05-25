@@ -1006,11 +1006,29 @@ var GameBoard = function(race, racetrack, oddsTable){
 };
 
 /**
+ * Game Player.
+ * @constructor
+ */
+var GamePlayer = function(){
+};
+
+/**
+ * @constructor
+ */
+var Bet = function(){
+    /** @type {number} */
+    this.coin = 0;
+    /** @type {GamePlayer} */
+    this.player = null;
+};
+
+/**
  * @param {Odds} odds .
  * @constructor
  */
 var OddsEntry = function(odds){
     this.odds = odds;
+    /** @type {Array<Bet>} */
     this.bets = [];
 };
 
@@ -1031,7 +1049,6 @@ var OddsTable = function(oddses){
         }
         table[a][b] = new OddsEntry(o);
     }
-    console.log(table);
 };
 
 /**
