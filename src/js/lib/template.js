@@ -21,6 +21,10 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+ *
+ * WARNING, KNOWN ISSUE:
+ *   Curly braces: ``{{ ... }}`` can access to all object.
+ *   e.g. {{this}} can access to this object (almost, global object like window)
  */
 
 /**
