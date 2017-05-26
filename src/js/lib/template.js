@@ -362,7 +362,7 @@ posixpath.dirname = function(p) {
 a> modules.
  */
 
-/** @const */ var EINVAL = 22;
+const EINVAL = 22;
 
 /**
  * @param {boolean} closed .
