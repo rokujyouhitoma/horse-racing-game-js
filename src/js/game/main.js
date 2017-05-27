@@ -1037,7 +1037,7 @@ var OddsEntry = function(odds){
  * @constructor
  */
 var OddsTable = function(oddses){
-    var table = {};
+    var table = [null];
     var length = oddses.length;
     for (var i = 0; i < length; i++){
         var odds = oddses[i];
@@ -1045,10 +1045,11 @@ var OddsTable = function(oddses){
         var b = odds.model["second_id"];
         var o = odds.model["odds"];
         if (!table[a]) {
-            table[a] = {};
+            table[a] = [null];
         }
         table[a][b] = new OddsEntry(o);
     }
+    this.table = table;
 };
 
 /**
@@ -1428,6 +1429,7 @@ var GameScene = function(name, opt_content){
                 new MenuLayer(scene),
 //                new DebugButtonLayer(scene),
                 new RacetrackLayer(scene),
+                new OddsTableLayer(scene),
                 new LogMessageLayer(scene),
                 new DebugMenuLayer(scene),
                 new FPSLayer(scene),
