@@ -1709,7 +1709,7 @@ var _parse = function(reader, template, in_block, in_loop) {
             if (curly === -1 || curly + 1 === reader.remaining()) {
                 // EOF
                 if (in_block) {
-                    reader.raise_parse_error('Missing {%% end %%} block for ' + in_block);
+                    reader.raise_parse_error('Missing {% end %} block for ' + in_block);
                 }
                 body.chunks.push(new _Text(reader.consume(), reader.line, reader.whitespace));
                 return body;
@@ -1774,12 +1774,12 @@ var _parse = function(reader, template, in_block, in_loop) {
         assert(start_brace == '{%', start_brace);
         end = reader.find('%}');
         if (end === -1 || reader.find('\n', 0, end) !== -1) {
-            reader.raise_parse_error('Missing end block %%} on line ' + line);
+            reader.raise_parse_error('Missing end block %} on line ' + line);
         }
         contents = string.strip(reader.consume(end));
         reader.consume(2);
         if (contents === '') {
-            reader.raise_parse_error('Empty block tag ({%% %%}) on line ' + line);
+            reader.raise_parse_error('Empty block tag ({% %}) on line ' + line);
         }
         var partition = contents.split(' ');
         var operator = partition.shift();
@@ -1802,7 +1802,7 @@ var _parse = function(reader, template, in_block, in_loop) {
         // End tag
         } else if (operator === 'end') {
             if (!in_block) {
-                reader.raise_parse_error('Extra {%% end %%} block on line ' + line);
+                reader.raise_parse_error('Extra {% end %} block on line ' + line);
             }
             return body;
         } else if (array.contains([
