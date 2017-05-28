@@ -1127,7 +1127,11 @@ DictLoader.prototype.resolve_path = function(name, parent_path) {
  * @override
  */
 DictLoader.prototype._create_template = function(name) {
-    return new Template(this.dict[name], name, this);
+    if (!(name in this.dict)){
+        throw new Error("Dict loader can not load template. name: " + name);
+    }
+    var template_string = this.dict[name];
+    return new Template(template_string, name, this);
 };
 
 /**
