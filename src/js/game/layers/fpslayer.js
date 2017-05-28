@@ -22,13 +22,9 @@ var FPSLayer = function(scene){
  * @return {DocumentFragment}
  */
 FPSLayer.prototype.Render = function(){
-    var fragment = document.createDocumentFragment();
-    var section = document.createElement("section");
-    section.className = "fps";
-    var p = document.createElement("p");
-    section.appendChild(p);
-    fragment.appendChild(section);
-    this.dom = section;
+    var templates = Game.Locator.locate(Templates);
+    var fragment = templates.Generate("fpslayer", {});
+    this.dom = fragment.children[0];
     return fragment;
 };
 
