@@ -934,6 +934,7 @@ Template.prototype.generate = function(kwargs) {
     var namespace = {
         'escape': escape_.xhtml_escape,
         'xhtml_escape': escape_.xhtml_escape,
+        'js_variables': js_variables,
     };
     for (var key in this.namespace) {
         namespace[key] = this.namespace[key];
@@ -1185,7 +1186,7 @@ inherits(_File, _Node);
 _File.prototype.generate = function(writer) {
     writer.write_line('return function(namespace){', this.line);
     statement.with_stmt(writer.indent(), function(){
-        writer.write_line('eval(js_variables(namespace));', this.line); //TODO: suggest that not use eval.
+        writer.write_line('eval(namespace.js_variables(namespace));', this.line); //TODO: suggest that not use eval.
         writer.write_line('return function(){', this.line);
         statement.with_stmt(writer.indent(), function(){
             writer.write_line('var _buffer = [];', this.line);
