@@ -22,20 +22,12 @@ var LogMessageLayer = function(scene){
  * @return {DocumentFragment}
  */
 LogMessageLayer.prototype.Render = function(){
-    var fragment = document.createDocumentFragment();
-    var section = document.createElement("section");
-    section.className = "history";
-    var h1 = document.createElement("h1");
-    h1.innerText = "History";
-    section.appendChild(h1);
-    for(var i =0; i < 5; i++){
-        var p = document.createElement("p");
-        p.innerText = "\uD83C\uDFC7";
-        this.messages.push(p);
-        section.appendChild(p);
-    }
-    this.dom = section;
-    fragment.appendChild(section);
+    var templates = Game.Locator.locate(Templates);
+    var fragment = templates.Generate("logmessagelayer", {
+        title: "History",
+    });
+    this.dom = fragment.children[0];
+    this.messages = Array.prototype.slice.call(fragment.children[0].children, 1, 6);
     return fragment;
 };
 

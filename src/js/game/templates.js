@@ -28,6 +28,14 @@ var Templates = function(){
             "{% block content %}" +
             "<p></p>" +
             "{% end %}",
+        "logmessagelayer": "{% extends 'baselayer' %}" +
+            "{% block content %}" +
+            "<p>\uD83C\uDFC7</p>" +
+            "<p>\uD83C\uDFC7</p>" +
+            "<p>\uD83C\uDFC7</p>" +
+            "<p>\uD83C\uDFC7</p>" +
+            "<p>\uD83C\uDFC7</p>" +
+            "{% end %}",
     });
 };
 
