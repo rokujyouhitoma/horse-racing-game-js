@@ -45,6 +45,14 @@ section.race section.logmessagelayer p {
     line-height: 26px;
 }
 
+section.race section.oddstablelayer {
+}
+
+section.race section.oddstablelayer table {
+    width: 100%;
+    border: 1px solid black;
+}
+
 section.debug {
 }
 

@@ -21,7 +21,9 @@ var Templates = function(){
             "{% end %}",
         "oddstablelayer": "{% extends 'baselayer' %}" +
             "{% block content %}" +
-            "<div></div>" +
+            "<table>" +
+            "<tr><th>xxx</th></tr>" +
+            "</table>" +
             "{% end %}",
         "fpslayer": "{% extends 'baselayer' %}" +
             "{% block title %}{% end %}" +
