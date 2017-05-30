@@ -997,12 +997,12 @@ var Racetrack = function(runners, len){
  * @constructor
  * @param {Race} race The race.
  * @param {Racetrack} racetrack The race track.
- * @param {OddsTable} oddsTable The odds table.
+ * @param {OddsTable} oddstable The odds table.
  */
-var GameBoard = function(race, racetrack, oddsTable){
+var GameBoard = function(race, racetrack, oddstable){
     this.race = race;
     this.racetrack = racetrack;
-    this.oddsTable = oddsTable;
+    this.oddstable = oddstable;
 };
 
 /**
