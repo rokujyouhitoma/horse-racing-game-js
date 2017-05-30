@@ -43,8 +43,15 @@ OddsTableLayer.prototype.OnEnter = function(e){
     }
     var oddstable = race.gameBoard.oddstable;
     console.log(oddstable);
-    console.log(this.dom.children[1]);
-    //TODO: xxx
+    var table = this.dom.children[1];
+    var template = new Template("<table><tbody>" +
+                                "<tr><th>xxx</th></tr>" +
+                                "</tbody></table>");
+    var newTable = Templates.GenerateFragment(template, {});
+    Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
+        table.parentNode.removeChild(table);
+        this.dom.appendChild(newTable);
+    }.bind(this)));
 };
 
 /**

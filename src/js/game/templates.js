@@ -22,7 +22,9 @@ var Templates = function(){
         "oddstablelayer": "{% extends 'baselayer' %}" +
             "{% block content %}" +
             "<table>" +
+            "<tbody>" +
             "<tr><th>xxx</th></tr>" +
+            "</tbody>" +
             "</table>" +
             "{% end %}",
         "fpslayer": "{% extends 'baselayer' %}" +
@@ -49,6 +51,15 @@ var Templates = function(){
 Templates.prototype.Generate = function(name, namespace){
     var template = this.loader.load(name);
     namespace["__layer__"] = name;
+    return Templates.GenerateFragment(template, namespace);
+};
+
+/**
+ * @param {Template} template .
+ * @param {Object} namespace .
+ * @return {DocumentFragment} .
+ */
+Templates.GenerateFragment = function(template, namespace) {
     var tmp = document.createElement("template");
     tmp.innerHTML = template.generate(namespace);
     return tmp.content;
