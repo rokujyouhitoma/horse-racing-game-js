@@ -45,7 +45,7 @@ OddsTableLayer.prototype.OnEnter = function(e){
     console.log(oddstable);
     var table = this.dom.children[1];
     var templates = Game.Locator.locate(Templates);
-    var new_table = templates.Generate("oddstableparts", {});
+    var new_table = templates.Generate("oddstableparts", {"oddstable": oddstable});
     Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
         table.parentNode.removeChild(table);
         this.dom.appendChild(new_table);

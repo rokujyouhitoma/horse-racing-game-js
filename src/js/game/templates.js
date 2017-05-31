@@ -41,7 +41,32 @@ var Templates = function(){
             "<p>\uD83C\uDFC7</p>" +
             "{% end %}",
         "oddstableparts": "<table><tbody>" +
-            "<tr><th>xxx</th></tr>" +
+            "{% set var table = oddstable.table; %}" +
+            "<tr>" +
+            "  <th></th>" +
+            "  <th>2</th>" +
+            "  <th>3</th>" +
+            "  <th>4</th>" +
+            "  <th>5</th>" +
+            "</tr>" +
+            "{% set var length = table.length; %}" +
+            "{% for (var i = 0; i < length; i++) %}" +
+            "  {% set var row = table[i]; %}" +
+            "  {% if (!row) %}" +
+            "    {% continue %}" +
+            "  {% end %}" +
+            "<tr>" +
+            "  <th>{{i}}</th>" +
+            "  {% for (var j = 2; j < row.length; j++) %}" +
+            "    {% set var obj = row[j]; %}" +
+            "    {% if (obj) %}" +
+            "      <td>x {{obj['odds']}}</td>" +
+            "    {% else %}" +
+            "      <td></td>" +
+            "    {% end %}" +
+            "  {% end %}" +
+            "</tr>" +
+            "{% end %}" +
             "</tbody></table>",
     });
 };

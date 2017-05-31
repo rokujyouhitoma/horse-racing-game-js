@@ -1027,7 +1027,7 @@ var Bet = function(){
  * @constructor
  */
 var OddsEntry = function(odds){
-    this.odds = odds;
+    this["odds"] = odds; //for template
     /** @type {Array<Bet>} */
     this.bets = [];
 };
@@ -1037,7 +1037,7 @@ var OddsEntry = function(odds){
  * @constructor
  */
 var OddsTable = function(oddses){
-    var table = [null];
+    var table = [];
     var length = oddses.length;
     for (var i = 0; i < length; i++){
         var odds = oddses[i];
@@ -1045,11 +1045,11 @@ var OddsTable = function(oddses){
         var b = odds.model["second_id"];
         var o = odds.model["odds"];
         if (!table[a]) {
-            table[a] = [null];
+            table[a] = [];
         }
         table[a][b] = new OddsEntry(o);
     }
-    this.table = table;
+    this["table"] = table; //for template.
 };
 
 /**
