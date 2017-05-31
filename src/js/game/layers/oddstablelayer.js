@@ -44,13 +44,11 @@ OddsTableLayer.prototype.OnEnter = function(e){
     var oddstable = race.gameBoard.oddstable;
     console.log(oddstable);
     var table = this.dom.children[1];
-    var template = new Template("<table><tbody>" +
-                                "<tr><th>xxx</th></tr>" +
-                                "</tbody></table>");
-    var newTable = Templates.GenerateFragment(template, {});
+    var templates = Game.Locator.locate(Templates);
+    var new_table = templates.Generate("oddstableparts", {});
     Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
         table.parentNode.removeChild(table);
-        this.dom.appendChild(newTable);
+        this.dom.appendChild(new_table);
     }.bind(this)));
 };
 

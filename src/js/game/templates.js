@@ -40,6 +40,9 @@ var Templates = function(){
             "<p>\uD83C\uDFC7</p>" +
             "<p>\uD83C\uDFC7</p>" +
             "{% end %}",
+        "oddstableparts": "<table><tbody>" +
+            "<tr><th>xxx</th></tr>" +
+            "</tbody></table>",
     });
 };
 
