@@ -40,7 +40,7 @@ var Templates = function(){
             "<p>\uD83C\uDFC7</p>" +
             "<p>\uD83C\uDFC7</p>" +
             "{% end %}",
-        "oddstableparts": "<table><tbody>" +
+        "oddstable": "<table><tbody>" +
             "{% set var table = oddstable.table; %}" +
             "<tr>" +
             "  <th></th>" +
