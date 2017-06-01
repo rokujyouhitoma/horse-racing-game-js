@@ -11,6 +11,7 @@ var OddsTableLayer = function(scene){
     this.events = [
         [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
         [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
+        [Events.Race.OnBet, this.OnBet.bind(this), null],
     ];
     this.events.forEach(function(event){
         Game.Publisher.Subscribe(event[0], event[1], event[2]);
@@ -62,4 +63,11 @@ OddsTableLayer.prototype.OnExit = function(e){
     this.events.forEach(function(event){
         Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
     });
+};
+
+/**
+ * @param {ExEvent} e The event object.
+ */
+OddsTableLayer.prototype.OnBet = function(e){
+    console.log(e);
 };

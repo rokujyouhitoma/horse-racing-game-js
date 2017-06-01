@@ -1047,7 +1047,7 @@ var OddsTable = function(oddses){
         if (!table[a]) {
             table[a] = [];
         }
-        table[a][b] = new OddsEntry(o);
+        table[a][b] = new OddsEntry(odds);
     }
     this["table"] = table; //for template.
 };
