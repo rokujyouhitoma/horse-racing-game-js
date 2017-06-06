@@ -61,7 +61,7 @@ var Templates = function(){
             "    {% set var obj = row[j]; %}" +
             "    {% if (obj) %}" +
             "      {% set var odds = obj['odds']; %}" +
-            "      <td onclick='(function(){Game.Publisher.Publish(Events.Race.OnBet, this, {\"odds_id\": {{odds.model['id']}}})})()'>x {{odds.model['odds']}}</td>" +
+            "      <td onclick='(function(){Game.Publisher.Publish(Events.Race.OnBet, this, {\"odds_id\": {{odds.model['id']}}})})()'>x {{odds.model['id']}}</td>" +
             "    {% else %}" +
             "      <td></td>" +
             "    {% end %}" +

@@ -300,4 +300,5 @@ DashCard.prototype.GetBehavior = function(dashType){
  */
 var Odds = function(model){
     this.model = model;
+    this["model"] = model; //for template.
 };
