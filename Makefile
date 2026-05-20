@@ -52,9 +52,9 @@ main-min.js: $(SOURCES)
 	--js $(SOURCES) \
 	--debug \
 	--formatting=PRETTY_PRINT
-//	--jscomp_warning=reportUnknownTypes \
-//	--formatting=PRINT_INPUT_DELIMITER \
-//	--compilation_level=WHITESPACE_ONLY \
+#	--jscomp_warning=reportUnknownTypes \
+#	--formatting=PRINT_INPUT_DELIMITER \
+#	--compilation_level=WHITESPACE_ONLY \
 
 main-min.css:
 	$(JAVA) -jar $(CLOSURE_STYLESHEETS) \
