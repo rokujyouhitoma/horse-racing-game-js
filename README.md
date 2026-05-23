@@ -25,12 +25,12 @@ A digital implementation of a horse racing card game. Players use play cards (St
 
 ```
 horse-racing-game-js/
+├── docs/         # Documentation (HLD, LLD, Issues, memo-ja)
 ├── src/          # Source files
 ├── tools/        # Build tools
 ├── index.html    # Entry point
 ├── compiled.html # Compiled output
-├── Makefile      # Build configuration
-└── memo-ja.md    # Development notes (Japanese)
+└── Makefile      # Build configuration
 ```
 
 ## Getting Started
