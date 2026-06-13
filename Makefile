@@ -1,8 +1,8 @@
 
 JAVA = java
 
-CLOSURE_COMPIER = tools/closure-compiler/closure-compiler-v20170423.jar
-CLOSURE_STYLESHEETS = tools/closure-stylesheets/closure-stylesheets.jar
+CLOSURE_COMPIER = tools/closure-compiler/closure-compiler-v20260602.jar
+CLOSURE_STYLESHEETS = tools/closure-stylesheets/closure-stylesheets-1.5.0.jar
 
 LIB_SOURCES = src/js/lib/xorshift.js \
 	src/js/lib/event.js \
