@@ -1,4 +1,4 @@
-# 🏇 horse-racing-game-js 詳細設計書 (Low-Level Design)
+# [DSN-02] 詳細設計書 (Low-Level Design) - horse-racing-game-js
 
 本ドキュメントは、バニラJavaScriptで構築された競馬ボードゲーム「`horse-racing-game-js`」の技術的な詳細設計を記述した開発者向けのドキュメントです。各モジュールの責務、クラス構造、イベントフローなどを詳細に解説します。
 
@@ -53,17 +53,17 @@ classDiagram
 
 ## 2. コアサブシステム設計
 
-### ① メインゲームループ (`engine.js`, `main.js`)
+### 2.1 メインゲームループ (`engine.js`, `main.js`)
 * **固定タイムステップ更新と可変レンダリング**:
   `Engine` は `requestAnimationFrame` を用いて動作します。物理シミュレーションやゲーム状態の更新 (`OnUpdate`) は、遅延の有無にかかわらず一定時間ピッチで実行されます。描画処理 (`Render`) は利用可能な最大FPSで実行され、更新ピッチとのズレ（`delta`：0〜1の割合）を受け取り、描画側での線形補間（イージングなど）を可能にします。
 * **FPSカウンター**:
   `FPS` クラスが毎秒のループ実行回数を計測し、`FPSLayer` にてUIにFPS情報を描画します。
 
-### ② イベントシステム (`event.js`, `events.js`)
+### 2.2 イベントシステム (`event.js`, `events.js`)
 * **DOM Level 2準拠イベント処理**:
-  `ExEvent`, `ExEventTarget`, `ExEventListener` を独自実装。`dispatchEvent` や `addEventListener` を用いた、ブラウザ標準に近いバブリング/キャプチャに対応したイベント管理です。イベントの探索アルゴリズムは O(1) に最適化されています。
+  `ExEvent`, `ExEventTarget`, `ExEventListener` を独自実装。`dispatchEvent` や `addEventListener` を用いた、ブラウザ標準に近いバブリング/キャプチャに対応したイベント管理です。イベントの探索アルゴリズムは O(1) に最適化されています（詳細は [ADR-02](adr/ADR-02-custom-event-system.md) 参照）。
 
-### ③ ルーティングとシーン遷移 (`scene.js`, `router.js`, `main.js`)
+### 2.3 ルーティングとシーン遷移 (`scene.js`, `router.js`, `main.js`)
 * **URLと履歴の連動**:
   `CustomSceneDirector` が `window.history.pushState` および `window.location.hash` をフックします。
   * `Title` ⇔ `#Title`
@@ -76,7 +76,7 @@ classDiagram
 ## 3. レンダリング & テンプレートエンジン (`template.js`, `templates.js`, `layers/`)
 
 * **Tornado Template (JSポート)**:
-  Pythonの「Tornado Web Server」のテンプレートエンジンをJavaScriptに移植。HTML文字列内の `{% if %}`, `{% for %}`, `{% while %}`, `{{ variable }}` を正規表現と動的関数生成（`new Function`）によって解釈し、高速にDOMフラグメントを生成します。
+  Pythonの「Tornado Web Server」のテンプレートエンジンをJavaScriptに移植。HTML文字列内の `{% if %}`, `{% for %}`, `{% while %}`, `{{ variable }}` を正規表現と動的関数生成（`new Function`）によって解釈し、高速にDOMフラグメントを生成します（詳細は [ADR-03](adr/ADR-03-tornado-template-engine-js-port.md) 参照）。
 * **描画パイプライン (`RenderLayers`)**:
   各シーン（`GameScene`）は、複数のレイヤー（`ILayer` インターフェースを実装したクラス）で構成されます。
   1. **シーンマウント**: シーンが開始すると、指定された複数のレイヤーインスタンスが生成される。

@@ -25,7 +25,12 @@ A digital implementation of a horse racing card game. Players use play cards (St
 
 ```
 horse-racing-game-js/
-├── docs/         # Documentation (HLD, LLD, Issues, memo-ja)
+├── docs/         # Project management, requirements, technical designs, manuals, and ADRs
+│   ├── adr/      # Architectural Decision Records (ADR-01, ADR-02, ADR-03)
+│   ├── MNG-*     # Management docs (MNG-01 Ledger, MNG-02 Process, MNG-03 Problem tracker)
+│   ├── REQ-*     # Requirement definitions (REQ-01 User, REQ-02 Features, REQ-03 System)
+│   ├── DSN-*     # Technical designs (DSN-01 High-Level, DSN-02 Low-Level)
+│   └── USR-*     # User documentation (USR-01 Official Rulebook & Guide)
 ├── src/          # Source files
 ├── tools/        # Build tools
 ├── index.html    # Entry point
