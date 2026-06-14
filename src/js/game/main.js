@@ -144,7 +144,7 @@ Game.prototype.OnRender = function(e){
     Game.RenderCommandExecuter.ExecuteAll();
 };
 
-Game.LocatorContainer = {};
+Game.LocatorContainer = new Map();
 Game.Locator = new Locator(Game.LocatorContainer);
 
 Game.Publisher = Game.Locator.locate(Publisher);
@@ -252,9 +252,9 @@ GameDirector.prototype.OnLogMessage = function(e){
  * @constructor
  */
 var CommandExecuter = function(){
-    /** type {Array<ICommand>} */
+    /** @type {!Array<!ICommand>} */
     this.commands_ = [];
-    /** type {number} */
+    /** @type {number} */
     this.position_ = 0;
     this.events = [
         [Events.Game.OnUpdate, this.OnUpdate.bind(this), null],
@@ -274,7 +274,7 @@ CommandExecuter.prototype.OnUpdate = function(e){
 };
 
 /**
- * @param {ICommand} command The command.
+ * @param {!ICommand} command The command.
  */
 CommandExecuter.prototype.Execute = function(command){
     this.commands_.push(command);
@@ -293,7 +293,7 @@ CommandExecuter.prototype.Undo = function(){
 };
 
 /**
- * @return {!Iterator<ICommand>}
+ * @return {!Iterable<!ICommand>}
  */
 CommandExecuter.prototype.Generator = function*(){
     var position = this.position_;
@@ -557,7 +557,7 @@ var MasterMeta = function(names, types, opt_relationships){
  */
 var MasterData = function(){
     /** @private */
-    this.loader_ = new StubLoader();
+    /** @const */ this.loader_ = new StubLoader();
     /** @private */
     this.meta_ = {
         "HorseFigure": {},
@@ -1127,6 +1127,7 @@ var PlayCardDirector = function(scene){
     this.scene = scene;
     /** @type {CommandExecuter} */
     this.executer_ = new CommandExecuter();
+    /** @type {!Array<!PlayCard>} */
     this.playCards = [];
     this.position = 0;
     this.events = [
@@ -1156,15 +1157,15 @@ PlayCardDirector.prototype.OnEnter = function(e){
 PlayCardDirector.prototype.OnReset = function(e){
     var repositoryDirector = Game.Locator.locate(RepositoryDirector);
     var repository = repositoryDirector.Get("PlayCard");
-    var playCards = repository.All();
+    var playCards = /** @type {!Array<!PlayCard>} */ (repository.All());
     this.playCards = this.FisherYatesShuffle(playCards);
     this.position = 0;
 };
 
 /**
  * Fisher–Yates shuffle
- * @param {Array<Object>} array The array.
- * @return {Array<Object>} The shuffled array.
+ * @param {!Array<!PlayCard>} array The array.
+ * @return {!Array<!PlayCard>} The shuffled array.
  */
 PlayCardDirector.prototype.FisherYatesShuffle = function(array){
     var shuffled = array.slice();
@@ -1192,7 +1193,7 @@ PlayCardDirector.prototype.OnExit = function(e){
  * @param {ExEvent} e The event object.
  */
 PlayCardDirector.prototype.OnPlayCard = function(e){
-    /** @type {Iterator<PlayCard>} */
+    /** @type {!Iterator<!PlayCard>} */
     var g = this.Generator();
     /** @type {PlayCard} */
     var card = g.next().value;
@@ -1224,7 +1225,7 @@ PlayCardDirector.prototype.OnUndoPlayCard = function(e){
 };
 
 /**
- * @return {!Iterator<PlayCard>}
+ * @return {!Iterator<!PlayCard>}
  */
 PlayCardDirector.prototype.Generator = function*(){
     var position = this.position;

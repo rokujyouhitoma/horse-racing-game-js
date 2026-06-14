@@ -847,11 +847,11 @@ var filter_whitespace = function(mode, text) {
     if (mode === 'all') {
         return text;
     } else if (mode === 'single') {
-        text = text.replace(/([\t ]+)/g, ' ', text);
-        text = text.replace(/(\s*\n\s*)/g, '\n', text);
+        text = text.replace(/([\t ]+)/g, ' ');
+        text = text.replace(/(\s*\n\s*)/g, '\n');
         return text;
     } else if (mode === 'oneline') {
-        text = text.replace(/(\s+)/g, ' ', text);
+        text = text.replace(/(\s+)/g, ' ');
         return text;
     } else {
         throw new Error("invalid whitespace mode " + mode);
@@ -1496,10 +1496,10 @@ _Text.prototype.generate = function(writer) {
     }
     //JavaScript specific implements.
     if (string.contains(value, '\n')) {
-        value = value.replace(/(\n)/g, '\\n', value);
+        value = value.replace(/(\n)/g, '\\n');
     }
     if (string.contains(value, '"')) {
-        value = value.replace(/(")/g, '\\"', value);
+        value = value.replace(/(")/g, '\\"');
     }
     if (value) {
         writer.write_line('_buffer.push("' + value + '");', this.line);

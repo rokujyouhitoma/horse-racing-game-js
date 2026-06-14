@@ -2,7 +2,7 @@
 
 /**
  * @constructor
- * @param {Object<string|Function, Object>} container The container.
+ * @param {!Map<string|Function, Object>} container The container.
  */
 var Locator = function(container){
     this.container = container;
@@ -13,9 +13,8 @@ var Locator = function(container){
  * @return {Object} The instantiated object.
  */
 Locator.prototype.locate = function(obj){
-    if(!(obj in this.container)){
-        // TODO: key using Function object...
-        this.container[obj] = new obj();
+    if(!this.container.has(obj)){
+        this.container.set(obj, new obj());
     }
-    return this.container[obj];
+    return this.container.get(obj);
 };

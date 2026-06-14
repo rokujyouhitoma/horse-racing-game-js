@@ -46,7 +46,7 @@ var ExEventInfo = function(object, type, listener, publisher, wrapper){
  * @constructor
  */
 var ExEventTarget = function(){
-    /** @private {Object<string, Object>} */
+    /** @private @const {Object<string, Object>} */
     this.eventListeners_ = {};
 };
 
@@ -120,7 +120,7 @@ ExEventTarget.prototype.dispatchEvent = function(type, opt_publisher, opt_payloa
  * @param {function(ExEvent)} callback The event listener function.
  */
 var ExEventListener = function(callback){
-    /** @private */
+    /** @private @const */
     this.callback_ = callback;
 };
 

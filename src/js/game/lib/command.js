@@ -40,12 +40,12 @@ FunctionCommand.prototype.Undo = function(){};
  * @constructor
  */
 var BasicExecuter = function(){
-    /** type {Array<ICommand>} */
+    /** @type {!Array<!ICommand>} */
     this.commands_ = [];
 };
 
 /**
- * @param {ICommand} command The command.
+ * @param {!ICommand} command The command.
  */
 BasicExecuter.prototype.Push = function(command){
     this.commands_.push(command);
@@ -61,7 +61,7 @@ BasicExecuter.prototype.ExecuteAll = function(){
 };
 
 /**
- * @return {!Iterator<ICommand>}
+ * @return {!Iterable<!ICommand>}
  */
 BasicExecuter.prototype.Generator = function*(){
     while(0 < this.commands_.length){
@@ -73,14 +73,14 @@ BasicExecuter.prototype.Generator = function*(){
  * @constructor
  */
 var SimpleCommandExecuter = function(){
-    /** type {Array<ICommand>} */
+    /** @type {!Array<!ICommand>} */
     this.commands_ = [];
-    /** type {number} */
+    /** @type {number} */
     this.position_ = 0;
 };
 
 /**
- * @param {ICommand} command The command.
+ * @param {!ICommand} command The command.
  */
 SimpleCommandExecuter.prototype.Execute = function(command){
     this.commands_.push(command);

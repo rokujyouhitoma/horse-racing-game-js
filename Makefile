@@ -47,11 +47,11 @@ main-min.js: $(SOURCES)
 	--compilation_level ADVANCED_OPTIMIZATIONS \
 	--use_types_for_optimization \
 	--warning_level=VERBOSE \
-	--jscomp_warning=lintChecks \
 	--js_output_file $@ \
 	--js $(SOURCES) \
 	--debug \
 	--formatting=PRETTY_PRINT
+
 #	--jscomp_warning=reportUnknownTypes \
 #	--formatting=PRINT_INPUT_DELIMITER \
 #	--compilation_level=WHITESPACE_ONLY \
