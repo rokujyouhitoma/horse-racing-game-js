@@ -7,18 +7,51 @@
  * https://raw.githubusercontent.com/rokujyouhitoma/js-templateengine/develop/tests/template_spec.js
  */
 
+var globalObject = (typeof window !== 'undefined') ? window : global;
+
+if (!globalObject.testSuiteStats) {
+    globalObject.testSuiteStats = {
+        totalTests: 0,
+        failedTests: 0,
+        passedTests: 0
+    };
+
+    if (typeof process !== 'undefined') {
+        process.on('exit', function() {
+            var stats = globalObject.testSuiteStats;
+            console.log("\n========================================");
+            console.log("Test Summary:");
+            console.log("  Total:  " + stats.totalTests);
+            console.log("  Passed: " + stats.passedTests);
+            console.log("  Failed: " + stats.failedTests);
+            console.log("========================================");
+            if (stats.failedTests > 0) {
+                console.log("❌ " + stats.failedTests + " tests FAILED.");
+                process.exitCode = 1;
+            } else {
+                console.log("✅ All tests passed successfully!");
+                process.exitCode = 0;
+            }
+        });
+    }
+}
+
 var describe = function(dname, func){
     var dname = dname;
     var globalObject = (typeof window !== 'undefined') ? window : global;
     globalObject.it = function(name, func){
-        var name = name;
+        globalObject.testSuiteStats.totalTests++;
+        var hasError = false;
         var expect = function(value){
             var Test = function(value){
                 this.value = value;
             };
             Test.prototype.toEqual = function(v){
                 if (this.value != v) {
-                    console.error(dname, name, this.value, " not equal to ", v);
+                    console.error("  FAIL:", dname, "->", name);
+                    console.error("    Expected:", v);
+                    console.error("    Actual:  ", this.value);
+                    hasError = true;
                     if (typeof process !== 'undefined') {
                         process.exitCode = 1;
                     }
@@ -26,7 +59,9 @@ var describe = function(dname, func){
             };
             Test.prototype.toBeTruthy = function(){
                 if(!this.value){
-                    console.error(dname, name, this.value);
+                    console.error("  FAIL:", dname, "->", name);
+                    console.error("    Expected truthy, but got:", this.value);
+                    hasError = true;
                     if (typeof process !== 'undefined') {
                         process.exitCode = 1;
                     }
@@ -34,7 +69,9 @@ var describe = function(dname, func){
             };
             Test.prototype.toBeFalsy = function(){
                 if(this.value){
-                    console.error(dname, name, this.value, "is not falsy");
+                    console.error("  FAIL:", dname, "->", name);
+                    console.error("    Expected falsy, but got:", this.value);
+                    hasError = true;
                     if (typeof process !== 'undefined') {
                         process.exitCode = 1;
                     }
@@ -43,7 +80,24 @@ var describe = function(dname, func){
             return new Test(value);
         };
         globalObject.expect = expect;
-        func.call(globalObject);
+        
+        try {
+            func.call(globalObject);
+        } catch (e) {
+            console.error("  FAIL (Exception):", dname, "->", name);
+            console.error(e.stack || e);
+            hasError = true;
+            if (typeof process !== 'undefined') {
+                process.exitCode = 1;
+            }
+        }
+
+        if (hasError) {
+            globalObject.testSuiteStats.failedTests++;
+        } else {
+            globalObject.testSuiteStats.passedTests++;
+            console.log("  PASS:", dname, "->", name);
+        }
     };
     func.call(globalObject);
 };
@@ -605,4 +659,8 @@ describe('BootstrapTest', function() {
         expect(Game.Locator.locate(GameDirector) instanceof GameDirector).toBeTruthy();
     });
 });
+
+if (typeof process !== 'undefined') {
+    process.exit(globalObject.testSuiteStats.failedTests > 0 ? 1 : 0);
+}
 

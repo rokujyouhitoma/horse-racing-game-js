@@ -43,7 +43,7 @@
 プロジェクト開始からこれまでのマイルストーン別のコミット・開発内容の記録です（旧 `memo-ja.md` からの移植）。
 
 ### 2026年6月
-* **2026.6.15**: レース終了時やシーン遷移、テスト実行時における `Cannot read properties of null` エラー（DOM非存在下での操作）のクラッシュ防止対策。各描画レイヤー（`FPSLayer`, `ResultSceneLayer`, `TitleSceneLayer` など）の `OnExit` および `OnUpdate` メソッドにDOMの存在確認（ヌルチェック）を追加し、堅牢性を向上。また、単体テストで `layer.OnExit()` を明示的に呼び出すことで、テスト終了後のリソース解放とイベント購読解除を徹底。
+* **2026.6.15**: レース終了時やシーン遷移、テスト実行時における `Cannot read properties of null` エラー（DOM非存在下での操作）のクラッシュ防止対策。各描画レイヤー（`FPSLayer`, `ResultSceneLayer`, `TitleSceneLayer` など）の `OnExit` および `OnUpdate` メソッドにDOMの存在確認（ヌルチェック）を追加し、堅牢性を向上。また、単体テストで `layer.OnExit()` を明示的に呼び出すことで、テスト終了後のリソース解放とイベント購読解除を徹底。さらに、自作の簡易テストランナー (`template_test.js`) を拡張し、テストの実行件数や成否のサマリー、個々のテスト結果（PASS/FAIL）がコンソールへ詳細に出力されるよう改善。
 * **2026.6.14**: レンダラー（View）とコントローラー/モデル間の疎結合化を目的としたPub/Subイベント駆動型（`Events.Race.OnChanged`）の設計への移行（ADR-05）。Closure Compilerのアップグレードに伴うコンパイル警告およびエラーの修正（ADR-04）とキー安全性向上。テンプレートエンジンでの `eval` 回避（`with` ステートメントへの移行によるセキュリティ・性能改善）、GitHub ActionsのJekyllビルドエラー対策（`.nojekyll` の導入とLiquid類似文字のエスケープ）、`innerHTML` の完全廃止（`DocumentFragment` を用いた DOM 操作へのリファクタリング）、初期化フローの整理（明示的な `Game.Bootstrap` の導入）、および新規単体テスト（`LaneRendererTest`, `BootstrapTest`）の追加・検証。また、テンプレートエンジン（`template.js`）を Tornado v6.6.dev1 のテンプレート構文と100%の互換性を確保（`try/except/else/finally` ブロックのサポート、`elif` マッピング、インクルードスタックを考慮したエラー行番号のトレースバックマッピング機能、`posixpath` 相対パス解決の完全実装、 Closure Compiler 警告の完全解消、およびそれらを検証する `template_test.js` 単体テストの拡充）。
 
 * **2026.6.13**: リポジトリ全体のドキュメント再編成および文書管理ルールの再構築。
