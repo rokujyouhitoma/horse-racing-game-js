@@ -1,7 +1,7 @@
 # [ADR-04] Closure Compilerのアップグレードおよびコンパイル警告・エラーの修正
 
 ## ステータス (Status)
-提案中 (Proposed)
+承認済 (Accepted)
 
 ## コンテキスト (Context)
 プロジェクトで使用されていたビルドツール（`closure-compiler` は 2017年版、`closure-stylesheets` は古いビルド）は非常に古く、最新のビルド環境やパフォーマンス、安全性の向上のためにこれらを最新版に更新しました（`closure-compiler-v20260602.jar` および `closure-stylesheets-1.5.0.jar`）。

@@ -34,3 +34,10 @@ Key details:
 ### Trade-offs (Cons):
 - **`new Function` Security Risk**: Standard templates compiled this way must not process unverified user inputs, as arbitrary JS expressions inside `&#123;&#123; ... &#125;&#125;` or `&#123;% ... %&#125;` are executed directly. (See [REQ-03-system_requirements.md](../REQ-03-system_requirements.md) for mitigation details).
 - **Hard Debugging**: Syntax errors in templates compile to dynamic functions, making it difficult to trace syntax errors back to specific lines in the raw HTML template.
+
+---
+
+### 2026-06-14 Security & Performance Refactoring
+- **`eval` Statement Elimination**: Previously, `eval(namespace.js_variables(...))` was called at runtime inside dynamic functions to bind variables. This has been replaced by wrapping the generated template logic in a `with(namespace) { ... }` block inside the dynamic function. This eliminates runtime `eval` calls, improving security, compatibility with strict environments, and optimization potential.
+- **Robust Suffix/Quote Parsing**: Fixed parser logic for `extends` and `include` directives. Raw regular expressions previously left trailing quotes or crashed on inconsistent quoting. The regex now extracts template paths cleanly, handling both single and double quotes properly.
+

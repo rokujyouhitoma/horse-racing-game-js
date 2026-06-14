@@ -1186,6 +1186,8 @@ inherits(_File, _Node);
 _File.prototype.generate = function (writer) {
     writer.write_line('return function(namespace){', this.line);
     statement.with_stmt(writer.indent(), function () {
+        writer.write_line('var _xhtml_escape = namespace.xhtml_escape;', this.line);
+        writer.write_line('var _escape = namespace.escape;', this.line);
         writer.write_line('with(namespace){', this.line);
         statement.with_stmt(writer.indent(), function () {
             writer.write_line('return function(){', this.line);
@@ -1466,7 +1468,14 @@ inherits(_Expression, _Node);
 _Expression.prototype.generate = function (writer) {
     writer.write_line('var _tmp = ' + this.expression + ';', this.line);
     if (!this.raw && (writer.current_template.autoescape != null)) {
-        writer.write_line('_tmp = ' + writer.current_template.autoescape + '(String(_tmp));', this.line);
+        var autoescape = writer.current_template.autoescape;
+        var escape_fn = autoescape;
+        if (autoescape === 'xhtml_escape') {
+            escape_fn = '_xhtml_escape';
+        } else if (autoescape === 'escape') {
+            escape_fn = '_escape';
+        }
+        writer.write_line('_tmp = ' + escape_fn + '(String(_tmp));', this.line);
     }
     writer.write_line('_buffer.push(_tmp);', this.line);
 };

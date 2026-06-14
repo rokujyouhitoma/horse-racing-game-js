@@ -53,17 +53,21 @@ classDiagram
 
 ## 2. コアサブシステム設計
 
-### 2.1 メインゲームループ (`engine.js`, `main.js`)
+### 2.1 メインゲームループ (`engine.js`)
 * **固定タイムステップ更新と可変レンダリング**:
   `Engine` は `requestAnimationFrame` を用いて動作します。物理シミュレーションやゲーム状態の更新 (`OnUpdate`) は、遅延の有無にかかわらず一定時間ピッチで実行されます。描画処理 (`Render`) は利用可能な最大FPSで実行され、更新ピッチとのズレ（`delta`：0〜1の割合）を受け取り、描画側での線形補間（イージングなど）を可能にします。
 * **FPSカウンター**:
   `FPS` クラスが毎秒のループ実行回数を計測し、`FPSLayer` にてUIにFPS情報を描画します。
 
-### 2.2 イベントシステム (`event.js`, `events.js`)
+### 2.2 初期化処理 (Bootstrap) (`main.js`)
+* **初期化シーケンス**:
+  アプリケーションの起動およびオブジェクトのライフサイクル管理を明確化するため、`Game.Bootstrap` 関数による明示的な初期化シーケンスを導入しました。これにより、`RepositoryDirector` や `GameDirector` などの主要コンポーネントが依存関係に基づいて正しく構築され、`Engine` へバインドされます。
+
+### 2.3 イベントシステム (`event.js`, `events.js`)
 * **DOM Level 2準拠イベント処理**:
   `ExEvent`, `ExEventTarget`, `ExEventListener` を独自実装。`dispatchEvent` や `addEventListener` を用いた、ブラウザ標準に近いバブリング/キャプチャに対応したイベント管理です。イベントの探索アルゴリズムは O(1) に最適化されています（詳細は [ADR-02](adr/ADR-02-custom-event-system.md) 参照）。
 
-### 2.3 ルーティングとシーン遷移 (`scene.js`, `router.js`, `main.js`)
+### 2.4 ルーティングとシーン遷移 (`scene.js`, `router.js`, `main.js`)
 * **URLと履歴の連動**:
   `CustomSceneDirector` が `window.history.pushState` および `window.location.hash` をフックします。
   * `Title` ⇔ `#Title`
@@ -82,6 +86,7 @@ classDiagram
   1. **シーンマウント**: シーンが開始すると、指定された複数のレイヤーインスタンスが生成される。
   2. **描画コマンド構築**: レイヤーの `Render()` は `DocumentFragment` を返し、`Game.RenderCommandExecuter` に描画コマンドとしてエンキューされる。
   3. **画面描画**: `OnRender` イベント時に `RenderCommandExecuter.ExecuteAll()` が走り、最小限の回数でDOMを一括挿入（バッチ描画）します。
+  * **セキュアな描画処理**: `RacetrackLayer` や `LaneRenderer` などの描画モジュールにおいて、XSS（クロスサイトスクリプティング）のリスクを排除し、パフォーマンスを最大化するため、`innerHTML` を用いた動的なHTML文字列展開を完全に廃止しました。代わりに、`createElement` や `createTextNode` などの標準DOM APIおよび `DocumentFragment` を用いたセキュアな構造化DOM構築を徹底しています。
 
 ---
 
