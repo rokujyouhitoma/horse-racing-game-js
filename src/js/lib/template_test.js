@@ -102,8 +102,8 @@ describe('TemplateTest', function() {
 
     it('relative_load', function() {
         var loader = new DictLoader({
-            "a/1.html": "{% include 'a/2.html' %}",
-            "a/2.html": "{% include 'b/3.html' %}",
+            "a/1.html": "{% include '2.html' %}",
+            "a/2.html": "{% include '../b/3.html' %}",
             "b/3.html": "ok"
         });
         expect(loader.load("a/1.html").generate()
@@ -112,8 +112,8 @@ describe('TemplateTest', function() {
 
     it('test_relative_load', function() {
         var loader = new DictLoader({
-            "a/1.html": "{% include 'a/2.html' %}",
-            "a/2.html": "{% include 'b/3.html' %}",
+            "a/1.html": "{% include '2.html' %}",
+            "a/2.html": "{% include '../b/3.html' %}",
             "b/3.html": "ok"
         });
         expect(loader.load("a/1.html").generate()
@@ -138,9 +138,8 @@ describe('TemplateTest', function() {
         expect(new Template('{%!').generate()).toEqual('{%');
         expect(new Template('{#!').generate()).toEqual('{#');
 
-        //TODO: xxx
-        //expect(new Template("{{ 'expr' }} {{ !jquery expr }}").generate()
-        //      ).toEqual("expr {{jquery expr}}");
+        expect(new Template("{{ 'expr' }} {{!jquery expr}}").generate()
+              ).toEqual("expr {{jquery expr}}");
     });
 
     it('test_unicode_template', function() {
@@ -442,6 +441,95 @@ describe('Template', function() {
             xhtml_escape: "yes",
             escape: "no"
         })).toEqual("Test - yes - no");
+    });
+
+    it('test_relative_load_posix', function() {
+        var loader = new DictLoader({
+            "a/1.html": "{% include '2.html' %}",
+            "a/2.html": "{% include '../b/3.html' %}",
+            "b/3.html": "ok"
+        });
+        expect(loader.load("a/1.html").generate()).toEqual("ok");
+    });
+
+    it('test_try_full', function() {
+        var template = new Template("{% try %}\n" +
+                                    "try{% set var y = (x === 0 ? throwError() : 1/x); %}\n" +
+                                    "{% except %}-except\n" +
+                                    "{% else %}-else\n" +
+                                    "{% finally %}-finally\n" +
+                                    "{% end %}");
+        var throwError = function() { throw new Error('div by zero'); };
+        expect(template.generate({x: 1, throwError: throwError})).toEqual("\ntry\n-else\n-finally\n");
+        expect(template.generate({x: 0, throwError: throwError})).toEqual("\ntry-except\n-finally\n");
+    });
+
+    it('test_elif', function() {
+        var template = new Template("{% if (x === 1) %}1{% elif (x === 2) %}2{% else %}3{% end %}");
+        expect(template.generate({x: 1})).toEqual("1");
+        expect(template.generate({x: 2})).toEqual("2");
+        expect(template.generate({x: 3})).toEqual("3");
+    });
+
+    it('test_break_in_apply', function() {
+        var isParseError = function(templateStr) {
+            try {
+                new Template(templateStr);
+            } catch (x) {
+                if (x.name === 'ParseError') {
+                    return true;
+                }
+            }
+            return false;
+        };
+        expect(isParseError("{% for (var i = 0; i < 1; i++) %}{% apply upper %}{% break %}{% end %}{% end %}")).toBeTruthy();
+    });
+
+    it('test_unicode_template_js', function() {
+        var template = new Template("\u00e9");
+        expect(template.generate()).toEqual("\u00e9");
+    });
+
+    it('test_unicode_literal_expression_js', function() {
+        var template = new Template("{{ '\u00e9' }}");
+        expect(template.generate()).toEqual("\u00e9");
+    });
+
+    it('test_error_line_number_expression', function() {
+        var loader = new DictLoader({
+            "test.html": "one\ntwo{{undefined_var.foo()}}\nthree\n"
+        });
+        try {
+            loader.load("test.html").generate();
+            expect(false).toBeTruthy();
+        } catch (err) {
+            expect(err.stack.indexOf("test.html:2") !== -1).toBeTruthy();
+        }
+    });
+
+    it('test_error_line_number_directive', function() {
+        var loader = new DictLoader({
+            "test.html": "one\ntwo{% if (undefined_var.foo()) %}\nthree{% end %}\n"
+        });
+        try {
+            loader.load("test.html").generate();
+            expect(false).toBeTruthy();
+        } catch (err) {
+            expect(err.stack.indexOf("test.html:2") !== -1).toBeTruthy();
+        }
+    });
+
+    it('test_error_line_number_include', function() {
+        var loader = new DictLoader({
+            "base.html": "{% include 'sub.html' %}",
+            "sub.html": "{{undefined_var.foo()}}"
+        });
+        try {
+            loader.load("base.html").generate();
+            expect(false).toBeTruthy();
+        } catch (err) {
+            expect(err.stack.indexOf("sub.html:1 (via base.html:1)") !== -1).toBeTruthy();
+        }
     });
 });
 

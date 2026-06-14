@@ -1,7 +1,8 @@
 "use strict";
 
 /*
- * Porting from tornado/template.py([Tornado](https://github.com/tornadoweb/tornado)).
+ * Porting from tornado/template.py ([Tornado](https://github.com/tornadoweb/tornado)).
+ * Based on Tornado version: 6.6.dev1 (Commit: 3251ead3074e4c546ca8b35d86cbc47666423cd2, March 2026)
  * Copyright 2011-2017 Ike Tohru<ike.tohru@gmail.com>
  *
  * NOTICE:
@@ -176,27 +177,24 @@ string.contains = function (value, fragment) {
 /**
  * @param {string} str .
  * @param {string} sub .
- * @param {number} start .
- * @param {number} end .
- * @param {?number=} count .
+ * @param {?number=} start .
+ * @param {?number=} end .
  * @return {number} .
  */
-string.count = function (str, sub, start, end, count) {
-    start = start ? start : 0;
-    end = end ? end : str.length;
-    count = count ? count : 0;
-    if (end < start) {
-        return 0;
+string.count = function (str, sub, start, end) {
+    start = start !== undefined && start !== null ? start : 0;
+    end = end !== undefined && end !== null ? end : str.length;
+    var slice = str.substring(start, end);
+    if (sub === "") {
+        return slice.length + 1;
     }
-    var p = str.indexOf(sub);
-    if (p === -1) {
-        return count;
+    var count = 0;
+    var pos = slice.indexOf(sub);
+    while (pos !== -1) {
+        count++;
+        pos = slice.indexOf(sub, pos + sub.length);
     }
-    count += 1;
-    if (count === str.length) {
-        return count;
-    }
-    return string.count(str.slice(start, end), sub, start, end, count);
+    return count;
 };
 
 /**
@@ -355,8 +353,63 @@ var posixpath = {};
  * @return {string} .
  */
 posixpath.dirname = function (p) {
-    var i = string.find(p, '/');
-    return p.substr(0, i);
+    var i = p.lastIndexOf('/');
+    if (i === -1) {
+        return '';
+    }
+    return p.substring(0, i);
+};
+
+/**
+ * @param {...string} var_args .
+ * @return {string} .
+ */
+posixpath.join = function (var_args) {
+    var path = arguments[0] || '';
+    for (var i = 1; i < arguments.length; i++) {
+        var next = arguments[i];
+        if (next.indexOf('/') === 0) {
+            path = next;
+        } else if (path === '' || path.indexOf('/', path.length - 1) !== -1) {
+            path += next;
+        } else {
+            path += '/' + next;
+        }
+    }
+    return path;
+};
+
+/**
+ * @param {string} path .
+ * @return {string} .
+ */
+posixpath.normpath = function (path) {
+    if (path === '') {
+        return '.';
+    }
+    var initialSlash = path.indexOf('/') === 0;
+    var parts = path.split('/');
+    var newParts = [];
+    for (var i = 0; i < parts.length; i++) {
+        var part = parts[i];
+        if (part === '' || part === '.') {
+            continue;
+        }
+        if (part === '..') {
+            if (newParts.length > 0 && newParts[newParts.length - 1] !== '..') {
+                newParts.pop();
+            } else if (!initialSlash) {
+                newParts.push('..');
+            }
+        } else {
+            newParts.push(part);
+        }
+    }
+    var result = newParts.join('/');
+    if (initialSlash) {
+        result = '/' + result;
+    }
+    return result === '' ? '.' : result;
 };
 
 /**
@@ -950,8 +1003,37 @@ Template.prototype.generate = function (kwargs) {
     try {
         return execute(namespace, escape_.xhtml_escape, escape_.xhtml_escape);
     } catch (x) {
-        console.error(x);
-        throw new Error(x);
+        if (x && x.stack) {
+            var stackLines = x.stack.split('\n');
+            var codeLines = this.code.split('\n');
+            var mappedLines = [];
+            for (var i = 0; i < stackLines.length; i++) {
+                var line = stackLines[i];
+                var match = line.match(/<anonymous>:(\d+):(\d+)/);
+                if (match) {
+                    var genLineNum = parseInt(match[1], 10) - 2;
+                    if (genLineNum > 0 && genLineNum <= codeLines.length) {
+                        var codeLine = codeLines[genLineNum - 1];
+                        var commentMatch = codeLine.match(/\/\/\s*(.*)$/);
+                        if (commentMatch) {
+                            var templateLoc = commentMatch[1].trim();
+                            mappedLines.push("    at # " + templateLoc);
+                        }
+                    }
+                }
+                mappedLines.push(line);
+            }
+            try {
+                Object.defineProperty(x, 'stack', {
+                    value: mappedLines.join('\n'),
+                    configurable: true,
+                    writable: true
+                });
+            } catch (e) {
+                // Ignore descriptor errors
+            }
+        }
+        throw x;
     }
 };
 Template.prototype['generate'] = Template.prototype.generate;
@@ -1118,9 +1200,8 @@ DictLoader.prototype.resolve_path = function (name, parent_path) {
         !string.startwith(parent_path, '<') &&
         !string.startwith(parent_path, '/') &&
         !string.startwith(name, '/')) {
-        //TODO: xxx
-        //var file_dir = posixpath.dirname(parent_path);
-        //name = posixpath.normpath(posixpath.join(file_dir, name));
+        var file_dir = posixpath.dirname(parent_path);
+        name = posixpath.normpath(posixpath.join(file_dir, name));
     }
     return name;
 };
@@ -1272,10 +1353,12 @@ _NamedBlock.prototype.each_child = function () {
  */
 _NamedBlock.prototype.generate = function (writer) {
     var block = writer.named_blocks[this.name];
+    writer.include_stack.push([writer.current_template, this.line]);
     var old = writer.current_template;
     writer.current_template = block.template;
     block.body.generate(writer);
     writer.current_template = old;
+    writer.include_stack.pop();
 };
 
 /**
@@ -1326,10 +1409,12 @@ _IncludeBlock.prototype.find_named_blocks = function (loader, named_blocks) {
  */
 _IncludeBlock.prototype.generate = function (writer) {
     var included = writer.loader.load(this.name, this.template_name);
+    writer.include_stack.push([writer.current_template, this.line]);
     var old = writer.current_template;
     writer.current_template = included;
     included.file.body.generate(writer);
     writer.current_template = old;
+    writer.include_stack.pop();
 };
 
 /**
@@ -1399,11 +1484,48 @@ _ControlBlock.prototype.each_child = function () {
  * @override
  */
 _ControlBlock.prototype.generate = function (writer) {
-    writer.write_line(this.statement, this.line);
-    writer.write_line('{', this.line);
+    var stmt = this.statement.trim();
+    var is_try = stmt.indexOf('try') === 0;
+    var info = null;
+    if (is_try) {
+        var has_else = false;
+        var has_finally = false;
+        for (var i = 0; i < this.body.chunks.length; i++) {
+            var chunk = this.body.chunks[i];
+            if (chunk instanceof _IntermediateControlBlock) {
+                var cstmt = chunk.statement.trim();
+                if (cstmt === 'else') {
+                    has_else = true;
+                } else if (cstmt === 'finally') {
+                    has_finally = true;
+                }
+            }
+        }
+        info = { type: 'try', has_else: has_else, has_finally: has_finally };
+        writer.control_stack.push(info);
+        
+        if (has_else && has_finally) {
+            writer.write_line('var _tt_no_exc = true;', this.line);
+            writer.write_line('try {', this.line);
+            writer.write_line('try {', this.line, writer.indent_size() + 1);
+        } else if (has_else) {
+            writer.write_line('var _tt_no_exc = true;', this.line);
+            writer.write_line('try {', this.line);
+        } else {
+            writer.write_line('try {', this.line);
+        }
+    } else {
+        writer.write_line(this.statement, this.line);
+        writer.write_line('{', this.line);
+        writer.control_stack.push({ type: stmt.split(' ')[0] });
+    }
+    
     statement.with_stmt(writer.indent(), function () {
         this.body.generate(writer);
     }.bind(this));
+    
+    writer.control_stack.pop();
+    
     writer.write_line('}', this.line);
 };
 
@@ -1424,7 +1546,46 @@ inherits(_IntermediateControlBlock, _Node);
  * @override
  */
 _IntermediateControlBlock.prototype.generate = function (writer) {
-    writer.write_line('}' + this.statement + '{', this.line);
+    var stmt = this.statement.trim();
+    var parent = writer.control_stack[writer.control_stack.length - 1];
+    
+    if (stmt.indexOf('elif ') === 0) {
+        stmt = 'else if (' + stmt.substring(5).trim() + ')';
+        writer.write_line('}' + stmt + '{', this.line);
+    } else if (stmt.indexOf('except') === 0 || stmt.indexOf('catch') === 0) {
+        var exc_var = 'e';
+        var match = stmt.match(/as\s+([a-zA-Z0-9_]+)/);
+        if (match) {
+            exc_var = match[1];
+        } else {
+            var match2 = stmt.match(/catch\s*\(\s*([a-zA-Z0-9_]+)\s*\)/);
+            if (match2) {
+                exc_var = match2[1];
+            }
+        }
+        if (parent && parent.type === 'try' && parent.has_else) {
+            writer.write_line('} catch (' + exc_var + ') {', this.line);
+            writer.write_line('_tt_no_exc = false;', this.line);
+        } else {
+            writer.write_line('} catch (' + exc_var + ') {', this.line);
+        }
+    } else if (stmt === 'else') {
+        if (parent && parent.type === 'try') {
+            writer.write_line('}', this.line);
+            writer.write_line('if (_tt_no_exc) {', this.line);
+        } else {
+            writer.write_line('} else {', this.line);
+        }
+    } else if (stmt === 'finally') {
+        if (parent && parent.type === 'try' && parent.has_else) {
+            writer.write_line('}', this.line);
+            writer.write_line('} finally {', this.line);
+        } else {
+            writer.write_line('} finally {', this.line);
+        }
+    } else {
+        writer.write_line('}' + stmt + '{', this.line);
+    }
 };
 
 /**
@@ -1461,6 +1622,17 @@ var _Expression = function (expression, line, raw) {
     this.raw = raw;
 };
 inherits(_Expression, _Node);
+
+/**
+ * @param {string} expression .
+ * @param {number} line .
+ * @constructor
+ * @extends {_Expression}
+ */
+var _Module = function (expression, line) {
+    _Module.__super__.constructor.apply(this, ['_tt_modules.' + expression, line, true]);
+};
+inherits(_Module, _Expression);
 
 /**
  * @param {_CodeWriter} writer .
@@ -1560,6 +1732,8 @@ var _CodeWriter = function (file, named_blocks, loader, current_template) {
     this.current_template = current_template;
     this.apply_counter = 0;
     this._indent = 0;
+    this.control_stack = [];
+    this.include_stack = [];
 };
 inherits(_CodeWriter, Object);
 
@@ -1596,11 +1770,17 @@ _CodeWriter.prototype.indent = function () {
  * @param {?number=} indent .
  */
 _CodeWriter.prototype.write_line = function (line, line_number, indent) {
-    indent = indent ? indent : null;
-    if (indent == null) {
-        indent = this._indent;
-    }
+    indent = (indent !== undefined && indent !== null) ? indent : this._indent;
     var line_comment = ' // ' + this.current_template.name + ':' + line_number;
+    if (this.include_stack && this.include_stack.length > 0) {
+        var ancestors = [];
+        for (var i = 0; i < this.include_stack.length; i++) {
+            var pair = this.include_stack[i];
+            ancestors.push(pair[0].name + ':' + pair[1]);
+        }
+        ancestors.reverse();
+        line_comment += ' (via ' + ancestors.join(', ') + ')';
+    }
     this.file.write(string.__mul__('\t', indent) + line + line_comment + '\n');
 };
 
@@ -1803,17 +1983,22 @@ var _parse = function (reader, template, in_block, in_loop) {
         var operator = partition.shift();
         var suffix = partition.join(' ');
         // Intermediate ('else', 'elif', etc) blocks
-        var intermediate_blocks = {
-            'else': ['if'],
-            'catch(e)': ['try'],
-        };
-        var allowed_parents = object.get(intermediate_blocks, operator);
+        var allowed_parents = null;
+        if (operator === 'else') {
+            allowed_parents = ['if', 'try', 'for', 'while'];
+        } else if (operator === 'elif') {
+            allowed_parents = ['if'];
+        } else if (operator.indexOf('except') === 0 || operator.indexOf('catch') === 0) {
+            allowed_parents = ['try'];
+        } else if (operator === 'finally') {
+            allowed_parents = ['try'];
+        }
         if (allowed_parents !== null) {
             if (!in_block) {
-                reader.raise_parse_error(operator + ' outside ' + allowed_parents + ' block');
+                reader.raise_parse_error(operator + ' outside ' + allowed_parents.join(', ') + ' block');
             }
-            if (allowed_parents instanceof Array && !array.contains(allowed_parents, in_block)) {
-                reader.raise_parse_error(operator + ' block cannot be attached to ' + in_block + 'block');
+            if (!array.contains(allowed_parents, in_block)) {
+                reader.raise_parse_error(operator + ' block cannot be attached to ' + in_block + ' block');
             }
             body.chunks.push(new _IntermediateControlBlock(contents, line));
             continue;
@@ -1831,6 +2016,9 @@ var _parse = function (reader, template, in_block, in_loop) {
             'autoescape',
             'whitespace',
             'raw',
+            'import',
+            'from',
+            'module'
         ], operator)) {
             if (operator === 'comment') {
                 continue;
@@ -1854,6 +2042,18 @@ var _parse = function (reader, template, in_block, in_loop) {
                     reader.raise_parse_error('set missing statement on line ' + line);
                 }
                 block = new _Statement(suffix, line);
+            }
+            else if (operator === 'import' || operator === 'from') {
+                if (!suffix) {
+                    reader.raise_parse_error(operator + ' missing statement on line ' + line);
+                }
+                block = new _Statement(contents, line);
+            }
+            else if (operator === 'module') {
+                if (!suffix) {
+                    reader.raise_parse_error('module missing statement on line ' + line);
+                }
+                block = new _Module(suffix, line);
             }
             else if (operator === 'autoescape') {
                 var fn = string.strip(suffix);

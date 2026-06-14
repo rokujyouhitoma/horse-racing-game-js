@@ -43,7 +43,12 @@ Key details:
 
 ---
 
-## Future Work / TODOs
-* **Align with Latest Tornado Specifications**: For long-term maintainability and security, consider aligning or replacing the implementation of `template.js` with the latest version of the Tornado Web Server's template engine to incorporate feature enhancements and security updates.
+### 2026-06-14 Template Syntax Alignment (Tornado v6.6.dev1)
+- **`try/except/else/finally` Support**: Added full support for compiling `try ... except ... else ... finally ... end` block structures in templates into valid nested JS statements. Exception tracking is emulated using an internal `_tt_no_exc` flag.
+- **`elif` Directive**: Mapped `elif <condition>` directly to JS `else if (<condition>)`.
+- **Traceback Line Mapping**: Implemented V8 stack trace parsing inside `Template.prototype.generate` to translate compiled JS runtime error locations back to original template filenames and line numbers using appended comments (`// <name>:<line> (via ...)`).
+- **`posixpath` Path Resolution**: Fully implemented `posixpath.dirname`, `posixpath.join`, and `posixpath.normpath` to handle relative path inclusions (`..`) in `DictLoader` templates.
+- **Compiler warning resolution**: Resolved all Closure Compiler annotations and warnings, including fixing a loop index count bug in `string.count`.
+
 
 
