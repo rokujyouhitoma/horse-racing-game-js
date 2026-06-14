@@ -945,7 +945,7 @@ Template.prototype.generate = function (kwargs) {
     namespace._execute = this.compiled();
     var execute = namespace._execute;
     try {
-        return execute(namespace);
+        return execute(namespace, escape_.xhtml_escape, escape_.xhtml_escape);
     } catch (x) {
         console.error(x);
         throw new Error(x);
@@ -1184,10 +1184,8 @@ inherits(_File, _Node);
  * @override
  */
 _File.prototype.generate = function (writer) {
-    writer.write_line('return function(namespace){', this.line);
+    writer.write_line('return function(namespace, _xhtml_escape, _escape){', this.line);
     statement.with_stmt(writer.indent(), function () {
-        writer.write_line('var _xhtml_escape = namespace.xhtml_escape;', this.line);
-        writer.write_line('var _escape = namespace.escape;', this.line);
         writer.write_line('with(namespace){', this.line);
         statement.with_stmt(writer.indent(), function () {
             writer.write_line('return function(){', this.line);

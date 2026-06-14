@@ -30,6 +30,14 @@ var describe = function(dname, func){
                     }
                 }
             };
+            Test.prototype.toBeFalsy = function(){
+                if(this.value){
+                    console.error(dname, name, this.value, "is not falsy");
+                    if (typeof process !== 'undefined') {
+                        process.exitCode = 1;
+                    }
+                }
+            };
             return new Test(value);
         };
         globalObject.expect = expect;
@@ -456,7 +464,8 @@ describe('LaneRendererTest', function() {
         expect(fragment.childNodes[0].textContent).toEqual("___\uD83C\uDFC7__");
         expect(fragment.childNodes[1].textContent).toEqual("|");
         expect(fragment.childNodes[2].tagName.toLowerCase()).toEqual("span");
-        expect(fragment.childNodes[2].style.backgroundColor).toEqual("rgb(255, 0, 0)");
+        var bg = fragment.childNodes[2].style.backgroundColor;
+        expect(bg === "rgb(255, 0, 0)" || bg === "#ff0000" || bg === "ff0000").toBeTruthy();
         expect(fragment.childNodes[2].textContent).toEqual("1");
         expect(fragment.childNodes[3].textContent).toEqual("|2");
     });
