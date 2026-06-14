@@ -25,6 +25,9 @@
  * WARNING, KNOWN ISSUE:
  *   Curly braces: ``{{ ... }}`` can access to all object.
  *   e.g. {{this}} can access to this object (almost, global object like window)
+ *
+ * TODO:
+ *   template.jsを最新のTornadoの仕様に追従し、機能・セキュリティ両面で最新の動向にリプレイス/アップデートする。
  */
 
 /**

@@ -41,3 +41,9 @@ Key details:
 - **`eval` Statement Elimination**: Previously, `eval(namespace.js_variables(...))` was called at runtime inside dynamic functions to bind variables. This has been replaced by wrapping the generated template logic in a `with(namespace) { ... }` block inside the dynamic function. This eliminates runtime `eval` calls, improving security, compatibility with strict environments, and optimization potential.
 - **Robust Suffix/Quote Parsing**: Fixed parser logic for `extends` and `include` directives. Raw regular expressions previously left trailing quotes or crashed on inconsistent quoting. The regex now extracts template paths cleanly, handling both single and double quotes properly.
 
+---
+
+## Future Work / TODOs
+* **Align with Latest Tornado Specifications**: For long-term maintainability and security, consider aligning or replacing the implementation of `template.js` with the latest version of the Tornado Web Server's template engine to incorporate feature enhancements and security updates.
+
+

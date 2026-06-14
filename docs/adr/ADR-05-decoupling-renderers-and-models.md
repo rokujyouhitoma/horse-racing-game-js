@@ -1,29 +1,35 @@
-# [ADR-05] レンダラーとモデルの疎結合化（Pub/Subイベント駆動設計の導入）
+# [ADR-05] Decoupling Renderers and Models via Pub/Sub Event-Driven Architecture
 
-## ステータス (Status)
-承認済 (Accepted)
+* **Date**: 2026-06-14
+* **Status**: Accepted
+* **Author**: Development Team
 
-## コンテキスト (Context)
-ゲーム画面の描画レイヤーである `RacetrackLayer` や `OddsTableLayer` が、グローバルな `Game.SceneDirector` を経由してアクティブなシーンのコントローラー（`RaceDirector`）を直接参照し、そのメンバ変数からレースモデル（`racetrack`, `oddstable`）を取得して描画していました。
+---
 
-この設計には以下の問題がありました：
-1. **密結合 (Tight Coupling)**: 描画レイヤー（View）が、特定のシーン構成（`RaceDirector` が存在するシーン）に完全に依存しており、他のシーンやデバッグ環境での再利用が困難でした。
-2. **データフローの不透明性**: どのタイミングでモデルが変更され、いつ描画が走るのかが明示的でなく、フレーム更新イベント（`Events.Game.OnUpdate`）のたびにモデルを直接参照して描画処理を行うため、状態の不整合や不要なオーバーヘッドが発生しやすい構造になっていました。
-3. **将来のオンライン・マルチプレイ対応への障壁**: コントローラーとビューがメモリ空間上で直結しているため、サーバーサイドからデータを受け取って描画するような構成への移行が困難でした。
+## Context
 
-## 意思決定 (Decision)
-描画レイヤーとコントローラー/モデル層の結合度を下げ、データの流れを「一方向イベント駆動」とするため、以下の設計変更を決定・実施しました。
+Visual rendering layers such as `RacetrackLayer` and `OddsTableLayer` directly accessed the active scene controller (`RaceDirector`) via the global `Game.SceneDirector` and pulled the race models (`racetrack`, `oddstable`) directly from its properties to perform redraws.
 
-1. **イベント駆動型更新の導入**:
-   * レースの状態変更を通知する専用イベント `Events.Race.OnChanged` を新規に定義。
-   * コントローラー（`RaceDirector`）は、自身のシーン進入時（`OnEnter`）および状態更新時（`OnUpdate`）に、最新のモデル状態をペイロード（`{ race, racetrack, oddstable }`）として `Events.Race.OnChanged` をパブリッシュします。
-2. **描画レイヤーの依存関係排除**:
-   * `RacetrackLayer` および `OddsTableLayer` は、`Game.SceneDirector` や `RaceDirector` への直接参照を完全に排除します。
-   * 代わりに `Events.Race.OnChanged` イベントを購読し、イベントのペイロードに含まれる `racetrack` および `oddstable` オブジェクトのみを用いて描画処理を行います。
-3. **非同期描画時の安全なDOMノード解決**:
-   * `OddsTableLayer` などの非同期にDOMツリーを構築・置換するレイヤーにおいて、描画コマンドのキューイング時と実行時のDOM要素参照のズレを解消するため、古いノードの取得および削除ロジックを、描画コマンドの実行クロージャ内部で遅延評価するよう変更しました。
+This coupled design introduced several structural issues:
+1. **Tight Coupling**: The rendering layers (View) were fully dependent on a specific scene configuration (the existence of `RaceDirector`), making it difficult to reuse them in other scenes or standalone debug/testing contexts.
+2. **Opaque Data Flow**: It was unclear when models changed and when rendering occurred. The layers directly accessed models on every frame update event (`Events.Game.OnUpdate`), which created risks of stale states and unnecessary processing overhead.
+3. **Barrier to Multiplayer/Network Extensions**: Because the controllers and views were tied directly in local memory, moving to an architecture where data is fetched or updated from a server-side source was difficult.
 
-## 結果 (Consequences)
-* **疎結合化の達成**: 描画レイヤー（View）は、イベントペイロードさえ渡されれば、どのシーンやコンテキストからでも独立して動作・描画可能になりました。これにより、テストが容易になり、将来的なマルチプレイ化などの要件変更に対しても堅牢になりました。
-* **単一方向データフローの確立**: `Model/Controller -> Event -> View` という一方向のデータフローが明確になり、データ更新と再描画の追跡が容易になりました。
-* **型安全性の維持**: リファクタリング後も Closure Compiler (ADVANCED_OPTIMIZATIONS) によるコンパイルを無警告・無エラーでパスし、静的型安全性が保証されています。
+## Decision
+
+To lower the coupling between the rendering layers and the controller/model layer, and to establish a unidirectional event-driven data flow, we made the following architectural changes:
+
+1. **Introduce Event-Driven Updates**:
+   * Defined a dedicated state-change event: `Events.Race.OnChanged`.
+   * The controller (`RaceDirector`) publishes `Events.Race.OnChanged` with the current model state as a payload (`{ race, racetrack, oddstable }`) during its scene entry (`OnEnter`) and frame updates (`OnUpdate`).
+2. **Remove View Layer Dependencies**:
+   * Removed all direct references to `Game.SceneDirector` or `RaceDirector` from `RacetrackLayer` and `OddsTableLayer`.
+   * The layers now subscribe to `Events.Race.OnChanged` and update their interfaces using only the properties received inside `e.payload.racetrack` and `e.payload.oddstable`.
+3. **Safe Async DOM Resolution**:
+   * Inside layers that construct and replace DOM structures asynchronously (like `OddsTableLayer`), we deferred the resolution and removal of the old table element to within the command execution closure rather than evaluating it immediately. This prevents referencing detached elements during execution.
+
+## Consequences
+
+- **Decoupled View Architecture**: Rendering layers are now fully independent. They can run and render in any scene or testing context as long as they receive the expected event payload.
+- **Unidirectional Data Flow**: The flow `Model/Controller -> Event -> View` is clearly established, making state changes and drawing cycles easy to debug and track.
+- **Type Safety Maintained**: The refactored code successfully compiles under Google Closure Compiler (with `ADVANCED_OPTIMIZATIONS`) with zero warnings and zero errors.

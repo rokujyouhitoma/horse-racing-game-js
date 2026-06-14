@@ -35,6 +35,6 @@
 | **[ADR-01]** | Vanilla JS アーキテクチャの採用 | [ADR-01-vanilla-javascript-architecture.md](adr/ADR-01-vanilla-javascript-architecture.md) | フレームワーク非依存による超軽量動作決定の意思決定記録。 | 技術方針の決定時。 |
 | **[ADR-02]** | カスタムイベントシステムの導入 | [ADR-02-custom-event-system.md](adr/ADR-02-custom-event-system.md) | DOM非依存の bubbling/capturing イベントの自作に関する記録。 | 技術方針の決定時。 |
 | **[ADR-03]** | TornadoテンプレートエンジンのJS移植 | [ADR-03-tornado-template-engine-js-port.md](adr/ADR-03-tornado-template-engine-js-port.md) | HTMLテンプレート解釈の高速化と vanilla 化に関する記録。 | 技術方針の決定時。 |
-| **[ADR-04]** | Closure Compilerのアップグレードおよびコンパイル警告・エラーの修正 | [ADR-04-closure-compiler-upgrade-and-warning-fixes.md](adr/ADR-04-closure-compiler-upgrade-and-warning-fixes.md) | 最新のコンパイラへのアップグレードと、実質的なバグ・警告修正の記録。 | ビルド環境およびコンパイラ警告対応方針の決定時。 |
-| **[ADR-05]** | レンダラーとモデルの疎結合化（Pub/Subイベント駆動設計の導入） | [ADR-05-decoupling-renderers-and-models.md](adr/ADR-05-decoupling-renderers-and-models.md) | レンダラー（View）とコントローラー（Controller）/モデル（Model）の密結合の解消に関する意思決定記録。 | 技術方針の決定時。 |
+| **[ADR-04]** | Google Closure Compiler Upgrade and Warning Remediation | [ADR-04-closure-compiler-upgrade-and-warning-fixes.md](adr/ADR-04-closure-compiler-upgrade-and-warning-fixes.md) | Upgrading Closure Compiler and fixing warnings/errors. | Decision on warning levels and compiler configs. |
+| **[ADR-05]** | Decoupling Renderers and Models via Pub/Sub Event-Driven Architecture | [ADR-05-decoupling-renderers-and-models.md](adr/ADR-05-decoupling-renderers-and-models.md) | Decoupling view layers from controllers and models using events. | Transition to event-driven unidirectional data flow. |
 

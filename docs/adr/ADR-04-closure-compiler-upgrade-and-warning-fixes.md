@@ -1,35 +1,41 @@
-# [ADR-04] Closure Compilerのアップグレードおよびコンパイル警告・エラーの修正
+# [ADR-04] Google Closure Compiler Upgrade and Warning Remediation
 
-## ステータス (Status)
-承認済 (Accepted)
+* **Date**: 2026-06-14
+* **Status**: Accepted
+* **Author**: Development Team
 
-## コンテキスト (Context)
-プロジェクトで使用されていたビルドツール（`closure-compiler` は 2017年版、`closure-stylesheets` は古いビルド）は非常に古く、最新のビルド環境やパフォーマンス、安全性の向上のためにこれらを最新版に更新しました（`closure-compiler-v20260602.jar` および `closure-stylesheets-1.5.0.jar`）。
+---
 
-最新版の Closure Compiler を用いてビルドを実行した結果、合計 791 件のコンパイル警告（WARNING）が検出されました。これらの警告は、以下の2種類に分類されます：
+## Context
 
-1. **機能的バグ・型定義ミスマッチ警告（9件）**:
-   - `String.prototype.replace` に不要な第3引数が渡されている（Pythonの `re.sub` の残骸とみられるバグ）。
-   - ES6 ジェネレータ関数（`function*`）の戻り値型アノテーションのミスマッチ（`for-of` ループで反復処理するオブジェクトは `Iterator` ではなく `Iterable` である必要がある）。
-   - `Locator` でコンストラクタ関数をオブジェクトキーとして扱っている問題（`JSC_NON_STRINGIFIABLE_OBJECT_KEY`）。
-2. **コードスタイル関連警告（782件）**:
-   - `var` の使用に対する警告（`let` や `const` の推奨：467件）。
-   - JSDoc における参照型の null 許容性指定（`!` や `?`）の不足（310件）。
-   - プライベートプロパティに対する `@const` 指定の不足など。
+The build tools used in this project (Google Closure Compiler from 2017 and an old build of Closure Stylesheets) were outdated. To leverage modern build optimizations, performance improvements, and security enhancements, we upgraded them to the latest versions (`closure-compiler-v20260602.jar` and `closure-stylesheets-1.5.0.jar`).
 
-## 意思決定 (Decision)
-コードベースの品質向上と安全なビルド環境を両立させるため、以下の2点の方針を決定しました。
+Compiling the codebase with the upgraded Closure Compiler initially flagged a total of 791 compilation warnings. These warnings fell into two distinct categories:
 
-1. **機能的警告およびバグの完全な修正**:
-   - `template.js` 内の `replace` の冗長引数の削除（実質的なバグ修正）。
-   - `locator.js` で plain Object の代わりに ES6 `Map` を使用するよう変更し、キー処理の安全性を確保。
-   - ジェネレータの JSDoc アノテーションを `@return {!IterableIterator<Type>}` に修正し、変数の型キャスト・型アノテーションを適切に設定。
-   - 一部未修正だった JSDoc コメントプレフィックス（`/** type` → `/** @type`）の修正。
-2. **スタイルガイド関連チェックの除外**:
-   - 本プロジェクトの既存コードは ES5 ベースの記述様式（`var` の使用、デフォルトで null 許容される型指定）で記述されています。467件におよぶ `var` の機械的な置換は、ブロックスコープ化による予期せぬ実行時バグを誘発するリスクがあります。
-   - そのため、[Makefile](file:///workspace/horse-racing-game-js/Makefile) から strict なスタイルチェックを有効にする `--jscomp_warning=lintChecks` フラグを削除します。これにより、実質的な型安全性を損なうことなく、警告数を 0 に抑制します。
+1. **Functional Bugs & Type Mismatch Warnings (9 occurrences)**:
+   - An redundant third argument passed to `String.prototype.replace` (a relic from Python's `re.sub`).
+   - Mismatched return type annotations on ES6 generator functions (`function*`), where the iteration targets inside `for-of` loops must be annotated as `Iterable` rather than `Iterator`.
+   - The `Locator` container using constructor functions directly as object keys (`JSC_NON_STRINGIFIABLE_OBJECT_KEY`).
+2. **Style-related Guidelines (782 occurrences)**:
+   - Warnings recommending `let` and `const` instead of `var` (467 occurrences).
+   - Missing explicit nullability markers (`!` or `?`) for reference types in JSDoc comments (310 occurrences).
+   - Missing `@const` annotations on private properties.
 
-## 結果 (Consequences)
-- `make` コマンドによりコンパイル警告が **0 件**（0 errors, 0 warnings）で正常にビルド可能となります。
-- `replace` にまつわる潜在的な動作バグが解消されます。
-- `Locator` で関数キーを扱う際の文字列表現への暗黙変換による衝突リスクが排除され、安全なメモリ空間上でオブジェクトの解決が行われます。
+## Decision
+
+To improve code quality while avoiding unnecessary regressions, we decided on the following two-fold approach:
+
+1. **Fix Functional Warnings and Bugs**:
+   - Removed the redundant third argument from `replace` in `template.js` (fixing a latent runtime bug).
+   - Refactored `locator.js` to use an ES6 `Map` rather than a plain object to prevent implicit string conversion conflicts when using constructor functions as keys.
+   - Fixed generator JSDoc return type annotations to `@return {!IterableIterator<Type>}` and refined type casts.
+   - Restructured incorrect JSDoc parameter formatting (e.g. `/** type` changed to `/** @type`).
+2. **Disable Non-Functional Style Checks**:
+   - The legacy codebase is written in ES5 syntax. Performing bulk mechanical replacement of `var` to `let`/`const` across 467 occurrences carries a significant risk of introducing block-scoping bugs.
+   - Therefore, we removed the strict style checking flag `--jscomp_warning=lintChecks` from the `Makefile`. This suppresses stylistic warnings while preserving core compiler type safety checks.
+
+## Consequences
+
+- The `make` build command now succeeds with exactly **0 errors and 0 warnings**.
+- A potential regex replacement runtime bug has been resolved.
+- Implicit string conversions in the `Locator` key lookup are eliminated, ensuring safe class dependency resolution in memory.
