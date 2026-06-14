@@ -87,7 +87,6 @@ CustomSceneDirector.prototype.Replace = function(scene){
  * @implements {IGameObject}
  */
 var Game = function(){
-    Game.Locator.locate(GameDirector); //TODO: This is bootstrap code.
     this.fps = new FPS();
     this.objects = [
         this.fps,
@@ -189,7 +188,6 @@ Game.Log = function(message){
  * @constructor
  */
 var GameDirector = function(){
-    Game.Locator.locate(RepositoryDirector); //TODO: This is bootstrap code.
     this.objects = [
         Game.Locator.locate(HorseFigureDirector),
         Game.Locator.locate(MonsterCoinDirector),
@@ -1489,8 +1487,17 @@ GameScene.prototype.OnResume = function(){
     "DashCard",
 ]);
 
+/**
+ * Bootstrap sequence to explicitly instantiate all required directors in the correct order.
+ */
+Game.Bootstrap = function(){
+    Game.Locator.locate(RepositoryDirector);
+    Game.Locator.locate(GameDirector);
+};
+
 // main
 window.addEventListener("load", function(){
+    Game.Bootstrap();
     var engine = Game.Locator.locate(Engine);
     engine.FPS = 60;
     engine.objects = [

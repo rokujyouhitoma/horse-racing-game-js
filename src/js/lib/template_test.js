@@ -488,3 +488,20 @@ describe('LaneRendererTest', function() {
     });
 });
 
+describe('BootstrapTest', function() {
+    it('test_bootstrap_initializes_directors', function() {
+        Game.LocatorContainer.clear();
+
+        expect(Game.LocatorContainer.has(RepositoryDirector)).toBeFalsy();
+        expect(Game.LocatorContainer.has(GameDirector)).toBeFalsy();
+
+        Game.Bootstrap();
+
+        expect(Game.LocatorContainer.has(RepositoryDirector)).toBeTruthy();
+        expect(Game.LocatorContainer.has(GameDirector)).toBeTruthy();
+
+        expect(Game.Locator.locate(RepositoryDirector) instanceof RepositoryDirector).toBeTruthy();
+        expect(Game.Locator.locate(GameDirector) instanceof GameDirector).toBeTruthy();
+    });
+});
+
