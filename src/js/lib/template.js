@@ -1186,14 +1186,17 @@ inherits(_File, _Node);
 _File.prototype.generate = function (writer) {
     writer.write_line('return function(namespace){', this.line);
     statement.with_stmt(writer.indent(), function () {
-        writer.write_line('eval(namespace.js_variables(namespace));', this.line); //TODO: suggest that not use eval.
-        writer.write_line('return function(){', this.line);
+        writer.write_line('with(namespace){', this.line);
         statement.with_stmt(writer.indent(), function () {
-            writer.write_line('var _buffer = [];', this.line);
-            this.body.generate(writer);
-            writer.write_line('return _buffer.join("");', this.line);
+            writer.write_line('return function(){', this.line);
+            statement.with_stmt(writer.indent(), function () {
+                writer.write_line('var _buffer = [];', this.line);
+                this.body.generate(writer);
+                writer.write_line('return _buffer.join("");', this.line);
+            }.bind(this));
+            writer.write_line('}();', this.line);
         }.bind(this));
-        writer.write_line('}();', this.line);
+        writer.write_line('}', this.line);
     }.bind(this));
     writer.write_line('};', this.line);
 };
