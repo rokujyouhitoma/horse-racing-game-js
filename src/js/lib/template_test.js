@@ -395,4 +395,35 @@ describe('Template', function() {
         var template = new Template('{% block title %}Default title{% end %}');
         expect(template.generate()).toEqual('Default title');
     });
+
+    it('test_suffix_quote_stripping', function() {
+        var loader = new DictLoader({
+            "base_double.html": "Double: {% block content %}{% end %}",
+            "base_single.html": "Single: {% block content %}{% end %}",
+            "base_none.html": "None: {% block content %}{% end %}",
+            "page_double.html": '{% extends "base_double.html" %}{% block content %}ok{% end %}',
+            "page_single.html": "{% extends 'base_single.html' %}{% block content %}ok{% end %}",
+            "page_none.html": "{% extends base_none.html %}{% block content %}ok{% end %}",
+            "include_double.html": '{% include "base_double.html" %}',
+            "include_single.html": "{% include 'base_single.html' %}",
+            "include_none.html": "{% include base_none.html %}"
+        });
+
+        expect(loader.load('page_double.html').generate()).toEqual("Double: ok");
+        expect(loader.load('page_single.html').generate()).toEqual("Single: ok");
+        expect(loader.load('page_none.html').generate()).toEqual("None: ok");
+
+        expect(loader.load('include_double.html').generate()).toEqual("Double: ");
+        expect(loader.load('include_single.html').generate()).toEqual("Single: ");
+        expect(loader.load('include_none.html').generate()).toEqual("None: ");
+    });
+
+    it('test_eval_avoidance_variable_scope', function() {
+        var template = new Template("{{ name }} - {{ xhtml_escape }} - {{ escape }}");
+        expect(template.generate({
+            name: "Test",
+            xhtml_escape: "yes",
+            escape: "no"
+        })).toEqual("Test - yes - no");
+    });
 });

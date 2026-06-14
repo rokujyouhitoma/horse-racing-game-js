@@ -30,18 +30,18 @@
 /**
  * @interface
  */
-var IWithItem = function(){};
+var IWithItem = function () { };
 
 /**
  * __enter__
  * @return {IWithItem} .
  */
-IWithItem.prototype.__enter__ = function(){};
+IWithItem.prototype.__enter__ = function () { };
 
 /**
  * __exit__
  */
-IWithItem.prototype.__exit__ = function(){};
+IWithItem.prototype.__exit__ = function () { };
 
 var statement = {};
 
@@ -49,7 +49,7 @@ var statement = {};
  * @param {IWithItem} item .
  * @param {function(?IWithItem)} func .
  */
-statement.with_stmt = function(item, func){
+statement.with_stmt = function (item, func) {
     var with_item = item.__enter__();
     func(with_item);
     item.__exit__();
@@ -61,7 +61,7 @@ statement.with_stmt = function(item, func){
  */
 function inherits(childCtor, parentCtor) {
     /** @constructor */
-    function tempCtor() {}
+    function tempCtor() { }
     tempCtor.prototype = parentCtor.prototype;
     childCtor.__super__ = parentCtor.prototype;
     childCtor.prototype = new tempCtor();
@@ -80,7 +80,7 @@ var buildin = {};
  * @param {string} implementation_of .
  * @return {number} .
  */
-buildin._min_max = function(args, implementation_of) {
+buildin._min_max = function (args, implementation_of) {
     var length = args.length;
     var first = args[0];
     var last = args[length - 1];
@@ -88,7 +88,7 @@ buildin._min_max = function(args, implementation_of) {
         if (typeof last === "object" && last.hasOwnProperty('key')) {
             throw new NotImplementedError();
         }
-        if (first instanceof  Array) {
+        if (first instanceof Array) {
             return Math.min.apply(null, first);
         }
         return Math.min.apply(null, args);
@@ -97,7 +97,7 @@ buildin._min_max = function(args, implementation_of) {
         if (typeof last === "object" && last.hasOwnProperty('key')) {
             throw new NotImplementedError();
         }
-        if (first instanceof  Array) {
+        if (first instanceof Array) {
             return Math.max.apply(null, first);
         }
         return Math.max.apply(null, args);
@@ -113,7 +113,7 @@ buildin._min_max = function(args, implementation_of) {
  * @see Python <a href='http://docs.python.org/library/functions.html#max'>max</a> function.
  * @see PyPy pypy/module/__builtin__/functional#max
  */
-buildin.max = function(args) {
+buildin.max = function (args) {
     return buildin._min_max(arguments, "max");
 };
 
@@ -123,7 +123,7 @@ buildin.max = function(args) {
  * @see Python <a href='http://docs.python.org/library/functions.html#min'>min</a> function.
  * @see PyPy pypy/module/__builtin__/functional#min
  */
-buildin.min = function(args) {
+buildin.min = function (args) {
     return buildin._min_max(arguments, "min");
 };
 
@@ -134,7 +134,7 @@ var array = {};
  * @param {?string} value .
  * @return {boolean} .
  */
-array.contains = function(arr, value) {
+array.contains = function (arr, value) {
     var length = arr.length;
     for (var i = 0; i < length; ++i) {
         if (arr[i] === value) {
@@ -151,7 +151,7 @@ var object = {};
  * @param {string} key .
  * @return {*} .
  */
-object.get = function(obj, key) {
+object.get = function (obj, key) {
     if (obj.hasOwnProperty(key)) {
         return obj[key];
     }
@@ -165,7 +165,7 @@ var string = {};
  * @param {string} fragment .
  * @return {boolean} .
  */
-string.contains = function(value, fragment) {
+string.contains = function (value, fragment) {
     var result = value.search(fragment);
     return (-1 < result);
 };
@@ -178,7 +178,7 @@ string.contains = function(value, fragment) {
  * @param {?number=} count .
  * @return {number} .
  */
-string.count = function(str, sub, start, end, count) {
+string.count = function (str, sub, start, end, count) {
     start = start ? start : 0;
     end = end ? end : str.length;
     count = count ? count : 0;
@@ -201,7 +201,7 @@ string.count = function(str, sub, start, end, count) {
  * @param {string} suffix .
  * @return {boolean} .
  */
-string.endswith = function(str, suffix) {
+string.endswith = function (str, suffix) {
     return str.indexOf(suffix, str.length - suffix.length) !== -1;
 };
 
@@ -212,7 +212,7 @@ string.endswith = function(str, suffix) {
  * @param {?number=} end .
  * @return {number} number or -1(not found).
  */
-string.find = function(str, sub, start, end) {
+string.find = function (str, sub, start, end) {
     start = start ? start : 0;
     end = end ? end : str.length;
     str = str.slice(start, end);
@@ -228,7 +228,7 @@ string.find = function(str, sub, start, end) {
  * @param {string} str .
  * @return {string} .
  */
-string.strip = function(str) {
+string.strip = function (str) {
     return str.replace(/^\s+|\s+$/g, '');
 };
 
@@ -237,7 +237,7 @@ string.strip = function(str) {
  * @param {string} substr .
  * @return {boolean} .
  */
-string.startwith = function(str, substr) {
+string.startwith = function (str, substr) {
     var parttern = new RegExp('^' + substr);
     return (str.search(parttern) === 0);
 };
@@ -247,7 +247,7 @@ string.startwith = function(str, substr) {
  * @param {number} count .
  * @return {string} .
  */
-string.__mul__ = function(str, count) {
+string.__mul__ = function (str, count) {
     return str.repeat(count);
 };
 
@@ -261,7 +261,7 @@ string.__mul__ = function(str, count) {
  * @constructor
  * @extends {Error}
  */
-var NotImplementedError = function(message) {
+var NotImplementedError = function (message) {
     NotImplementedError.__super__.constructor.apply(this, [message]);
     this.name = 'NotImplementedError';
 };
@@ -273,7 +273,7 @@ inherits(NotImplementedError, Error);
  * @constructor
  * @extends {Error}
  */
-var AssertionError = function(message) {
+var AssertionError = function (message) {
     AssertionError.__super__.constructor.apply(this, [message]);
     this.name = 'AssertionError';
 };
@@ -285,7 +285,7 @@ inherits(AssertionError, Error);
  * @constructor
  * @extends {Error}
  */
-var ValueError = function(message) {
+var ValueError = function (message) {
     ValueError.__super__.constructor.apply(this, [message]);
     this.name = 'ValueError';
 };
@@ -296,7 +296,7 @@ inherits(ValueError, Error);
  * @constructor
  * @extends {Error}
  */
-var IOError = function(var_args) {
+var IOError = function (var_args) {
     var message = '';
     var fragment = arguments.length > 1 ? arguments[1] : '';
     if (typeof var_args === "number" || var_args instanceof Number) {
@@ -319,9 +319,9 @@ inherits(IOError, Error);
  * @constructor
  * @extends {Error}
  */
-var StopIteration = function(message) {
-   StopIteration.__super__.constructor.apply(this, [message]);
-   this.name = 'StopIteration';
+var StopIteration = function (message) {
+    StopIteration.__super__.constructor.apply(this, [message]);
+    this.name = 'StopIteration';
 };
 inherits(StopIteration, Error);
 
@@ -333,7 +333,7 @@ inherits(StopIteration, Error);
  * @param {boolean} value .
  * @param {string=} message .
  */
-var assert = function(value, message) {
+var assert = function (value, message) {
     if (!value) {
         message = message ? message : '';
         throw new AssertionError(message);
@@ -351,7 +351,7 @@ var posixpath = {};
  * @param {string} p .
  * @return {string} .
  */
-posixpath.dirname = function(p) {
+posixpath.dirname = function (p) {
     var i = string.find(p, '/');
     return p.substr(0, i);
 };
@@ -378,7 +378,7 @@ function _complain_ifclosed(closed) {
  * @constructor
  * @extends {Object}
  */
-var StringIO = function(buf) {
+var StringIO = function (buf) {
     buf = buf ? buf : '';
     this.buf = buf;
     this.len = buf.length;
@@ -392,17 +392,17 @@ inherits(StringIO, Object);
 /**
  * @return {StringIO} .
  */
-StringIO.prototype.__iter__ = function() {
+StringIO.prototype.__iter__ = function () {
     return this;
 };
 
 /**
  * @return {string} read line.
  */
-StringIO.prototype.next = function() {
+StringIO.prototype.next = function () {
     _complain_ifclosed(this.closed);
     var r = this.readline();
-    if(!r) {
+    if (!r) {
         throw new StopIteration();
         //return new StopIteration();
     }
@@ -413,7 +413,7 @@ StringIO.prototype['next'] = StringIO.prototype.next;
 /**
  * Free the memory buffer.
  */
-StringIO.prototype.close = function() {
+StringIO.prototype.close = function () {
     if (!this.closed) {
         this.closed = true;
         delete this.buf;
@@ -427,7 +427,7 @@ StringIO.prototype['close'] = StringIO.prototype.close;
  * device.
  * @return {boolean} .
  */
-StringIO.prototype.isatty = function() {
+StringIO.prototype.isatty = function () {
     _complain_ifclosed(this.closed);
     return false;
 };
@@ -443,7 +443,7 @@ StringIO.prototype['isatty'] = StringIO.prototype.isatty;
  * @param {number} pos .
  * @param {number} mode .
  */
-StringIO.prototype.seek = function(pos, mode) {
+StringIO.prototype.seek = function (pos, mode) {
     mode = mode ? mode : 0;
     _complain_ifclosed(this.closed);
     if (this.buflist) {
@@ -466,7 +466,7 @@ StringIO.prototype['seek'] = StringIO.prototype.seek;
  * @param {number} mode .
  * @return {number} .
  */
-StringIO.prototype.tell = function(pos, mode) {
+StringIO.prototype.tell = function (pos, mode) {
     mode = mode ? mode : 0;
     _complain_ifclosed(this.closed);
     return this.pos;
@@ -477,10 +477,10 @@ StringIO.prototype['tell'] = StringIO.prototype.tell;
  * @param {number} n .
  * @return {string} r .
  */
-StringIO.prototype.read = function(n) {
+StringIO.prototype.read = function (n) {
     n = n ? n : -1;
     _complain_ifclosed(this.closed);
-    if(this.buflist) {
+    if (this.buflist) {
         this.buf += this.buflist.join('');
         this.buflist = [];
     }
@@ -501,7 +501,7 @@ StringIO.prototype['read'] = StringIO.prototype.read;
  * @param {?number=} length .
  * @return {string} .
  */
-StringIO.prototype.readline = function(length) {
+StringIO.prototype.readline = function (length) {
     length = length ? length : null;
     _complain_ifclosed(this.closed);
     if (this.buflist) {
@@ -530,7 +530,7 @@ StringIO.prototype['readline'] = StringIO.prototype.readline;
  * @param {number} sizehint .
  * @return {Array<string>} .
  */
-StringIO.prototype.readlines = function(sizehint) {
+StringIO.prototype.readlines = function (sizehint) {
     sizehint = sizehint ? sizehint : 0;
     var total = 0;
     var lines = [];
@@ -550,7 +550,7 @@ StringIO.prototype['readlines'] = StringIO.prototype.readlines;
 /**
  * @param {?number=} size .
  */
-StringIO.prototype.truncate = function(size) {
+StringIO.prototype.truncate = function (size) {
     size = size ? size : null;
     _complain_ifclosed(this.closed);
     if (size === null) {
@@ -570,7 +570,7 @@ StringIO.prototype['truncate'] = StringIO.prototype.truncate;
 /**
  * @param {string} s .
  */
-StringIO.prototype.write = function(s) {
+StringIO.prototype.write = function (s) {
     //Write a string to the file.
     //There is no return value.
     _complain_ifclosed(this.closed);
@@ -599,7 +599,7 @@ StringIO.prototype.write = function(s) {
             this.buf += this.buflist.join('');
         }
         this.buflist = [this.buf.substring(0, spos), s,
-                        this.buf.substring(newpos, s.length)];
+        this.buf.substring(newpos, s.length)];
         this.buf = '';
         if (newpos > slen) {
             slen = newpos;
@@ -616,7 +616,7 @@ StringIO.prototype['write'] = StringIO.prototype.write;
 /**
  * @param {Array|Object} iterable .
  */
-StringIO.prototype.writelines = function(iterable) {
+StringIO.prototype.writelines = function (iterable) {
     for (var key in iterable) {
         var line = iterable[key];
         this.write(line);
@@ -627,7 +627,7 @@ StringIO.prototype['writelines'] = StringIO.prototype.writelines;
 /**
  * flush
  */
-StringIO.prototype.flush = function() {
+StringIO.prototype.flush = function () {
     _complain_ifclosed(this.closed);
 };
 StringIO.prototype['flush'] = StringIO.prototype.flush;
@@ -635,7 +635,7 @@ StringIO.prototype['flush'] = StringIO.prototype.flush;
 /**
  * @return {string} .
  */
-StringIO.prototype.getvalue = function() {
+StringIO.prototype.getvalue = function () {
     if (this.buflist) {
         this.buf += this.buflist.join('');
         this.buflist = [];
@@ -809,7 +809,7 @@ escape_['_XHTML_ESCAPE_DICT'] = {
  * @param {string} value Target escape value.
  * @return {string} escaped value.
  */
-escape_.xhtml_escape = function(value) {
+escape_.xhtml_escape = function (value) {
     var length = escape_['_XHTML_ESCAPE'].length;
     for (var i = 0; i < length; ++i) {
         var chr = escape_['_XHTML_ESCAPE'][i];
@@ -823,7 +823,7 @@ escape_.xhtml_escape = function(value) {
  * @param {string} value Target escape value.
  * @return {string} escaped value.
  */
-escape_.native_str = function(value) {
+escape_.native_str = function (value) {
     //xxx
     return value;
 };
@@ -843,7 +843,7 @@ var _UNSET = {};
  * @param {string} text .
  * @return {string} .
  */
-var filter_whitespace = function(mode, text) {
+var filter_whitespace = function (mode, text) {
     if (mode === 'all') {
         return text;
     } else if (mode === 'single') {
@@ -862,9 +862,9 @@ var filter_whitespace = function(mode, text) {
  * @param {Object} obj .
  * @return {string} .
  */
-var js_variables = function(obj){
+var js_variables = function (obj) {
     var buf = [];
-    for(var key in obj){
+    for (var key in obj) {
         buf.push('var ' + key + ' = ' + 'namespace["' + key + '"];');
     }
     return buf.join("");
@@ -882,14 +882,14 @@ var js_variables = function(obj){
  * @constructor
  * @extends {Object}
  */
-var Template = function(template_string, name, loader, autoescape, whitespace) {
+var Template = function (template_string, name, loader, autoescape, whitespace) {
     name = name ? name : '<string>';
     loader = loader ? loader : null;
     autoescape = autoescape ? autoescape : _UNSET;
     whitespace = whitespace ? whitespace : null;
     this.name = name;
     if (!whitespace) {
-        if(loader && loader.whitespace){
+        if (loader && loader.whitespace) {
             whitespace = loader.whitespace;
         } else {
             // Whitespace defaults by filename.
@@ -929,7 +929,7 @@ inherits(Template, Object);
  * @param {Object} kwargs .
  * @return {string} .
  */
-Template.prototype.generate = function(kwargs) {
+Template.prototype.generate = function (kwargs) {
     kwargs = kwargs ? kwargs : {};
     var namespace = {
         'escape': escape_.xhtml_escape,
@@ -958,14 +958,14 @@ Template.prototype['generate'] = Template.prototype.generate;
  * @return {string} .
  * @protected
  */
-Template.prototype._generate_js = function(loader) {
+Template.prototype._generate_js = function (loader) {
     /** @type {StringIO} } */
     var buffer = new StringIO();
     // named_blocks maps from names to _NamedBlock objects
     var named_blocks = {};
     var ancestors = this._get_ancestors(loader);
     ancestors.reverse();
-    for(var i = 0; i < ancestors.length; ++i){
+    for (var i = 0; i < ancestors.length; ++i) {
         var ancestor = ancestors[i];
         ancestor.find_named_blocks(loader, named_blocks);
     }
@@ -980,14 +980,14 @@ Template.prototype._generate_js = function(loader) {
  * @return {Array} .
  * @protected
  */
-Template.prototype._get_ancestors = function(loader) {
+Template.prototype._get_ancestors = function (loader) {
     var ancestors = [this.file];
     for (var key in this.file.body.chunks) {
         var chunk = this.file.body.chunks[key];
         if (chunk instanceof _ExtendsBlock) {
             if (!loader) {
                 throw new ParseError('{% extends %} block found, but no' +
-                                     ' template loader');
+                    ' template loader');
             }
             var template = loader.load(chunk.name, this.name);
             ancestors = ancestors.concat(template._get_ancestors(loader));
@@ -1012,7 +1012,7 @@ Template.prototype._get_ancestors = function(loader) {
  * @constructor
  * @extends {Object}
  */
-var BaseLoader = function(autoescape, namespace, whitespace) {
+var BaseLoader = function (autoescape, namespace, whitespace) {
     autoescape = autoescape ? autoescape : _DEFAULT_AUTOESCAPE;
     namespace = namespace ? namespace : null;
     whitespace = whitespace ? whitespace : null;
@@ -1026,7 +1026,7 @@ inherits(BaseLoader, Object);
 /**
  * Resets the cache of compiled templates.
  */
-BaseLoader.prototype.rest = function() {
+BaseLoader.prototype.rest = function () {
     this.templates = {};
 };
 
@@ -1036,7 +1036,7 @@ BaseLoader.prototype.rest = function() {
  * @param {?string} parent_path .
  * @return {string} .
  */
-BaseLoader.prototype.resolve_path = function(name, parent_path) {
+BaseLoader.prototype.resolve_path = function (name, parent_path) {
     parent_path = parent_path ? parent_path : null;
     throw new NotImplementedError();
 };
@@ -1047,7 +1047,7 @@ BaseLoader.prototype.resolve_path = function(name, parent_path) {
  * @param {?string=} parent_path .
  * @return {Template} .
  */
-BaseLoader.prototype.load = function(name, parent_path) {
+BaseLoader.prototype.load = function (name, parent_path) {
     parent_path = parent_path ? parent_path : null;
     name = this.resolve_path(name, parent_path);
     if (!object.get(this.templates, name)) {
@@ -1060,7 +1060,7 @@ BaseLoader.prototype.load = function(name, parent_path) {
  * @return {Template} .
  * @param {string} name .
  */
-BaseLoader.prototype._create_template = function(name) {
+BaseLoader.prototype._create_template = function (name) {
     throw new NotImplementedError();
 };
 
@@ -1073,7 +1073,7 @@ BaseLoader.prototype._create_template = function(name) {
  * @constructor
  * @extends {BaseLoader}
  */
-var Loader = function() {
+var Loader = function () {
     throw new NotImplementedError();
 };
 inherits(Loader, BaseLoader);
@@ -1081,14 +1081,14 @@ inherits(Loader, BaseLoader);
 /**
  * resolve path
  */
-Loader.prototype.resolve_path = function() {
+Loader.prototype.resolve_path = function () {
     throw new NotImplementedError();
 };
 
 /**
  * create template
  */
-Loader.prototype._create_template = function() {
+Loader.prototype._create_template = function () {
     throw new NotImplementedError();
 };
 
@@ -1098,7 +1098,7 @@ Loader.prototype._create_template = function() {
  * @constructor
  * @extends {BaseLoader}
  */
-var DictLoader = function(dict) {
+var DictLoader = function (dict) {
     DictLoader.__super__.constructor.apply(this, Array.prototype.slice.call(arguments, 1));
     this.dict = dict;
 };
@@ -1109,7 +1109,7 @@ inherits(DictLoader, BaseLoader);
  * @param {?string} parent_path .
  * @return {string} name.
  */
-DictLoader.prototype.resolve_path = function(name, parent_path) {
+DictLoader.prototype.resolve_path = function (name, parent_path) {
     parent_path = parent_path ? parent_path : null;
     if (parent_path &&
         !string.startwith(parent_path, '<') &&
@@ -1127,8 +1127,8 @@ DictLoader.prototype.resolve_path = function(name, parent_path) {
  * @return {Template} .
  * @override
  */
-DictLoader.prototype._create_template = function(name) {
-    if (!(name in this.dict)){
+DictLoader.prototype._create_template = function (name) {
+    if (!(name in this.dict)) {
         throw new Error("Dict loader can not load template. name: " + name);
     }
     var template_string = this.dict[name];
@@ -1138,20 +1138,20 @@ DictLoader.prototype._create_template = function(name) {
 /**
  * @constructor
  */
-var _Node = function() {};
+var _Node = function () { };
 inherits(_Node, Object);
 
 /**
  * @return {Array} .
  */
-_Node.prototype.each_child = function() {
+_Node.prototype.each_child = function () {
     return [];
 };
 
 /**
  * @param {_CodeWriter} writer .
  */
-_Node.prototype.generate = function(writer) {
+_Node.prototype.generate = function (writer) {
     throw new NotImplementedError();
 };
 
@@ -1159,9 +1159,9 @@ _Node.prototype.generate = function(writer) {
  * @param {BaseLoader} loader .
  * @param {Object} named_blocks .
  */
-_Node.prototype.find_named_blocks = function(loader, named_blocks) {
+_Node.prototype.find_named_blocks = function (loader, named_blocks) {
     var children = this.each_child();
-    for(var i = 0; i < children.length; ++i){
+    for (var i = 0; i < children.length; ++i) {
         var child = children[i];
         child.find_named_blocks(loader, named_blocks);
     }
@@ -1173,7 +1173,7 @@ _Node.prototype['find_named_blocks'] = _Node.prototype.find_named_blocks;
  * @constructor
  * @extends {_Node}
  */
-var _File = function(body) {
+var _File = function (body) {
     this.body = body;
     this.line = 0;
 };
@@ -1183,12 +1183,12 @@ inherits(_File, _Node);
  * @param {_CodeWriter} writer .
  * @override
  */
-_File.prototype.generate = function(writer) {
+_File.prototype.generate = function (writer) {
     writer.write_line('return function(namespace){', this.line);
-    statement.with_stmt(writer.indent(), function(){
+    statement.with_stmt(writer.indent(), function () {
         writer.write_line('eval(namespace.js_variables(namespace));', this.line); //TODO: suggest that not use eval.
         writer.write_line('return function(){', this.line);
-        statement.with_stmt(writer.indent(), function(){
+        statement.with_stmt(writer.indent(), function () {
             writer.write_line('var _buffer = [];', this.line);
             this.body.generate(writer);
             writer.write_line('return _buffer.join("");', this.line);
@@ -1202,7 +1202,7 @@ _File.prototype.generate = function(writer) {
  * @return {Array.<_ChunkList>} .
  * @override
  */
-_File.prototype.each_child = function() {
+_File.prototype.each_child = function () {
     return [this.body];
 };
 
@@ -1211,7 +1211,7 @@ _File.prototype.each_child = function() {
  * @constructor
  * @extends {_Node}
  */
-var _ChunkList = function(chunks) {
+var _ChunkList = function (chunks) {
     this.chunks = chunks;
 };
 inherits(_ChunkList, _Node);
@@ -1220,7 +1220,7 @@ inherits(_ChunkList, _Node);
  * @param {_CodeWriter} writer .
  * @override
  */
-_ChunkList.prototype.generate = function(writer) {
+_ChunkList.prototype.generate = function (writer) {
     var chunks = this.chunks;
     var len = chunks.length;
     for (var i = 0; i < len; ++i) {
@@ -1232,7 +1232,7 @@ _ChunkList.prototype.generate = function(writer) {
  * @return {Array} .
  * @override
  */
-_ChunkList.prototype.each_child = function() {
+_ChunkList.prototype.each_child = function () {
     return this.chunks;
 };
 
@@ -1244,7 +1244,7 @@ _ChunkList.prototype.each_child = function() {
  * @constructor
  * @extends {_Node}
  */
-var _NamedBlock = function(name, body, template, line) {
+var _NamedBlock = function (name, body, template, line) {
     this.name = name;
     this.body = body;
     this.template = template;
@@ -1256,7 +1256,7 @@ inherits(_NamedBlock, _Node);
  * @return {Array.<string>} .
  * @override
  */
-_NamedBlock.prototype.each_child = function() {
+_NamedBlock.prototype.each_child = function () {
     return [this.body];
 };
 
@@ -1264,7 +1264,7 @@ _NamedBlock.prototype.each_child = function() {
  * @param {_CodeWriter} writer .
  * @override
  */
-_NamedBlock.prototype.generate = function(writer) {
+_NamedBlock.prototype.generate = function (writer) {
     var block = writer.named_blocks[this.name];
     var old = writer.current_template;
     writer.current_template = block.template;
@@ -1276,7 +1276,7 @@ _NamedBlock.prototype.generate = function(writer) {
  * @param {BaseLoader} loader .
  * @param {Object} named_blocks .
  */
-_NamedBlock.prototype.find_named_blocks = function(loader, named_blocks) {
+_NamedBlock.prototype.find_named_blocks = function (loader, named_blocks) {
     named_blocks[this.name] = this;
     _NamedBlock.__super__['find_named_blocks'].apply(this, [loader, named_blocks]);
 };
@@ -1287,7 +1287,7 @@ _NamedBlock.prototype['find_named_blocks'] = _NamedBlock.prototype.find_named_bl
  * @constructor
  * @extends {_Node}
  */
-var _ExtendsBlock = function(name) {
+var _ExtendsBlock = function (name) {
     this.name = name;
 };
 inherits(_ExtendsBlock, _Node);
@@ -1299,7 +1299,7 @@ inherits(_ExtendsBlock, _Node);
  * @constructor
  * @extends {_Node}
  */
-var _IncludeBlock = function(name, reader, line) {
+var _IncludeBlock = function (name, reader, line) {
     this.name = name;
     this.template_name = reader.name;
     this.line = line;
@@ -1310,7 +1310,7 @@ inherits(_IncludeBlock, _Node);
  * @param {BaseLoader} loader .
  * @param {Object} named_blocks .
  */
-_IncludeBlock.prototype.find_named_blocks = function(loader, named_blocks) {
+_IncludeBlock.prototype.find_named_blocks = function (loader, named_blocks) {
     var included = loader.load(this.name, this.template_name);
     included.file.find_named_blocks(loader, named_blocks);
 };
@@ -1318,7 +1318,7 @@ _IncludeBlock.prototype.find_named_blocks = function(loader, named_blocks) {
 /**
  * @param {_CodeWriter} writer .
  */
-_IncludeBlock.prototype.generate = function(writer) {
+_IncludeBlock.prototype.generate = function (writer) {
     var included = writer.loader.load(this.name, this.template_name);
     var old = writer.current_template;
     writer.current_template = included;
@@ -1333,7 +1333,7 @@ _IncludeBlock.prototype.generate = function(writer) {
  * @constructor
  * @extends {_Node}
  */
-var _ApplyBlock = function(method, line, body) {
+var _ApplyBlock = function (method, line, body) {
     body = body ? body : null;
     this.method = method;
     this.line = line;
@@ -1345,24 +1345,24 @@ inherits(_ApplyBlock, _Node);
  * @param {_CodeWriter} writer .
  * @override
  */
-_ApplyBlock.prototype.generate = function(writer) {
+_ApplyBlock.prototype.generate = function (writer) {
     var method_name = '_apply' + writer.apply_counter;
     writer.apply_counter += 1;
     writer.write_line('function ' + method_name + '(){', this.line);
-    statement.with_stmt(writer.indent(), function(){
+    statement.with_stmt(writer.indent(), function () {
         writer.write_line('var _buffer = [];', this.line);
         this.body.generate(writer);
         writer.write_line('return _buffer.join("");', this.line);
     }.bind(this));
     writer.write_line('}', this.line);
-    writer.write_line('_buffer.push(' + this.method + '(' + method_name + '()));' , this.line);
+    writer.write_line('_buffer.push(' + this.method + '(' + method_name + '()));', this.line);
 };
 
 /**
  * @return {Array.<_ChunkList>} .
  * @override
  */
-_ApplyBlock.prototype.each_child = function() {
+_ApplyBlock.prototype.each_child = function () {
     return [this.body];
 };
 
@@ -1373,7 +1373,7 @@ _ApplyBlock.prototype.each_child = function() {
  * @constructor
  * @extends {_Node}
  */
-var _ControlBlock = function(statement, line, body) {
+var _ControlBlock = function (statement, line, body) {
     this.statement = statement;
     this.line = line;
     this.body = body;
@@ -1384,7 +1384,7 @@ inherits(_ControlBlock, _Node);
  * @return {Array.<_ChunkList>} .
  * @override
  */
-_ControlBlock.prototype.each_child = function() {
+_ControlBlock.prototype.each_child = function () {
     return [this.body];
 };
 
@@ -1392,10 +1392,10 @@ _ControlBlock.prototype.each_child = function() {
  * @param {_CodeWriter} writer .
  * @override
  */
-_ControlBlock.prototype.generate = function(writer) {
+_ControlBlock.prototype.generate = function (writer) {
     writer.write_line(this.statement, this.line);
     writer.write_line('{', this.line);
-    statement.with_stmt(writer.indent(), function(){
+    statement.with_stmt(writer.indent(), function () {
         this.body.generate(writer);
     }.bind(this));
     writer.write_line('}', this.line);
@@ -1407,7 +1407,7 @@ _ControlBlock.prototype.generate = function(writer) {
  * @constructor
  * @extends {_Node}
  */
-var _IntermediateControlBlock = function(statement, line) {
+var _IntermediateControlBlock = function (statement, line) {
     this.statement = statement;
     this.line = line;
 };
@@ -1417,7 +1417,7 @@ inherits(_IntermediateControlBlock, _Node);
  * @param {_CodeWriter} writer .
  * @override
  */
-_IntermediateControlBlock.prototype.generate = function(writer) {
+_IntermediateControlBlock.prototype.generate = function (writer) {
     writer.write_line('}' + this.statement + '{', this.line);
 };
 
@@ -1427,7 +1427,7 @@ _IntermediateControlBlock.prototype.generate = function(writer) {
  * @constructor
  * @extends {_Node}
  */
-var _Statement = function(statement, line) {
+var _Statement = function (statement, line) {
     this.statement = statement;
     this.line = line;
 };
@@ -1437,7 +1437,7 @@ inherits(_Statement, _Node);
  * @param {_CodeWriter} writer .
  * @override
  */
-_Statement.prototype.generate = function(writer) {
+_Statement.prototype.generate = function (writer) {
     writer.write_line(this.statement, this.line);
 };
 
@@ -1448,7 +1448,7 @@ _Statement.prototype.generate = function(writer) {
  * @constructor
  * @extends {_Node}
  */
-var _Expression = function(expression, line, raw) {
+var _Expression = function (expression, line, raw) {
     raw = raw ? raw : false;
     this.expression = expression;
     this.line = line;
@@ -1460,9 +1460,9 @@ inherits(_Expression, _Node);
  * @param {_CodeWriter} writer .
  * @override
  */
-_Expression.prototype.generate = function(writer) {
+_Expression.prototype.generate = function (writer) {
     writer.write_line('var _tmp = ' + this.expression + ';', this.line);
-    if(!this.raw && (writer.current_template.autoescape != null)) {
+    if (!this.raw && (writer.current_template.autoescape != null)) {
         writer.write_line('_tmp = ' + writer.current_template.autoescape + '(String(_tmp));', this.line);
     }
     writer.write_line('_buffer.push(_tmp);', this.line);
@@ -1475,7 +1475,7 @@ _Expression.prototype.generate = function(writer) {
  * @constructor
  * @extends {_Node}
  */
-var _Text = function(value, line, whitespace) {
+var _Text = function (value, line, whitespace) {
     this.value = value;
     this.line = line;
     this.whitespace = whitespace;
@@ -1486,7 +1486,7 @@ inherits(_Text, _Node);
  * @param {_CodeWriter} writer .
  * @override
  */
-_Text.prototype.generate = function(writer) {
+_Text.prototype.generate = function (writer) {
     var value = this.value;
     // Compress lots of white space to a single character. If the whitespace
     // breaks a line, have it continue to break a line, but just with a
@@ -1514,7 +1514,7 @@ _Text.prototype.generate = function(writer) {
  * @constructor
  * @extends {Error}
  */
-var ParseError = function(message, filename, lineno) {
+var ParseError = function (message, filename, lineno) {
     filename = filename ? filename : null;
     lineno = lineno ? lineno : null;
     ParseError.__super__.constructor.apply(this, [message]);
@@ -1528,7 +1528,7 @@ inherits(ParseError, Error);
 /**
  * @return {string} .
  */
-ParseError.prototype.toString = function(){
+ParseError.prototype.toString = function () {
     return this.message + " at " + this.filename + ":" + this.lineno;
 };
 
@@ -1540,7 +1540,7 @@ ParseError.prototype.toString = function(){
  * @constructor
  * @extends {Object}
  */
-var _CodeWriter = function(file, named_blocks, loader, current_template) {
+var _CodeWriter = function (file, named_blocks, loader, current_template) {
     this.file = file;
     this.named_blocks = named_blocks;
     this.loader = loader;
@@ -1553,24 +1553,24 @@ inherits(_CodeWriter, Object);
 /**
  * @return {number} indent .
  */
-_CodeWriter.prototype.indent_size = function(){
+_CodeWriter.prototype.indent_size = function () {
     return this._indent;
 };
 
 /**
  * @return {IWithItem} .
  */
-_CodeWriter.prototype.indent = function(){
+_CodeWriter.prototype.indent = function () {
     /**
      * @constructor
      * @implements {IWithItem}
      */
-    var Indenter = function(){};
-    Indenter.prototype.__enter__ = function(){
+    var Indenter = function () { };
+    Indenter.prototype.__enter__ = function () {
         this._indent += 1;
         return this;
     }.bind(this);
-    Indenter.prototype.__exit__ = function(){
+    Indenter.prototype.__exit__ = function () {
         assert(this._indent > 0);
         this._indent -= 1;
     }.bind(this);
@@ -1582,9 +1582,9 @@ _CodeWriter.prototype.indent = function(){
  * @param {number} line_number .
  * @param {?number=} indent .
  */
-_CodeWriter.prototype.write_line = function(line, line_number, indent) {
+_CodeWriter.prototype.write_line = function (line, line_number, indent) {
     indent = indent ? indent : null;
-    if(indent == null){
+    if (indent == null) {
         indent = this._indent;
     }
     var line_comment = ' // ' + this.current_template.name + ':' + line_number;
@@ -1598,7 +1598,7 @@ _CodeWriter.prototype.write_line = function(line, line_number, indent) {
  * @constructor
  * @extends {Object}
  */
-var _TemplateReader = function(name, text, whitespace) {
+var _TemplateReader = function (name, text, whitespace) {
     this.name = name;
     this.text = text;
     this.whitespace = whitespace;
@@ -1613,7 +1613,7 @@ inherits(_TemplateReader, Object);
  * @param {?number=} end .
  * @return {number} index.
  */
-_TemplateReader.prototype.find = function(needle, start, end) {
+_TemplateReader.prototype.find = function (needle, start, end) {
     start = start ? start : 0;
     end = end ? end : null;
     assert(start >= 0);
@@ -1637,7 +1637,7 @@ _TemplateReader.prototype.find = function(needle, start, end) {
  * @param {?number=} count .
  * @return {string} .
  */
-_TemplateReader.prototype.consume = function(count) {
+_TemplateReader.prototype.consume = function (count) {
     count = count ? count : null;
     if (count === null) {
         count = this.text.length - this.pos;
@@ -1652,14 +1652,14 @@ _TemplateReader.prototype.consume = function(count) {
 /**
  * @return {number} .
  */
-_TemplateReader.prototype.remaining = function() {
+_TemplateReader.prototype.remaining = function () {
     return this.text.length - this.pos;
 };
 
 /**
  * @return {number} .
  */
-_TemplateReader.prototype.__len__ = function() {
+_TemplateReader.prototype.__len__ = function () {
     return this.remaining();
 };
 
@@ -1667,7 +1667,7 @@ _TemplateReader.prototype.__len__ = function() {
  * @param {number} key .
  * @return {string} char.
  */
-_TemplateReader.prototype.__getitem__ = function(key) {
+_TemplateReader.prototype.__getitem__ = function (key) {
     var chr = null;
     if (key < 0) {
         chr = this.text.charAt(key);
@@ -1681,14 +1681,14 @@ _TemplateReader.prototype.__getitem__ = function(key) {
 /**
  * __str__
  */
-_TemplateReader.prototype.__str__ = function() {
+_TemplateReader.prototype.__str__ = function () {
     throw new NotImplementedError('xxx: __str__');
 };
 
 /**
  * @param {string} msg .
  */
-_TemplateReader.prototype.raise_parse_error = function(msg) {
+_TemplateReader.prototype.raise_parse_error = function (msg) {
     throw new ParseError(msg, this.name, this.line);
 };
 
@@ -1699,7 +1699,7 @@ _TemplateReader.prototype.raise_parse_error = function(msg) {
  * @param {?string=} in_loop .
  * @return {_ChunkList} body.
  */
-var _parse = function(reader, template, in_block, in_loop) {
+var _parse = function (reader, template, in_block, in_loop) {
     in_block = in_block ? in_block : null;
     in_loop = in_loop ? in_loop : null;
     var body = new _ChunkList([]);
@@ -1800,11 +1800,11 @@ var _parse = function(reader, template, in_block, in_loop) {
                 reader.raise_parse_error(operator + ' outside ' + allowed_parents + ' block');
             }
             if (allowed_parents instanceof Array && !array.contains(allowed_parents, in_block)) {
-                reader.raise_parse_error(operator +' block cannot be attached to ' + in_block + 'block');
+                reader.raise_parse_error(operator + ' block cannot be attached to ' + in_block + 'block');
             }
             body.chunks.push(new _IntermediateControlBlock(contents, line));
             continue;
-        // End tag
+            // End tag
         } else if (operator === 'end') {
             if (!in_block) {
                 reader.raise_parse_error('Extra {% end %} block on line ' + line);
@@ -1823,14 +1823,14 @@ var _parse = function(reader, template, in_block, in_loop) {
                 continue;
             }
             if (operator === 'extends') {
-                suffix = suffix.replace(/[\"\']/g, ''); //TODO: xxx
+                suffix = string.strip(suffix).replace(/^(['"])(.*)\1$/, '$2');
                 if (!suffix) {
-                    reader.raise_parse_error('extends missing file path on line ' +line);
+                    reader.raise_parse_error('extends missing file path on line ' + line);
                 }
                 block = new _ExtendsBlock(suffix);
             }
             else if (operator === 'include') {
-                suffix = suffix.replace(/[\"\']/g, ''); //TODO: xxx
+                suffix = string.strip(suffix).replace(/^(['"])(.*)\1$/, '$2');
                 if (!suffix) {
                     reader.raise_parse_error('include missing file path on line ' + line);
                 }
