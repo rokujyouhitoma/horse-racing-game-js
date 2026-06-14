@@ -44,7 +44,9 @@ RenderLayers.prototype.OnEnter = function(e){
  * @param {ExEvent} e The event object.
  */
 RenderLayers.prototype.OnExit = function(e){
-    this.dom.parentNode.removeChild(this.dom);    
+    if(this.dom && this.dom.parentNode){
+        this.dom.parentNode.removeChild(this.dom);    
+    }
     this.events.forEach(function(event){
         Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
     });

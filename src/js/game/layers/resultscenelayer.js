@@ -68,9 +68,13 @@ ResultSceneLayer.prototype.OnEnter = function(e){};
  * @param {ExEvent} e The event object.
  */
 ResultSceneLayer.prototype.OnExit = function(e){
-    this.dom.children[1].removeEventListener("click", this.onClickListener);
+    if(this.dom && this.dom.children && this.dom.children[1]){
+        this.dom.children[1].removeEventListener("click", this.onClickListener);
+    }
     Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
-        this.dom.parentNode.removeChild(this.dom);
+        if(this.dom && this.dom.parentNode){
+            this.dom.parentNode.removeChild(this.dom);
+        }
     }.bind(this)));
     this.events.forEach(function(event){
         Game.Publisher.UnSubscribe(event[0], event[1], event[2]);

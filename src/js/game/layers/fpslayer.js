@@ -34,7 +34,9 @@ FPSLayer.prototype.Render = function(){
 FPSLayer.prototype.OnUpdate = function(e){
     var fps = Math.floor(Game.Locator.locate(Game).fps.currentFPS * 100) / 100;
     Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
-        this.dom.children[0].innerText = fps;
+        if(this.dom && this.dom.children && this.dom.children[0]){
+            this.dom.children[0].innerText = fps;
+        }
     }.bind(this)));
 };
 
@@ -49,7 +51,9 @@ FPSLayer.prototype.OnEnter = function(e){
  */
 FPSLayer.prototype.OnExit = function(e){
     Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
-        this.dom.parentNode.removeChild(this.dom);
+        if(this.dom && this.dom.parentNode){
+            this.dom.parentNode.removeChild(this.dom);
+        }
     }.bind(this)));
     this.events.forEach(function(event){
         Game.Publisher.UnSubscribe(event[0], event[1], event[2]);

@@ -56,7 +56,9 @@ RacetrackLayer.prototype.OnEnter = function(e){};
  */
 RacetrackLayer.prototype.OnExit = function(e){
     Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
-        this.dom.parentNode.removeChild(this.dom);
+        if(this.dom && this.dom.parentNode){
+            this.dom.parentNode.removeChild(this.dom);
+        }
     }.bind(this)));
     this.events.forEach(function(event){
         Game.Publisher.UnSubscribe(event[0], event[1], event[2]);

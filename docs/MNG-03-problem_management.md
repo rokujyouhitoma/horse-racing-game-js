@@ -59,3 +59,9 @@ stateDiagram-v2
 ### [ISSUE-06] エンジンラグ処理時の不整合 (Severity: Low)
 * **ステータス**: 新規 (New)
 * **内容**: タブ切り替えなどでJSスリープから復帰した際のラグ解消処理（whileループのスキップ）により、シミュレーションゲームとしての状態更新に不整合が生じるリスクがある。
+
+### [ISSUE-07] シーン遷移やテスト実行時におけるDOM非存在エラー (Cannot read properties of null) (Severity: Medium)
+* **ステータス**: 解決済 (Resolved)
+* **内容**: レンダリングレイヤー（`FPSLayer`、`ResultSceneLayer`、`TitleSceneLayer` など）の `OnExit` や `OnUpdate` メソッドにおいて、すでにDOM要素（`this.dom` やその親・子要素）が破棄されている状態でDOM操作を行おうとした際、`Cannot read properties of null (reading 'parentNode')` などのエラーが発生し、ゲームがクラッシュまたはテストが異常終了する問題。
+* **対応内容 (2026.6.15)**: `OnExit` や `OnUpdate` 時に `this.dom`、`this.dom.parentNode`、`this.dom.children` の存在確認（ヌルチェック）を徹底するよう修正。また、テストコード (`template_test.js`) において、テスト終了時に `layer.OnExit()` を呼び出し、不要なDOM要素とイベントリスナーが適切にクリーンアップされるように修正しました。
+

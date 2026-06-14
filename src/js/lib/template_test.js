@@ -584,6 +584,8 @@ describe('LaneRendererTest', function() {
         expect(fragment instanceof DocumentFragment).toBeTruthy();
         expect(fragment.childNodes.length).toEqual(9);
         expect(fragment.childNodes[4].tagName.toLowerCase()).toEqual("br");
+
+        layer.OnExit();
     });
 });
 
