@@ -48,8 +48,9 @@ stateDiagram-v2
 * **内容**: リレーションのチェック (`RelationshipChecker`) は実装されているが、値自体の範囲や正当性（例: カードの進むマス数が負の値でないか等）をバリデーションする `ValueChecker` が TODO のまま未実装。
 
 ### [ISSUE-04] レンダラーとモデルの密結合 (Severity: Low)
-* **ステータス**: 分析中 (Analyzing)
+* **ステータス**: 解決済 (Resolved)
 * **内容**: `RacetrackLayer` や `OddsTableLayer` などの描画レイヤーが、ゲームの内部オブジェクトやディレクターと非常に強く結合している。モデルの変更が描画側へ直接影響するため、Pub/Sub イベントを経由した疎結合データ通信への移行が望まれる。
+* **対応内容 (2026.6.14)**: 新しいPub/Subイベント `Events.Race.OnChanged` を定義し、`RaceDirector` 側の状態変更時にモデルデータ（`racetrack`, `oddstable`）をペイロードに載せてパブリッシュするように変更。`RacetrackLayer` と `OddsTableLayer` はこれを購読してペイロードのみで描画を行うよう修正し、密結合を完全に解消しました。
 
 ### [ISSUE-05] コーディング規約の混在 (Severity: Low)
 * **ステータス**: 新規 (New)

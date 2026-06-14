@@ -30,6 +30,7 @@ var Events = {
         OnPlayCard: "Events.Race.OnPlayCard",
         OnBet: "Events.Race.OnBet",
         OnUndoPlayCard: "Events.Race.OnUndoPlayCard", // For debug?
+        OnChanged: "Events.Race.OnChanged",
     },
     // For debug.
     Debug: {

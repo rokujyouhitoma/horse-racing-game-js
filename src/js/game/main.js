@@ -1268,11 +1268,7 @@ RaceDirector.State = {
  * @param {ExEvent} e The event object.
  */
 RaceDirector.prototype.OnUpdate = function(e){
-    var raceDirector = Game.SceneDirector.CurrentScene().directors["RaceDirector"];
-    if(!raceDirector){
-        return;
-    }
-    var race = raceDirector.race;
+    var race = this.race;
     if(!race){
         return;
     }
@@ -1286,6 +1282,11 @@ RaceDirector.prototype.OnUpdate = function(e){
         this.goals_.push(runners[0]);
         this.UpdateState();
     }
+    Game.Publisher.Publish(Events.Race.OnChanged, this, {
+        race: race,
+        racetrack: race.gameBoard.racetrack,
+        oddstable: race.gameBoard.oddstable
+    });
 };
 
 /**
@@ -1294,6 +1295,11 @@ RaceDirector.prototype.OnUpdate = function(e){
 RaceDirector.prototype.OnEnter = function(e){
     this.goals_ = [];
     this.state = RaceDirector.State.None;
+    Game.Publisher.Publish(Events.Race.OnChanged, this, {
+        race: this.race,
+        racetrack: this.race.gameBoard.racetrack,
+        oddstable: this.race.gameBoard.oddstable
+    });
 };
 
 /**

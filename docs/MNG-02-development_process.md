@@ -43,7 +43,7 @@
 プロジェクト開始からこれまでのマイルストーン別のコミット・開発内容の記録です（旧 `memo-ja.md` からの移植）。
 
 ### 2026年6月
-* **2026.6.14**: Closure Compilerのアップグレードに伴うコンパイル警告およびエラーの修正（ADR-04）とキー安全性向上。テンプレートエンジンでの `eval` 回避（`with` ステートメントへの移行によるセキュリティ・性能改善）、GitHub ActionsのJekyllビルドエラー対策（`.nojekyll` の導入とLiquid類似文字のエスケープ）、`innerHTML` の完全廃止（`DocumentFragment` を用いた DOM 操作へのリファクタリング）、初期化フローの整理（明示的な `Game.Bootstrap` の導入）、および新規単体テスト（`LaneRendererTest`, `BootstrapTest`）の追加・検証。
+* **2026.6.14**: レンダラー（View）とコントローラー/モデル間の疎結合化を目的としたPub/Subイベント駆動型（`Events.Race.OnChanged`）の設計への移行（ADR-05）。Closure Compilerのアップグレードに伴うコンパイル警告およびエラーの修正（ADR-04）とキー安全性向上。テンプレートエンジンでの `eval` 回避（`with` ステートメントへの移行によるセキュリティ・性能改善）、GitHub ActionsのJekyllビルドエラー対策（`.nojekyll` の導入とLiquid類似文字のエスケープ）、`innerHTML` の完全廃止（`DocumentFragment` を用いた DOM 操作へのリファクタリング）、初期化フローの整理（明示的な `Game.Bootstrap` の導入）、および新規単体テスト（`LaneRendererTest`, `BootstrapTest`）の追加・検証。
 * **2026.6.13**: リポジトリ全体のドキュメント再編成および文書管理ルールの再構築。
 
 ### 2017年6月

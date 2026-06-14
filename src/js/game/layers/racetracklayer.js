@@ -8,7 +8,7 @@
 var RacetrackLayer = function(scene){
     this.dom = null;
     this.events = [
-        [Events.Game.OnUpdate, this.OnUpdate.bind(this), null],
+        [Events.Race.OnChanged, this.OnUpdate.bind(this), null],
         [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
         [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
     ];
@@ -33,19 +33,17 @@ RacetrackLayer.prototype.Render = function(){
  * @param {ExEvent} e The event object.
  */
 RacetrackLayer.prototype.OnUpdate = function(e){
-    var raceDirector = Game.SceneDirector.CurrentScene().directors["RaceDirector"];
-    if(!raceDirector){
+    var payload = e.payload;
+    if(!payload || !payload.racetrack){
         return;
     }
-    var race = raceDirector.race;
-    if(!race){
-        return;
-    }
+    /** @type {Racetrack} */
+    var racetrack = payload.racetrack;
     var container = this.dom.children[1];
     while(container.firstChild){
         container.removeChild(container.firstChild);
     }
-    container.appendChild(this.DOM(race.gameBoard.racetrack));
+    container.appendChild(this.DOM(racetrack));
 };
 
 /**

@@ -48,6 +48,7 @@ classDiagram
   クラスインスタンスの生成と格納を一元管理するシングルトンコンテナです。循環参照を防ぎ、依存関係の注入（DI）を簡易的に実現します。
 * **Observer パターン (`publisher.js`)**:
   `Publisher` クラスにより、ゲーム全体で Pub/Sub メッセージングを実現します。描画レイヤー（View）とゲームロジック（Controller/Model）間の結合度を大幅に下げ、イベント駆動型アーキテクチャを構成します。
+  具体的には、描画レイヤー（`RacetrackLayer`, `OddsTableLayer`）がシーンのコントローラー（`RaceDirector`）を直接参照するのを廃止し、`Events.Race.OnChanged` イベントのペイロード（`{ racetrack, oddstable }`）を介して状態の更新を受け取り、描画処理を実行する構成にすることで完全な疎結合化を達成しています。
 
 ---
 
@@ -87,6 +88,7 @@ classDiagram
   2. **描画コマンド構築**: レイヤーの `Render()` は `DocumentFragment` を返し、`Game.RenderCommandExecuter` に描画コマンドとしてエンキューされる。
   3. **画面描画**: `OnRender` イベント時に `RenderCommandExecuter.ExecuteAll()` が走り、最小限の回数でDOMを一括挿入（バッチ描画）します。
   * **セキュアな描画処理**: `RacetrackLayer` や `LaneRenderer` などの描画モジュールにおいて、XSS（クロスサイトスクリプティング）のリスクを排除し、パフォーマンスを最大化するため、`innerHTML` を用いた動的なHTML文字列展開を完全に廃止しました。代わりに、`createElement` や `createTextNode` などの標準DOM APIおよび `DocumentFragment` を用いたセキュアな構造化DOM構築を徹底しています。
+  * **イベント駆動型ビューの更新**: `RacetrackLayer` や `OddsTableLayer` などの描画モジュールは、フレーム更新ハンドラから直接コントローラーへアクセスするのではなく、`Events.Race.OnChanged` を購読してペイロードのデータのみでビューを更新します。これにより、特定のシーン構造に依存しない汎用的なコンポーネントとしての再利用が可能です。
 
 ---
 

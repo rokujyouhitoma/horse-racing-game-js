@@ -12,6 +12,7 @@ var OddsTableLayer = function(scene){
         [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
         [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
         [Events.Race.OnBet, this.OnBet.bind(this), null],
+        [Events.Race.OnChanged, this.OnUpdate.bind(this), null],
     ];
     this.events.forEach(function(event){
         Game.Publisher.Subscribe(event[0], event[1], event[2]);
@@ -33,22 +34,25 @@ OddsTableLayer.prototype.Render = function(){
 /**
  * @param {ExEvent} e The event object.
  */
-OddsTableLayer.prototype.OnEnter = function(e){
-    var raceDirector = Game.SceneDirector.CurrentScene().directors["RaceDirector"];
-    if(!raceDirector){
+OddsTableLayer.prototype.OnEnter = function(e){};
+
+/**
+ * @param {ExEvent} e The event object.
+ */
+OddsTableLayer.prototype.OnUpdate = function(e){
+    var payload = e.payload;
+    if(!payload || !payload.oddstable){
         return;
     }
-    var race = raceDirector.race;
-    if(!race){
-        return;
-    }
-    var oddstable = race.gameBoard.oddstable;
-    console.log(oddstable);
-    var table = this.dom.children[1];
+    /** @type {OddsTable} */
+    var oddstable = payload.oddstable;
     var templates = Game.Locator.locate(Templates);
     var new_table = templates.Generate("oddstable", {"oddstable": oddstable});
     Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
-        table.parentNode.removeChild(table);
+        var table = this.dom.children[1];
+        if(table && table.parentNode) {
+            table.parentNode.removeChild(table);
+        }
         this.dom.appendChild(new_table);
     }.bind(this)));
 };
