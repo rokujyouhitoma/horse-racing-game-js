@@ -76,7 +76,7 @@ classDiagram
 ## 3. レンダリング & テンプレートエンジン (`template.js`, `templates.js`, `layers/`)
 
 * **Tornado Template (JSポート)**:
-  Pythonの「Tornado Web Server」のテンプレートエンジンをJavaScriptに移植。HTML文字列内の `{% if %}`, `{% for %}`, `{% while %}`, `{{ variable }}` を正規表現と動的関数生成（`new Function`）によって解釈し、高速にDOMフラグメントを生成します（詳細は [ADR-03](adr/ADR-03-tornado-template-engine-js-port.md) 参照）。
+  Pythonの「Tornado Web Server」のテンプレートエンジンをJavaScriptに移植。HTML文字列内の `&#123;% if %&#125;`, `&#123;% for %&#125;`, `&#123;% while %&#125;`, `&#123;&#123; variable &#125;&#125;` を正規表現と動的関数生成（`new Function`）によって解釈し、高速にDOMフラグメントを生成します（詳細は [ADR-03](adr/ADR-03-tornado-template-engine-js-port.md) 参照）。
 * **描画パイプライン (`RenderLayers`)**:
   各シーン（`GameScene`）は、複数のレイヤー（`ILayer` インターフェースを実装したクラス）で構成されます。
   1. **シーンマウント**: シーンが開始すると、指定された複数のレイヤーインスタンスが生成される。

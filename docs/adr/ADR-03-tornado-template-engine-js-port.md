@@ -19,7 +19,7 @@ We need a lightweight, fast, and dependency-free template parser that can run co
 We decided to port the Python template engine syntax from the **Tornado Web Server** into a small client-side JavaScript module (`template.js` / `templates.js`).
 
 Key details:
-- **Syntax Support**: Supports `{{ variable }}`, `{% if condition %}`, `{% for item in collection %}`, and `{% while condition %}` syntax blocks.
+- **Syntax Support**: Supports `&#123;&#123; variable &#125;&#125;`, `&#123;% if condition %&#125;`, `&#123;% for item in collection %&#125;`, and `&#123;% while condition %&#125;` syntax blocks.
 - **Dynamic Compilation**: The parser uses regular expressions to scan the HTML template string and generate a JavaScript function string at runtime. This generated code is compiled using `new Function(...)`.
 - **Fast Execution**: Once compiled, rendering the template is as fast as executing native JS string operations, since it directly runs the compiled function with variables passed as an argument scope.
 - **Exclusion of server-side constructs**: Code references to server-only constructs like `import`, `from`, or `module` were purposefully stripped as they do not apply to client-side JS.
@@ -32,5 +32,5 @@ Key details:
 - **No dependencies**: Zero added bytes in third-party library downloads.
 
 ### Trade-offs (Cons):
-- **`new Function` Security Risk**: Standard templates compiled this way must not process unverified user inputs, as arbitrary JS expressions inside `{{ ... }}` or `{% ... %}` are executed directly. (See [REQ-03-system_requirements.md](../REQ-03-system_requirements.md) for mitigation details).
+- **`new Function` Security Risk**: Standard templates compiled this way must not process unverified user inputs, as arbitrary JS expressions inside `&#123;&#123; ... &#125;&#125;` or `&#123;% ... %&#125;` are executed directly. (See [REQ-03-system_requirements.md](../REQ-03-system_requirements.md) for mitigation details).
 - **Hard Debugging**: Syntax errors in templates compile to dynamic functions, making it difficult to trace syntax errors back to specific lines in the raw HTML template.
