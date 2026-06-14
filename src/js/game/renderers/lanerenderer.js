@@ -7,16 +7,25 @@ var LaneRenderer = function(){};
 
 /**
  * @param {Lane} lane The lane.
- * @return {string} lane string.
+ * @return {!DocumentFragment} lane fragment.
  */
 LaneRenderer.prototype.Render = function(lane){
     /** @type {Lane} */
     var color = lane.runner.model["color"];
-    return [
-        this.ToArray(lane).reverse().join(""),
-        ["<span style='background-color:#", color, ";'>", lane.number, "</span>"].join(""),
-        lane.position,
-    ].join("|");
+    var fragment = document.createDocumentFragment();
+
+    var trackText = this.ToArray(lane).reverse().join("");
+    fragment.appendChild(document.createTextNode(trackText));
+    fragment.appendChild(document.createTextNode("|"));
+
+    var span = document.createElement("span");
+    span.style.backgroundColor = "#" + color;
+    span.textContent = lane.number;
+    fragment.appendChild(span);
+
+    fragment.appendChild(document.createTextNode("|" + lane.position));
+
+    return fragment;
 };
 
 /**

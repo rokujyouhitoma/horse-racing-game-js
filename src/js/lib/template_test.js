@@ -7,7 +7,8 @@
 
 var describe = function(dname, func){
     var dname = dname;
-    this.it = function(name, func){
+    var globalObject = (typeof window !== 'undefined') ? window : global;
+    globalObject.it = function(name, func){
         var name = name;
         var expect = function(value){
             var Test = function(value){
@@ -16,19 +17,25 @@ var describe = function(dname, func){
             Test.prototype.toEqual = function(v){
                 if (this.value != v) {
                     console.error(dname, name, this.value, " not equal to ", v);
+                    if (typeof process !== 'undefined') {
+                        process.exitCode = 1;
+                    }
                 }
             };
             Test.prototype.toBeTruthy = function(){
                 if(!this.value){
                     console.error(dname, name, this.value);
+                    if (typeof process !== 'undefined') {
+                        process.exitCode = 1;
+                    }
                 }
             };
             return new Test(value);
         };
-        this.expect = expect;
-        func.call(this);
+        globalObject.expect = expect;
+        func.call(globalObject);
     };
-    func.call(this);
+    func.call(globalObject);
 };
 
 describe('TemplateTest', function() {
@@ -427,3 +434,57 @@ describe('Template', function() {
         })).toEqual("Test - yes - no");
     });
 });
+
+describe('LaneRendererTest', function() {
+    it('test_lane_render_fragment', function() {
+        var mockLane = {
+            runner: {
+                model: {
+                    color: "ff0000"
+                }
+            },
+            number: 1,
+            position: 2,
+            len: 5
+        };
+
+        var renderer = new LaneRenderer();
+        var fragment = renderer.Render(mockLane);
+
+        expect(fragment instanceof DocumentFragment).toBeTruthy();
+        expect(fragment.childNodes.length).toEqual(4);
+        expect(fragment.childNodes[0].textContent).toEqual("___\uD83C\uDFC7__");
+        expect(fragment.childNodes[1].textContent).toEqual("|");
+        expect(fragment.childNodes[2].tagName.toLowerCase()).toEqual("span");
+        expect(fragment.childNodes[2].style.backgroundColor).toEqual("rgb(255, 0, 0)");
+        expect(fragment.childNodes[2].textContent).toEqual("1");
+        expect(fragment.childNodes[3].textContent).toEqual("|2");
+    });
+
+    it('test_racetracklayer_dom_fragment', function() {
+        var mockRacetrack = {
+            lanes: [
+                {
+                    runner: { model: { color: "ff0000" } },
+                    number: 1,
+                    position: 1,
+                    len: 3
+                },
+                {
+                    runner: { model: { color: "00ff00" } },
+                    number: 2,
+                    position: 2,
+                    len: 3
+                }
+            ]
+        };
+
+        var layer = new RacetrackLayer(null);
+        var fragment = layer.DOM(mockRacetrack);
+
+        expect(fragment instanceof DocumentFragment).toBeTruthy();
+        expect(fragment.childNodes.length).toEqual(9);
+        expect(fragment.childNodes[4].tagName.toLowerCase()).toEqual("br");
+    });
+});
+

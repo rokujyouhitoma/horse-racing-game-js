@@ -41,8 +41,11 @@ RacetrackLayer.prototype.OnUpdate = function(e){
     if(!race){
         return;
     }
-    //TODO: innerHTMLは手抜き。createElementによるDOM操作が望ましい
-    this.dom.children[1].innerHTML = this.DOM(race.gameBoard.racetrack);
+    var container = this.dom.children[1];
+    while(container.firstChild){
+        container.removeChild(container.firstChild);
+    }
+    container.appendChild(this.DOM(race.gameBoard.racetrack));
 };
 
 /**
@@ -64,21 +67,18 @@ RacetrackLayer.prototype.OnExit = function(e){
 
 /**
  * @param {Racetrack} racetrack The racetrack.
- * @return {string} lanes string.
+ * @return {DocumentFragment} lanes fragment.
  */
 RacetrackLayer.prototype.DOM = function(racetrack){
     var laneRenderer = new LaneRenderer();
     /** @type {Array<Lane>} */
     var lanes = racetrack.lanes;
-    var text = [
-        lanes.reduce(function(a, b, index){
-            if(index == 1){
-                return [a, b].map(function(lane){
-                    return laneRenderer.Render(lane);
-                }).join("<br />");
-            }
-            return [a, laneRenderer.Render(b)].join("<br />");
-        })
-    ].join("");
-    return text;
+    var fragment = document.createDocumentFragment();
+    lanes.forEach(function(lane, index){
+        if(index > 0){
+            fragment.appendChild(document.createElement("br"));
+        }
+        fragment.appendChild(laneRenderer.Render(lane));
+    });
+    return fragment;
 };
