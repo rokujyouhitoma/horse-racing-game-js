@@ -62,6 +62,8 @@ main-min.css:
 	--output-file $@ \
 	--pretty-print
 
+# TODO: 将来的に Jest や Mocha などの本格的なテストフレームワークを導入し、
+# 自作の簡易テストランナー（template_test.js 内の describe/it モック）をリプレイスする。
 .PHONY: test
 test:
 	@cat \
