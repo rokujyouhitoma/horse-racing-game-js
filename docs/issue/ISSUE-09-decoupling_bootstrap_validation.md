@@ -3,4 +3,4 @@
 * **ステータス**: 新規 (New)
 * **内容**: `main.js` ロード時に自動実行される `RelationshipChecker().CheckAll()` は、本番環境のすべてのプレイヤーのブラウザ上でマスターデータの参照整合性チェックを毎度走らせるため、不要なCPU負荷の発生やコンソールエラーの出力がプレイヤー側で行われる状態になっています。このデータ検証処理を本番の実行パスから分離し、テストフェーズ（`make test` 実行時）やビルドステップなどの開発環境のみで動くように整理します。
 * **関連箇所**: 
-  * [main.js:L1488](file:///workspace/horse-racing-game-js/src/js/game/main.js#L1488) の TODO コメント箇所。
+  * [main.js:L1488](../../src/js/game/main.js#L1488) の TODO コメント箇所。

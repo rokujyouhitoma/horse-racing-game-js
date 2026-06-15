@@ -11,7 +11,7 @@ This directory contains the executable JAR of Closure Stylesheets.
 Closure Stylesheets is a CSS preprocessor and optimizer. It adds variables, functions, conditionals, mixins, minification, and linting support to standard CSS. In this project, it is used to parse and minify CSS files.
 
 ## Configuration & Usage
-The preprocessor is configured in the root [Makefile](file:///workspace/horse-racing-game-js/Makefile) and run using the command `make`.
+The preprocessor is configured in the root [Makefile](../../Makefile) and run using the command `make`.
 
 ```bash
 java -jar tools/closure-stylesheets/closure-stylesheets-1.5.0.jar --help
