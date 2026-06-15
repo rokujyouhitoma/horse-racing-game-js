@@ -197,11 +197,13 @@ describe('TemplateTest', function() {
     });
 
     it('test_unicode_template', function() {
-        //TODO: xxx
+        var template = new Template("日本語");
+        expect(template.generate()).toEqual("日本語");
     });
 
     it('test_unicode_literal_expression', function() {
-        //TODO: xxx
+        var template = new Template("{{ '日本語' }}");
+        expect(template.generate()).toEqual("日本語");
     });
 
     it('test_custom_namespace', function() {
