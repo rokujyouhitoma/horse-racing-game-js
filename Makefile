@@ -62,7 +62,11 @@ main-min.css:
 	--output-file $@ \
 	--pretty-print
 
-# TODO: 将来的に Jest や Mocha などの本格的なテストフレームワークを導入し、
+.PHONY: clean
+clean:
+	rm -f main-min.js main-min.css
+
+# TODO: [ISSUE-08] 将来的に Jest や Mocha などの本格的なテストフレームワークを導入し、
 # 自作の簡易テストランナー（template_test.js 内の describe/it モック）をリプレイスする。
 .PHONY: test
 test:
