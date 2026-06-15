@@ -544,11 +544,13 @@ StubLoader.prototype.Load = function(key){
  * @param {Array<string>} names The columns name.
  * @param {Array<string>} types The columns type.
  * @param {Object=} opt_relationships The relationships definition.
+ * @param {Object=} opt_validations The validations definition.
  */
-var MasterMeta = function(names, types, opt_relationships){
+var MasterMeta = function(names, types, opt_relationships, opt_validations){
     this.names = names;
     this.types = types;
     this.relationships = opt_relationships;
+    this.validations = opt_validations;
 };
 
 /**
@@ -559,11 +561,37 @@ var MasterData = function(){
     /** @const */ this.loader_ = new StubLoader();
     /** @private */
     this.meta_ = {
-        "HorseFigure": {},
-        "MonsterCoin": {},
-        "MonsterFigure": {},
-        "Race": {},
+        "HorseFigure": {
+            "validations": {
+                "id": { "min": 1 },
+                "type": { "nonEmpty": true },
+                "color": { "regex": "^[0-9A-Fa-f]{6}$" }
+            }
+        },
+        "MonsterCoin": {
+            "validations": {
+                "id": { "min": 1 },
+                "type": { "nonEmpty": true }
+            }
+        },
+        "MonsterFigure": {
+            "validations": {
+                "id": { "min": 1 },
+                "type": { "nonEmpty": true }
+            }
+        },
+        "Race": {
+            "validations": {
+                "id": { "min": 1 },
+                "len": { "min": 1 }
+            }
+        },
         "PlayCard": {
+            "validations": {
+                "id": { "min": 1 },
+                "card_type": { "in": [1, 2, 3] },
+                "detail_id": { "min": 1 }
+            },
             "relationships": [
                 {
                     "filters": [
@@ -615,10 +643,35 @@ var MasterData = function(){
                 },
             ],
         },
-        "StepCard": {},
-        "RankCard": {},
-        "DashCard": {},
-        "Odds": {},
+        "StepCard": {
+            "validations": {
+                "id": { "min": 1 },
+                "target_id": { "min": 1 },
+                "step": { "min": 1 }
+            }
+        },
+        "RankCard": {
+            "validations": {
+                "id": { "min": 1 },
+                "target_rank": { "in": [-1, 1, 2, 3, 4] },
+                "step": { "min": 1 }
+            }
+        },
+        "DashCard": {
+            "validations": {
+                "id": { "min": 1 },
+                "target_rank": { "min": 1 },
+                "dash_type": { "in": [1, 2] }
+            }
+        },
+        "Odds": {
+            "validations": {
+                "id": { "min": 1 },
+                "first_id": { "min": 1 },
+                "second_id": { "min": 1 },
+                "odds": { "min": 1 }
+            }
+        }
     };
 };
 
@@ -648,6 +701,9 @@ MasterData.prototype.GetMeta = function(key){
     var meta = new MasterMeta(names, types);
     if(this.meta_[key] && this.meta_[key]["relationships"]){
         meta["relationships"] = this.meta_[key]["relationships"];
+    }
+    if(this.meta_[key] && this.meta_[key]["validations"]){
+        meta["validations"] = this.meta_[key]["validations"];
     }
     return meta;
 };
@@ -1492,7 +1548,7 @@ GameScene.prototype.OnResume = function(){
 
 // TODO: [ISSUE-09] 起動時データ検証処理の本番実行パスからの分離
 // For debug.
-(new RelationshipChecker()).CheckAll([
+var modelsToCheck = [
     "HorseFigure",
     "MonsterCoin",
     "MonsterFigure",
@@ -1501,7 +1557,10 @@ GameScene.prototype.OnResume = function(){
     "StepCard",
     "RankCard",
     "DashCard",
-]);
+    "Odds"
+];
+(new RelationshipChecker()).CheckAll(modelsToCheck);
+(new ValueChecker()).CheckAll(modelsToCheck);
 
 /**
  * Bootstrap sequence to explicitly instantiate all required directors in the correct order.

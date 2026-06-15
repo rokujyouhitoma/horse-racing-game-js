@@ -662,6 +662,34 @@ describe('BootstrapTest', function() {
     });
 });
 
+describe('ValueCheckerTest', function() {
+    it('test_value_checker_runs_successfully', function() {
+        var checker = new ValueChecker();
+        var errorCount = 0;
+        var originalConsoleError = console.error;
+        console.error = function() {
+            errorCount++;
+            originalConsoleError.apply(console, arguments);
+        };
+        try {
+            checker.CheckAll([
+                "HorseFigure",
+                "MonsterCoin",
+                "MonsterFigure",
+                "Race",
+                "PlayCard",
+                "StepCard",
+                "RankCard",
+                "DashCard",
+                "Odds"
+            ]);
+            expect(errorCount).toEqual(0);
+        } finally {
+            console.error = originalConsoleError;
+        }
+    });
+});
+
 if (typeof process !== 'undefined') {
     process.exit(globalObject.testSuiteStats.failedTests > 0 ? 1 : 0);
 }
