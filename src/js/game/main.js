@@ -87,6 +87,7 @@ CustomSceneDirector.prototype.Replace = function(scene){
  * @implements {IGameObject}
  */
 var Game = function(){
+    GameObject.call(this);
     this.fps = new FPS();
     this.objects = [
         this.fps,
@@ -94,7 +95,7 @@ var Game = function(){
     Game.Publisher.Subscribe(Events.Game.OnRender, this.OnRender.bind(this));
     Game.Publisher.Publish(Events.Game.OnAwake, this);
 };
-Game.prototype = new GameObject();
+inherits(Game, GameObject);
 
 /**
  * Start.
@@ -653,11 +654,13 @@ MasterData.prototype.GetMeta = function(key){
 
 /**
  * @constructor
+ * @extends {GameObject}
  */
 var HorseFigureDirector = function(){
+    GameObject.call(this);
     this.figures = {};
 };
-HorseFigureDirector.prototype = new GameObject();
+inherits(HorseFigureDirector, GameObject);
 
 /**
  * Start.
@@ -683,11 +686,13 @@ HorseFigureDirector.prototype.Destroy = function(){
 
 /**
  * @constructor
+ * @extends {GameObject}
  */
 var MonsterCoinDirector = function(){
+    GameObject.call(this);
     this.coins = {};
 };
-MonsterCoinDirector.prototype = new GameObject();
+inherits(MonsterCoinDirector, GameObject);
 
 /**
  * Start.
@@ -713,11 +718,13 @@ MonsterCoinDirector.prototype.Destroy = function(){
 
 /**
  * @constructor
+ * @extends {GameObject}
  */
 var MonsterFigureDirector = function(){
+    GameObject.call(this);
     this.figures = {};
 };
-MonsterFigureDirector.prototype = new GameObject();
+inherits(MonsterFigureDirector, GameObject);
 
 /**
  * Start.
@@ -1096,14 +1103,16 @@ RepositoryDirector.prototype.Get = function(name){
 
 /**
  * @constructor
+ * @extends {GameObject}
  */
 var FPS = function(){
+    GameObject.call(this);
     var engine = Game.Locator.locate(Engine);
     this.baseTime = engine.lastUpdate;
     this.baseCount = 0;
     this.currentFPS = 0;
 };
-FPS.prototype = new GameObject();
+inherits(FPS, GameObject);
 
 /**
  * Update.
@@ -1406,6 +1415,7 @@ ILayer.prototype.Render = function(){};
  * @param {Object=} opt_content .
  */
 var GameScene = function(name, opt_content){
+    Scene.call(this);
     this.name = name;
     this.content = opt_content;
     var directors = {
@@ -1450,7 +1460,7 @@ var GameScene = function(name, opt_content){
     this.directors = directors[name](this);
     this.layers = renderers[name](this);
 };
-GameScene.prototype = new Scene();
+inherits(GameScene, Scene);
 
 /**
  * Enter.

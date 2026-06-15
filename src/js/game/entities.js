@@ -2,32 +2,38 @@
 
 /**
  * @constructor
+ * @extends {GameObject}
  * @param {Model} model The model.
  */
 var HorseFigure = function(model){
+    GameObject.call(this);
     this.model = model;
     /** @type {Lane} */
     this.lane = null;
 };
-HorseFigure.prototype = new GameObject();
+inherits(HorseFigure, GameObject);
 
 /**
  * @constructor
+ * @extends {GameObject}
  * @param {Model} model The model.
  */
 var MonsterCoin = function(model){
+    GameObject.call(this);
     this.model = model;
 };
-MonsterCoin.prototype = new GameObject();
+inherits(MonsterCoin, GameObject);
 
 /**
  * @constructor
+ * @extends {GameObject}
  * @param {Model} model The model.
  */
 var MonsterFigure = function(model){
+    GameObject.call(this);
     this.model = model;
 };
-MonsterFigure.prototype = new GameObject();
+inherits(MonsterFigure, GameObject);
 
 /**
  * @constructor

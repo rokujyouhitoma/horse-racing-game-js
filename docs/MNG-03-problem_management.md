@@ -34,6 +34,6 @@ stateDiagram-v2
 | **[ISSUE-02]** | Medium | 分析中 (Analyzing) | ゲームシステム（対戦・ベット）の本実装 | [ISSUE-02-game_system_implementation.md](issue/ISSUE-02-game_system_implementation.md) |
 | **[ISSUE-03]** | Medium | 新規 (New) | マスターデータの値バリデータ (ValueChecker) の未実装 | [ISSUE-03-masterdata_value_checker.md](issue/ISSUE-03-masterdata_value_checker.md) |
 | **[ISSUE-04]** | Low | 解決済 (Resolved) | レンダラーとモデルの密結合 | [ISSUE-04-decoupling_renderer_and_model.md](issue/ISSUE-04-decoupling_renderer_and_model.md) |
-| **[ISSUE-05]** | Low | 新規 (New) | コーディング規約の混在 | [ISSUE-05-coding_standards_mixture.md](issue/ISSUE-05-coding_standards_mixture.md) |
+| **[ISSUE-05]** | Low | 解決済 (Resolved) | コーディング規約の混在 | [ISSUE-05-coding_standards_mixture.md](issue/ISSUE-05-coding_standards_mixture.md) |
 | **[ISSUE-06]** | Low | 新規 (New) | エンジンラグ処理時の不整合 | [ISSUE-06-engine_lag_inconsistency.md](issue/ISSUE-06-engine_lag_inconsistency.md) |
 | **[ISSUE-07]** | Medium | 解決済 (Resolved) | シーン遷移やテスト実行時におけるDOM非存在エラー | [ISSUE-07-dom_null_pointer_exceptions.md](issue/ISSUE-07-dom_null_pointer_exceptions.md) |

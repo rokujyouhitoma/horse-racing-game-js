@@ -47,14 +47,14 @@ OddsTableLayer.prototype.OnUpdate = function(e){
     /** @type {OddsTable} */
     var oddstable = payload.oddstable;
     var templates = Game.Locator.locate(Templates);
-    var new_table = templates.Generate("oddstable", {"oddstable": oddstable});
+    var newTable = templates.Generate("oddstable", {"oddstable": oddstable});
     Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
         if(this.dom){
             var table = this.dom.children[1];
             if(table && table.parentNode) {
                 table.parentNode.removeChild(table);
             }
-            this.dom.appendChild(new_table);
+            this.dom.appendChild(newTable);
         }
     }.bind(this)));
 };
