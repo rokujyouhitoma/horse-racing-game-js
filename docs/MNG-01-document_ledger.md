@@ -37,4 +37,4 @@
 | **[ADR-03]** | TornadoテンプレートエンジンのJS移植 | [ADR-03-tornado-template-engine-js-port.md](adr/ADR-03-tornado-template-engine-js-port.md) | HTMLテンプレート解釈の高速化と vanilla 化に関する記録。 | 技術方針の決定時。 |
 | **[ADR-04]** | Google Closure Compiler Upgrade and Warning Remediation | [ADR-04-closure-compiler-upgrade-and-warning-fixes.md](adr/ADR-04-closure-compiler-upgrade-and-warning-fixes.md) | Upgrading Closure Compiler and fixing warnings/errors. | Decision on warning levels and compiler configs. |
 | **[ADR-05]** | Decoupling Renderers and Models via Pub/Sub Event-Driven Architecture | [ADR-05-decoupling-renderers-and-models.md](adr/ADR-05-decoupling-renderers-and-models.md) | Decoupling view layers from controllers and models using events. | Transition to event-driven unidirectional data flow. |
-
+| **[ADR-06]** | Document Portability via Relative Links | [ADR-06-document-portability-via-relative-links.md](adr/ADR-06-document-portability-via-relative-links.md) | Decision on using relative links in repository documents. | Document structure maintenance. |
