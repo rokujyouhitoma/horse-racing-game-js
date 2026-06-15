@@ -26,42 +26,14 @@ stateDiagram-v2
 
 ## 2. 課題・バグ管理台帳 (Issue Ledger)
 
-現在プロジェクトで追跡している課題およびバグの一覧です。
+現在プロジェクトで追跡している課題およびバグの一覧です。詳細な内容はリンク先の各Issueドキュメントを参照してください。
 
-### [ISSUE-01] プレイカード使い切り時のスタック問題 (Severity: High)
-* **ステータス**: 新規 (New)
-* **現象**: プレイカード（山札60枚）をすべて使い切っても、2位の馬がゴールインしていない場合、ゲームが未完了のままスタックしてしまう。
-* **原因の仮説**:
-  * `RaceDirector.prototype.OnUpdate` のゴール判定ロジックが、同時にゴールした場合や `Undo` を実行した際、正常に `goals_` 配列を処理できていない。
-  * 山札全体のバランスが、コース全長70マスに対して不足する場合がある（レベルデザインのミスマッチ）。
-* **恒久対策**: カードを使い切った段階で最終座標順に順位を強制確定する、またはゴール判定条件のロジック堅牢化。
-
-### [ISSUE-02] ゲームシステム（対戦・ベット）の本実装 (Severity: Medium)
-* **ステータス**: 分析中 (Analyzing)
-* **内容**: 現在はデバッグ自動プレイがメインとなっており、ボードゲームとしての「対戦プレイ」の枠組みが未実装。
-  * **プレイヤー管理**: 人数の決定、手札配布、ターン処理。
-  * **ベットシステム**: レース開始前のベットUIの構築（ロジックは `Bet` クラスに仮実装されているが、画面と未連携）。
-  * **リザルトポイント計算**: レース終了時の着順オッズに基づく最終コイン計算。
-
-### [ISSUE-03] マスターデータの値バリデータ (ValueChecker) の未実装 (Severity: Medium)
-* **ステータス**: 新規 (New)
-* **内容**: リレーションのチェック (`RelationshipChecker`) は実装されているが、値自体の範囲や正当性（例: カードの進むマス数が負の値でないか等）をバリデーションする `ValueChecker` が TODO のまま未実装。
-
-### [ISSUE-04] レンダラーとモデルの密結合 (Severity: Low)
-* **ステータス**: 解決済 (Resolved)
-* **内容**: `RacetrackLayer` や `OddsTableLayer` などの描画レイヤーが、ゲームの内部オブジェクトやディレクターと非常に強く結合している。モデルの変更が描画側へ直接影響するため、Pub/Sub イベントを経由した疎結合データ通信への移行が望まれる。
-* **対応内容 (2026.6.14)**: 新しいPub/Subイベント `Events.Race.OnChanged` を定義し、`RaceDirector` 側の状態変更時にモデルデータ（`racetrack`, `oddstable`）をペイロードに載せてパブリッシュするように変更。`RacetrackLayer` と `OddsTableLayer` はこれを購読してペイロードのみで描画を行うよう修正し、密結合を完全に解消しました。
-
-### [ISSUE-05] コーディング規約の混在 (Severity: Low)
-* **ステータス**: 新規 (New)
-* **内容**: キャメルケースとスネークケースの混在、オブジェクト指向の継承方法に一貫性がない（`GameObject` の継承スタイルなど）ため、リファクタリングによる整理が必要。
-
-### [ISSUE-06] エンジンラグ処理時の不整合 (Severity: Low)
-* **ステータス**: 新規 (New)
-* **内容**: タブ切り替えなどでJSスリープから復帰した際のラグ解消処理（whileループのスキップ）により、シミュレーションゲームとしての状態更新に不整合が生じるリスクがある。
-
-### [ISSUE-07] シーン遷移やテスト実行時におけるDOM非存在エラー (Cannot read properties of null) (Severity: Medium)
-* **ステータス**: 解決済 (Resolved)
-* **内容**: レンダリングレイヤー（`FPSLayer`、`ResultSceneLayer`、`TitleSceneLayer` など）の `OnExit` や `OnUpdate` メソッドにおいて、すでにDOM要素（`this.dom` やその親・子要素）が破棄されている状態でDOM操作を行おうとした際、`Cannot read properties of null (reading 'parentNode')` などのエラーが発生し、ゲームがクラッシュまたはテストが異常終了する問題。
-* **対応内容 (2026.6.15)**: `OnExit` や `OnUpdate` 時に `this.dom`、`this.dom.parentNode`、`this.dom.children` の存在確認（ヌルチェック）を徹底するよう修正。また、テストコード (`template_test.js`) において、テスト終了時に `layer.OnExit()` を呼び出し、不要なDOM要素とイベントリスナーが適切にクリーンアップされるように修正しました。
-
+| 課題ID | 優先度 (Severity) | ステータス | 課題概要 | 関連ドキュメント |
+| :--- | :--- | :--- | :--- | :--- |
+| **[ISSUE-01]** | High | 新規 (New) | プレイカード使い切り時のスタック問題 | [ISSUE-01-playcard_stack_problem.md](issue/ISSUE-01-playcard_stack_problem.md) |
+| **[ISSUE-02]** | Medium | 分析中 (Analyzing) | ゲームシステム（対戦・ベット）の本実装 | [ISSUE-02-game_system_implementation.md](issue/ISSUE-02-game_system_implementation.md) |
+| **[ISSUE-03]** | Medium | 新規 (New) | マスターデータの値バリデータ (ValueChecker) の未実装 | [ISSUE-03-masterdata_value_checker.md](issue/ISSUE-03-masterdata_value_checker.md) |
+| **[ISSUE-04]** | Low | 解決済 (Resolved) | レンダラーとモデルの密結合 | [ISSUE-04-decoupling_renderer_and_model.md](issue/ISSUE-04-decoupling_renderer_and_model.md) |
+| **[ISSUE-05]** | Low | 新規 (New) | コーディング規約の混在 | [ISSUE-05-coding_standards_mixture.md](issue/ISSUE-05-coding_standards_mixture.md) |
+| **[ISSUE-06]** | Low | 新規 (New) | エンジンラグ処理時の不整合 | [ISSUE-06-engine_lag_inconsistency.md](issue/ISSUE-06-engine_lag_inconsistency.md) |
+| **[ISSUE-07]** | Medium | 解決済 (Resolved) | シーン遷移やテスト実行時におけるDOM非存在エラー | [ISSUE-07-dom_null_pointer_exceptions.md](issue/ISSUE-07-dom_null_pointer_exceptions.md) |
