@@ -39,4 +39,4 @@ stateDiagram-v2
 | **[ISSUE-07]** | Medium | 解決済 (Resolved) | シーン遷移やテスト実行時におけるDOM非存在エラー | [ISSUE-07-dom_null_pointer_exceptions.md](issue/ISSUE-07-dom_null_pointer_exceptions.md) |
 | **[ISSUE-08]** | Low | 新規 (New) | テスト実行環境の近代化 | [ISSUE-08-modernizing_test_framework.md](issue/ISSUE-08-modernizing_test_framework.md) |
 | **[ISSUE-09]** | Low | 新規 (New) | 起動時データ検証処理の本番実行パスからの分離 | [ISSUE-09-decoupling_bootstrap_validation.md](issue/ISSUE-09-decoupling_bootstrap_validation.md) |
-| **[ISSUE-10]** | Low | 新規 (New) | reportUnknownTypes の警告解消と型定義の厳格化 | [ISSUE-10-strict_type_definitions.md](issue/ISSUE-10-strict_type_definitions.md) |
+| **[ISSUE-10]** | Low | 解決済 (Resolved) | reportUnknownTypes の警告解消と型定義の厳格化 | [ISSUE-10-strict_type_definitions.md](issue/ISSUE-10-strict_type_definitions.md) |

@@ -263,7 +263,7 @@ string.__mul__ = function (str, count) {
  * @extends {Error}
  */
 var NotImplementedError = function (message) {
-    NotImplementedError.__super__.constructor.apply(this, [message]);
+    Error.call(this, message);
     this.name = 'NotImplementedError';
 };
 inherits(NotImplementedError, Error);
@@ -275,7 +275,7 @@ inherits(NotImplementedError, Error);
  * @extends {Error}
  */
 var AssertionError = function (message) {
-    AssertionError.__super__.constructor.apply(this, [message]);
+    Error.call(this, message);
     this.name = 'AssertionError';
 };
 inherits(AssertionError, Error);
@@ -287,7 +287,7 @@ inherits(AssertionError, Error);
  * @extends {Error}
  */
 var ValueError = function (message) {
-    ValueError.__super__.constructor.apply(this, [message]);
+    Error.call(this, message);
     this.name = 'ValueError';
 };
 inherits(ValueError, Error);
@@ -309,7 +309,7 @@ var IOError = function (var_args) {
     else {
         throw new NotImplementedError();
     }
-    IOError.__super__.constructor.apply(this, [message]);
+    Error.call(this, message);
     this.name = 'IOError';
 };
 inherits(IOError, Error);
@@ -321,7 +321,7 @@ inherits(IOError, Error);
  * @extends {Error}
  */
 var StopIteration = function (message) {
-    StopIteration.__super__.constructor.apply(this, [message]);
+    Error.call(this, message);
     this.name = 'StopIteration';
 };
 inherits(StopIteration, Error);
@@ -943,6 +943,7 @@ var Template = function (template_string, name, loader, autoescape, whitespace) 
     loader = loader ? loader : null;
     autoescape = autoescape ? autoescape : _UNSET;
     whitespace = whitespace ? whitespace : null;
+    /** @type {string} */
     this.name = name;
     if (!whitespace) {
         if (loader && loader.whitespace) {
@@ -968,6 +969,7 @@ var Template = function (template_string, name, loader, autoescape, whitespace) 
     this.namespace = loader ? loader.namespace : {};
     var reader = new _TemplateReader(name, escape_.native_str(template_string), whitespace);
     var parsed = _parse(reader, this);
+    /** @type {_File} */
     this.file = new _File(parsed);
     /** @type {string} */
     this.code = this._generate_js(loader);
@@ -1047,6 +1049,7 @@ Template.prototype._generate_js = function (loader) {
     /** @type {StringIO} } */
     var buffer = new StringIO();
     // named_blocks maps from names to _NamedBlock objects
+    /** @type {!Object<string, !_NamedBlock>} */
     var named_blocks = {};
     var ancestors = this._get_ancestors(loader);
     ancestors.reverse();
@@ -1062,13 +1065,16 @@ Template.prototype._generate_js = function (loader) {
 
 /**
  * @param {BaseLoader} loader .
- * @return {Array} .
+ * @return {!Array<!_Node>} .
  * @protected
  */
 Template.prototype._get_ancestors = function (loader) {
+    /** @type {!Array<!_Node>} */
     var ancestors = [this.file];
-    for (var key in this.file.body.chunks) {
-        var chunk = this.file.body.chunks[key];
+    var chunks = this.file.body.chunks;
+    var len = chunks.length;
+    for (var i = 0; i < len; ++i) {
+        var chunk = chunks[i];
         if (chunk instanceof _ExtendsBlock) {
             if (!loader) {
                 throw new ParseError('{% extends %} block found, but no' +
@@ -1184,7 +1190,7 @@ Loader.prototype._create_template = function () {
  * @extends {BaseLoader}
  */
 var DictLoader = function (dict) {
-    DictLoader.__super__.constructor.apply(this, Array.prototype.slice.call(arguments, 1));
+    BaseLoader.apply(this, Array.prototype.slice.call(arguments, 1));
     this.dict = dict;
 };
 inherits(DictLoader, BaseLoader);
@@ -1258,7 +1264,9 @@ _Node.prototype['find_named_blocks'] = _Node.prototype.find_named_blocks;
  * @extends {_Node}
  */
 var _File = function (body) {
+    /** @type {_ChunkList} */
     this.body = body;
+    /** @type {number} */
     this.line = 0;
 };
 inherits(_File, _Node);
@@ -1294,11 +1302,12 @@ _File.prototype.each_child = function () {
 };
 
 /**
- * @param {Array} chunks .
+ * @param {!Array<!_Node>} chunks .
  * @constructor
  * @extends {_Node}
  */
 var _ChunkList = function (chunks) {
+    /** @type {!Array<!_Node>} */
     this.chunks = chunks;
 };
 inherits(_ChunkList, _Node);
@@ -1367,7 +1376,7 @@ _NamedBlock.prototype.generate = function (writer) {
  */
 _NamedBlock.prototype.find_named_blocks = function (loader, named_blocks) {
     named_blocks[this.name] = this;
-    _NamedBlock.__super__['find_named_blocks'].apply(this, [loader, named_blocks]);
+    _Node.prototype.find_named_blocks.call(this, loader, named_blocks);
 };
 _NamedBlock.prototype['find_named_blocks'] = _NamedBlock.prototype.find_named_blocks;
 
@@ -1630,7 +1639,7 @@ inherits(_Expression, _Node);
  * @extends {_Expression}
  */
 var _Module = function (expression, line) {
-    _Module.__super__.constructor.apply(this, ['_tt_modules.' + expression, line, true]);
+    _Expression.call(this, '_tt_modules.' + expression, line, true);
 };
 inherits(_Module, _Expression);
 
@@ -1702,7 +1711,7 @@ _Text.prototype.generate = function (writer) {
 var ParseError = function (message, filename, lineno) {
     filename = filename ? filename : null;
     lineno = lineno ? lineno : null;
-    ParseError.__super__.constructor.apply(this, [message]);
+    Error.call(this, message);
     this.name = 'ParseError';
     this.message = message || '';
     this.filename = filename;
@@ -1726,13 +1735,21 @@ ParseError.prototype.toString = function () {
  * @extends {Object}
  */
 var _CodeWriter = function (file, named_blocks, loader, current_template) {
+    /** @type {StringIO} */
     this.file = file;
+    /** @type {Object} */
     this.named_blocks = named_blocks;
+    /** @type {BaseLoader} */
     this.loader = loader;
+    /** @type {Template} */
     this.current_template = current_template;
+    /** @type {number} */
     this.apply_counter = 0;
+    /** @type {number} */
     this._indent = 0;
+    /** @type {!Array<{type: string, has_else: (boolean|undefined), has_finally: (boolean|undefined)}>} */
     this.control_stack = [];
+    /** @type {!Array<!Array<*>>} */
     this.include_stack = [];
 };
 inherits(_CodeWriter, Object);

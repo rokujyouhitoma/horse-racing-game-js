@@ -52,9 +52,8 @@ main-min.js: $(SOURCES)
 	--debug \
 	--formatting=PRETTY_PRINT \
 	--jscomp_error=checkTypes \
-	--jscomp_error=invalidCasts
-
-# TODO: [ISSUE-10] --jscomp_warning=reportUnknownTypes \
+	--jscomp_error=invalidCasts \
+	--jscomp_warning=reportUnknownTypes
 #	--formatting=PRINT_INPUT_DELIMITER \
 #	--compilation_level=WHITESPACE_ONLY \
 
