@@ -110,7 +110,7 @@ Engine.prototype.Loop = function(){
         var elapsed = now - this.lastUpdate;
         this.lastUpdate = now;
         lag += elapsed;
-        //TODO: xxx
+        // TODO: [ISSUE-06] タブ切り替え等のスリープ復帰時に更新処理がスキップされる不整合リスクの解消
         if(LIMIT_LAG < lag){
             lag = 0;
             return;
