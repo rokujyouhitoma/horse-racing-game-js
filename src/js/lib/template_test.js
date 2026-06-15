@@ -1,4 +1,4 @@
-// TODO: 将来的に Jest や Mocha などの本格的なテストフレームワークを導入し、
+// TODO: [ISSUE-08] 将来的に Jest や Mocha などの本格的なテストフレームワークを導入し、
 // 本ファイルの自作 describe/it モックをリプレイスする。
 //"use strict";
 

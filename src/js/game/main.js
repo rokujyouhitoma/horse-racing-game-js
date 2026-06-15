@@ -1490,7 +1490,7 @@ GameScene.prototype.OnResume = function(){
     Game.Publisher.Publish(Events.GameScene.OnResume, this);
 };
 
-// TODO: xxx
+// TODO: [ISSUE-09] 起動時データ検証処理の本番実行パスからの分離
 // For debug.
 (new RelationshipChecker()).CheckAll([
     "HorseFigure",
