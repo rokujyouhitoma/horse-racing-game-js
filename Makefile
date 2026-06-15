@@ -50,9 +50,11 @@ main-min.js: $(SOURCES)
 	--js_output_file $@ \
 	--js $(SOURCES) \
 	--debug \
-	--formatting=PRETTY_PRINT
+	--formatting=PRETTY_PRINT \
+	--jscomp_error=checkTypes \
+	--jscomp_error=invalidCasts
 
-#	--jscomp_warning=reportUnknownTypes \
+# TODO: [ISSUE-10] --jscomp_warning=reportUnknownTypes \
 #	--formatting=PRINT_INPUT_DELIMITER \
 #	--compilation_level=WHITESPACE_ONLY \
 
