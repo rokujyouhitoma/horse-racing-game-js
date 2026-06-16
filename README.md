@@ -17,6 +17,7 @@ A digital implementation of a horse racing card game. Players use play cards (St
 - **Event System** — DOM Level 2–inspired event system (Event, EventTarget, EventListener)
 - **Play Cards** — Three card types: Step (advance a horse), Rank (adjust position), Dash (special move)
 - **Master Data** — Structured master data with a relationship checker and stub loader
+- **Value Validation** — Boot-time master data validation via `ValueChecker` (min, nonEmpty, regex, in)
 - **Seeded RNG** — Xorshift-based random number generator for reproducible randomness
 - **Template Engine** — JavaScript port of Python's Tornado template engine for HTML rendering
 - **Undo Support** — Undo the last played card during a race
@@ -26,13 +27,14 @@ A digital implementation of a horse racing card game. Players use play cards (St
 ```
 horse-racing-game-js/
 ├── docs/         # Project management, requirements, technical designs, manuals, and ADRs
-│   ├── adr/      # Architectural Decision Records (ADR-01, ADR-02, ADR-03)
+│   ├── adr/      # Architectural Decision Records (ADR-01 through ADR-06)
+│   ├── issue/    # Issue tracking documents (ISSUE-01 through ISSUE-11)
 │   ├── MNG-*     # Management docs (MNG-01 Ledger, MNG-02 Process, MNG-03 Problem tracker)
 │   ├── REQ-*     # Requirement definitions (REQ-01 User, REQ-02 Features, REQ-03 System)
 │   ├── DSN-*     # Technical designs (DSN-01 High-Level, DSN-02 Low-Level)
 │   └── USR-*     # User documentation (USR-01 Official Rulebook & Guide)
 ├── src/          # Source files
-├── tools/        # Build tools
+├── tools/        # Build tools (Closure Compiler, Closure Stylesheets)
 ├── index.html    # Entry point
 ├── compiled.html # Compiled output
 └── Makefile      # Build configuration
@@ -42,7 +44,7 @@ horse-racing-game-js/
 
 ### Prerequisites
 
-- [Closure Compiler](https://developers.google.com/closure/compiler) (for building)
+- [Closure Compiler](https://developers.google.com/closure/compiler) (for building; `closure-compiler-v20260602.jar` is bundled under `tools/`)
 - A modern web browser
 
 ### Running Locally
@@ -62,7 +64,15 @@ Then visit `http://localhost:8000`.
 make
 ```
 
-The compiled output will be written to `compiled.html`.
+The compiled output will be written to `main-min.js`. Open `compiled.html` in a browser to play the compiled version.
+
+### Running Tests
+
+```bash
+make test
+```
+
+Runs the unit test suite via Node.js and prints a PASS/FAIL summary to the console.
 
 ## Game Rules
 
@@ -84,7 +94,21 @@ The engine follows a component-based design:
 - `Locator` — Service locator for singleton instances
 - `Publisher` — Observer pattern for decoupled communication
 - `Router / Matcher` — URL-based dispatcher with `window.history` support
-- `Template` — Lightweight HTML template engine
+- `Template` — Lightweight HTML template engine (Tornado-compatible syntax)
+- `Checker` — Boot-time data integrity validation (`RelationshipChecker`, `ValueChecker`)
+
+## Development
+
+All design decisions, requirements, and issue tracking are documented under [`docs/`](docs/):
+
+| Document | Description |
+| :--- | :--- |
+| [MNG-01](docs/MNG-01-document_ledger.md) | Document ledger & naming rules |
+| [MNG-02](docs/MNG-02-development_process.md) | Development process, policies & history log |
+| [MNG-03](docs/MNG-03-problem_management.md) | Issue tracker |
+| [DSN-01](docs/DSN-01-high_level_design.md) | High-level architecture |
+| [DSN-02](docs/DSN-02-low_level_design.md) | Low-level design |
+| [ADR-01–06](docs/adr/) | Architecture Decision Records |
 
 ## License
 
