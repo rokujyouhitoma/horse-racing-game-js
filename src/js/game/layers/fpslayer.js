@@ -29,9 +29,9 @@ var FPSLayer = function(scene){
  * @return {DocumentFragment}
  */
 FPSLayer.prototype.Render = function(){
-    var templates = Game.Locator.locate(Templates);
-    var fragment = templates.Generate("fpslayer", {});
-    this.dom = fragment.children[0];
+    var templates = /** @type {!Templates} */ (Game.Locator.locate(Templates));
+    var fragment = /** @type {!DocumentFragment} */ (templates.Generate("fpslayer", {}));
+    this.dom = /** @type {Element} */ ((/** @type {!ParentNode} */ (fragment)).children[0]);
     return fragment;
 };
 
@@ -39,7 +39,8 @@ FPSLayer.prototype.Render = function(){
  * @param {ExEvent} e The event object.
  */
 FPSLayer.prototype.OnUpdate = function(e){
-    var fps = Math.floor(Game.Locator.locate(Game).fps.currentFPS * 100) / 100;
+    var gameObj = /** @type {!Game} */ (Game.Locator.locate(Game));
+    var fps = Math.floor((/** @type {!FPS} */ (gameObj.fps)).currentFPS * 100) / 100;
     Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
         if(this.dom && this.dom.children && this.dom.children[0]){
             this.dom.children[0].innerText = fps;

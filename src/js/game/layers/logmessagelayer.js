@@ -29,12 +29,12 @@ var LogMessageLayer = function(scene){
  * @return {DocumentFragment}
  */
 LogMessageLayer.prototype.Render = function(){
-    var templates = Game.Locator.locate(Templates);
-    var fragment = templates.Generate("logmessagelayer", {
+    var templates = /** @type {!Templates} */ (Game.Locator.locate(Templates));
+    var fragment = /** @type {!DocumentFragment} */ (templates.Generate("logmessagelayer", {
         title: "History",
-    });
-    this.dom = fragment.children[0];
-    this.messages = /** @type {!Array<!Element>} */ (Array.prototype.slice.call(fragment.children[0].children, 1, 6));
+    }));
+    this.dom = /** @type {Element} */ ((/** @type {!ParentNode} */ (fragment)).children[0]);
+    this.messages = /** @type {!Array<!Element>} */ (Array.prototype.slice.call((/** @type {!Element} */ ((/** @type {!ParentNode} */ (fragment)).children[0])).children, 1, 6));
     return fragment;
 };
 
@@ -65,7 +65,8 @@ LogMessageLayer.prototype.OnExit = function(e){
  * @param {ExEvent} e The event object.
  */
 LogMessageLayer.prototype.OnLogMessage = function(e){
-    var message = e.payload["message"];
+    var payload = /** @type {!Object<string,*>} */ (e.payload);
+    var message = /** @type {string} */ (payload["message"]);
     for(var i = this.messages.length - 1; 0 < i; i--){
         this.messages[i].innerText = this.messages[i - 1].innerText;
     }

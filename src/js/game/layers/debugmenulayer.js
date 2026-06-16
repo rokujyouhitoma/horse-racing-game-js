@@ -55,8 +55,9 @@ DebugMenuLayer.prototype.Render = function(){
     this.dom = section;
     if (this.dom) {
         var domElement = /** @type {!Element} */ (this.dom);
+        var self = this;
         this.checkboxs = [
-            ["Auto PlayCard", "change", function(e){Game.Publisher.Publish(Events.Debug.OnAutoPlayCard, this, {"checked":e.target.checked});}],
+            ["Auto PlayCard", "change", /** @type {function(Event)} */ (function(/** Event */ e){var t = /** @type {!HTMLInputElement} */ (/** @type {!Event} */ (e).target); Game.Publisher.Publish(Events.Debug.OnAutoPlayCard, self, {"checked": t.checked});})],
         ].map(function(/** !Array<*> */ value){
             var checkbox = (new UICustomCheckbox(/** @type {string} */ (value[0]))).DOM();
             checkbox.addEventListener(/** @type {string} */ (value[1]), /** @type {function(Event)} */ (value[2]));
@@ -65,13 +66,13 @@ DebugMenuLayer.prototype.Render = function(){
         });
         domElement.appendChild(document.createElement("br"));
         this.buttons = [
-            ["Reset \uD83C\uDFAE", "click", function(){Game.Publisher.Publish(Events.Debug.OnResetGame, this);}],
-            ["Reset \uD83C\uDFC7", "click", function(){Game.Publisher.Publish(Events.Debug.OnResetRace, this);}],
-            ["Play PlayCard", "click", function(){Game.Publisher.Publish(Events.Debug.OnPlayCard, this);}],
-            ["Play Undo PlayCard", "click", function(){Game.Publisher.Publish(Events.Debug.OnUndoPlayCard, this);}],
-            ["Play RankCard", "click", function(){Game.Publisher.Publish(Events.Debug.OnPlayRankCard, this);}],
-            ["Play DashCard", "click", function(){Game.Publisher.Publish(Events.Debug.OnPlayDashCard, this);}],
-            ["Check Relationship", "click", function(){Game.Publisher.Publish(Events.Debug.OnCheckRelationship, this);}],
+            ["Reset \uD83C\uDFAE", "click", /** @type {function(Event)} */ (function(){Game.Publisher.Publish(Events.Debug.OnResetGame, self);})],
+            ["Reset \uD83C\uDFC7", "click", /** @type {function(Event)} */ (function(){Game.Publisher.Publish(Events.Debug.OnResetRace, self);})],
+            ["Play PlayCard", "click", /** @type {function(Event)} */ (function(){Game.Publisher.Publish(Events.Debug.OnPlayCard, self);})],
+            ["Play Undo PlayCard", "click", /** @type {function(Event)} */ (function(){Game.Publisher.Publish(Events.Debug.OnUndoPlayCard, self);})],
+            ["Play RankCard", "click", /** @type {function(Event)} */ (function(){Game.Publisher.Publish(Events.Debug.OnPlayRankCard, self);})],
+            ["Play DashCard", "click", /** @type {function(Event)} */ (function(){Game.Publisher.Publish(Events.Debug.OnPlayDashCard, self);})],
+            ["Check Relationship", "click", /** @type {function(Event)} */ (function(){Game.Publisher.Publish(Events.Debug.OnCheckRelationship, self);})],
         ].map(function(/** !Array<*> */ value){
             var button = (new UIButton(/** @type {string} */ (value[0]))).DOM();
             button.addEventListener(/** @type {string} */ (value[1]), /** @type {function(Event)} */ (value[2]));
@@ -165,13 +166,16 @@ DebugMenuLayer.prototype.OnUndoPlayCard = function(e){
  * @param {ExEvent} e The event object.
  */
 DebugMenuLayer.prototype.OnPlayRankCard = function(e){
-    var race = Game.SceneDirector.CurrentScene().directors["RaceDirector"].race;
-    var repositoryDirector = Game.Locator.locate(RepositoryDirector);
+    var currentScene = /** @type {!GameScene} */ (Game.SceneDirector.CurrentScene());
+    var directors = /** @type {!Object<string,*>} */ (currentScene.directors);
+    var raceDirector = /** @type {!RaceDirector} */ (directors["RaceDirector"]);
+    var race = /** @type {!Race} */ (raceDirector.race);
+    var repositoryDirector = /** @type {!RepositoryDirector} */ (Game.Locator.locate(RepositoryDirector));
     var name = "RankCard";
-    var repository = repositoryDirector.Get(name);
+    var repository = /** @type {!Repository} */ (repositoryDirector.Get(name));
     var detail_id = 1;
-    var card = repository.Find(detail_id);
-    var cardEffect = race.Apply(card);
+    var card = /** @type {!ICard} */ (repository.Find(detail_id));
+    var cardEffect = /** @type {!ICardEffect} */ (race.Apply(card));
     cardEffect.Apply();
     Game.Log(card.LogMessage());
 };
@@ -180,13 +184,16 @@ DebugMenuLayer.prototype.OnPlayRankCard = function(e){
  * @param {ExEvent} e The event object.
  */
 DebugMenuLayer.prototype.OnPlayDashCard = function(e){
-    var race = Game.SceneDirector.CurrentScene().directors["RaceDirector"].race;
-    var repositoryDirector = Game.Locator.locate(RepositoryDirector);
+    var currentScene = /** @type {!GameScene} */ (Game.SceneDirector.CurrentScene());
+    var directors = /** @type {!Object<string,*>} */ (currentScene.directors);
+    var raceDirector = /** @type {!RaceDirector} */ (directors["RaceDirector"]);
+    var race = /** @type {!Race} */ (raceDirector.race);
+    var repositoryDirector = /** @type {!RepositoryDirector} */ (Game.Locator.locate(RepositoryDirector));
     var name = "DashCard";
-    var repository = repositoryDirector.Get(name);
+    var repository = /** @type {!Repository} */ (repositoryDirector.Get(name));
     var detail_id = 1 + 1;
-    var card = repository.Find(detail_id);
-    var cardEffect = race.Apply(card);
+    var card = /** @type {!ICard} */ (repository.Find(detail_id));
+    var cardEffect = /** @type {!ICardEffect} */ (race.Apply(card));
     cardEffect.Apply();
     Game.Log(card.LogMessage());
 };
@@ -195,9 +202,16 @@ DebugMenuLayer.prototype.OnPlayDashCard = function(e){
  * @param {ExEvent} e The event object.
  */
 DebugMenuLayer.prototype.OnMove = function(e){
-    var index = e.payload["index"];
-    var race = Game.SceneDirector.CurrentScene().directors["RaceDirector"].race;
-    race.gameBoard.racetrack.lanes[index].position += 1;
+    var payload = /** @type {!Object<string,*>} */ (e.payload);
+    var index = /** @type {number} */ (payload["index"]);
+    var currentScene = /** @type {!GameScene} */ (Game.SceneDirector.CurrentScene());
+    var directors = /** @type {!Object<string,*>} */ (currentScene.directors);
+    var raceDirector = /** @type {!RaceDirector} */ (directors["RaceDirector"]);
+    var race = /** @type {!Race} */ (raceDirector.race);
+    var gameBoard = /** @type {!GameBoard} */ (race.gameBoard);
+    var racetrack = /** @type {!Racetrack} */ (gameBoard.racetrack);
+    var lane = /** @type {!Lane} */ (racetrack.lanes[index]);
+    lane.position += 1;
 };
 
 /**
@@ -221,7 +235,9 @@ DebugMenuLayer.prototype.OnCheckRelationship = function(e){
  * @param {ExEvent} e The event object.
  */
 DebugMenuLayer.prototype.OnAutoPlayCard = function(e){
-    this.IsAutoPlayCard = e.payload["checked"];
+    var payload = /** @type {!Object<string,*>} */ (e.payload);
+    this.IsAutoPlayCard = /** @type {boolean} */ (payload["checked"]);
+    /** @type {number} */
     var interval = 100;
     var listener = function(){
         if(this.IsAutoPlayCard){

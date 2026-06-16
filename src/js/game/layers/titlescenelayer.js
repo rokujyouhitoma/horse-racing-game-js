@@ -30,12 +30,12 @@ var TitleSceneLayer = function(scene){
  * @return {DocumentFragment} document fragment.
  */
 TitleSceneLayer.prototype.Render = function(){
-    var templates = Game.Locator.locate(Templates);
-    var fragment = templates.Generate("titlescenelayer", {
+    var templates = /** @type {!Templates} */ (Game.Locator.locate(Templates));
+    var fragment = /** @type {!DocumentFragment} */ (templates.Generate("titlescenelayer", {
         title: "\uD83C\uDFC7 -> \uD83C\uDFAE",
         start: "Start \uD83C\uDFC7",
-    });
-    this.dom = fragment.children[0];
+    }));
+    this.dom = /** @type {Element} */ ((/** @type {!ParentNode} */ (fragment)).children[0]);
     return fragment;
 };
 

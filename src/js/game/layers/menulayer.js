@@ -36,9 +36,10 @@ MenuLayer.prototype.Render = function(){
     fragment.appendChild(section);
     if (this.dom) {
         var domElement = /** @type {!Element} */ (this.dom);
+        var self = this;
         [
-            ["Play PlayCard Random", function(){Game.Publisher.Publish(Events.Race.OnPlayCard, this);}],
-            ["Reset \uD83C\uDFAE", function(){Game.Publisher.Publish(Events.GameDirector.OnResetGame, this);}],
+            ["Play PlayCard Random", function(){Game.Publisher.Publish(Events.Race.OnPlayCard, self);}],
+            ["Reset \uD83C\uDFAE", function(){Game.Publisher.Publish(Events.GameDirector.OnResetGame, self);}],
         ].map(function(/** !Array<*> */ value){
             var button = (new UIButton(/** @type {string} */ (value[0]))).DOM();
             button.addEventListener("click", /** @type {function(Event)} */ (value[1]));

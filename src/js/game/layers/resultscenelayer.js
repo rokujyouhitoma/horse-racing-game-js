@@ -36,10 +36,10 @@ ResultSceneLayer.prototype.Render = function(){
     var h1 = document.createElement("h1");
     h1.innerText = "\uD83C\uDFC7 Result";
     section.appendChild(h1);
-    var content = this.scene.content;
+    var content = /** @type {Object<string,*>} */ ((/** @type {!GameScene} */ (this.scene)).content);
     if(content && content["odds"]){
         var p = document.createElement("p");
-        p.innerText = "odds: " + content["odds"];
+        p.innerText = "odds: " + String(content["odds"]);
         section.appendChild(p);
     }
     if(content && content["placings"]){
@@ -49,7 +49,7 @@ ResultSceneLayer.prototype.Render = function(){
             return horse.lane.number;
         }).join("-");
         section.appendChild(p);
-        placings.forEach(function(/** !HorseFigure */ horse, index){
+        placings.forEach(function(/** !HorseFigure */ horse, /** number */ index){
             var p = document.createElement("p");
             p.innerText = (index+1) + ": " + (/** @type {!Object<string,*>} */ (horse.model))["type"];
             section.appendChild(p);

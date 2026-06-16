@@ -8,7 +8,7 @@ var Repository = function(){
 };
 
 /**
- * @param {string} key The key.
+ * @param {string|number} key The key.
  * @param {Object} value The value.
  */
 Repository.prototype.Store = function(key, value){
@@ -16,7 +16,7 @@ Repository.prototype.Store = function(key, value){
 };
 
 /**
- * @param {string} key The key.
+ * @param {string|number} key The key.
  * @return {Object} object.
  */
 Repository.prototype.Find = function(key){

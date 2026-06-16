@@ -27,11 +27,11 @@ var RacetrackLayer = function(scene){
  * @return {DocumentFragment}
  */
 RacetrackLayer.prototype.Render = function(){
-    var templates = Game.Locator.locate(Templates);
-    var fragment = templates.Generate("racetracklayer", {
+    var templates = /** @type {!Templates} */ (Game.Locator.locate(Templates));
+    var fragment = /** @type {!DocumentFragment} */ (templates.Generate("racetracklayer", {
         title: "Racetrack",
-    });
-    this.dom = fragment.children[0];
+    }));
+    this.dom = /** @type {Element} */ ((/** @type {!ParentNode} */ (fragment)).children[0]);
     return fragment;
 };
 
@@ -39,12 +39,12 @@ RacetrackLayer.prototype.Render = function(){
  * @param {ExEvent} e The event object.
  */
 RacetrackLayer.prototype.OnUpdate = function(e){
-    var payload = e.payload;
-    if(!payload || !payload.racetrack){
+    var payload = /** @type {!Object<string,*>} */ (e.payload);
+    if(!payload || !payload["racetrack"]){
         return;
     }
-    /** @type {Racetrack} */
-    var racetrack = payload.racetrack;
+    /** @type {!Racetrack} */
+    var racetrack = /** @type {!Racetrack} */ (payload["racetrack"]);
     if (this.dom) {
         var container = /** @type {!Element} */ (this.dom.children[1]);
         while(container.firstChild){
@@ -83,7 +83,7 @@ RacetrackLayer.prototype.OnExit = function(e){
  */
 RacetrackLayer.prototype.DOM = function(racetrack){
     var laneRenderer = new LaneRenderer();
-    /** @type {Array<Lane>} */
+    /** @type {!Array<!Lane>} */
     var lanes = racetrack.lanes;
     var fragment = document.createDocumentFragment();
     lanes.forEach(function(lane, index){

@@ -938,6 +938,7 @@ var js_variables = function (obj) {
  * @param {?string=} whitespace .
  * @constructor
  * @extends {Object}
+ * @suppress {reportUnknownTypes}
  */
 var Template = function (template_string, name, loader, autoescape, whitespace) {
     name = name ? name : '<string>';
@@ -993,6 +994,7 @@ inherits(Template, Object);
  * Generate this template with the given arguments.
  * @param {Object} kwargs .
  * @return {string} .
+ * @suppress {reportUnknownTypes}
  */
 Template.prototype.generate = function (kwargs) {
     kwargs = kwargs ? kwargs : {};

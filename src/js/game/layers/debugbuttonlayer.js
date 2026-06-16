@@ -36,8 +36,9 @@ DebugButtonLayer.prototype.Render = function(){
     fragment.appendChild(section);
     if (this.dom) {
         var domElement = /** @type {!Element} */ (this.dom);
+        var self = this;
         [
-            ["Debug", function(){Game.Publisher.Publish(Events.Debug.OnShowDebugMenu, this);}],
+            ["Debug", function(){Game.Publisher.Publish(Events.Debug.OnShowDebugMenu, self);}],
         ].map(function(/** !Array<*> */ value){
             var button = (new UIButton(/** @type {string} */ (value[0]))).DOM();
             button.addEventListener("click", /** @type {function(Event)} */ (value[1]));

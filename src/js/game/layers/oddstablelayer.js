@@ -30,11 +30,11 @@ var OddsTableLayer = function(scene){
  * @return {DocumentFragment}
  */
 OddsTableLayer.prototype.Render = function(){
-    var templates = Game.Locator.locate(Templates);
-    var fragment = templates.Generate("oddstablelayer", {
+    var templates = /** @type {!Templates} */ (Game.Locator.locate(Templates));
+    var fragment = /** @type {!DocumentFragment} */ (templates.Generate("oddstablelayer", {
         title: "Odds Table",
-    });
-    this.dom = fragment.children[0];
+    }));
+    this.dom = /** @type {Element} */ ((/** @type {!ParentNode} */ (fragment)).children[0]);
     return fragment;
 };
 
@@ -47,14 +47,14 @@ OddsTableLayer.prototype.OnEnter = function(e){};
  * @param {ExEvent} e The event object.
  */
 OddsTableLayer.prototype.OnUpdate = function(e){
-    var payload = e.payload;
-    if(!payload || !payload.oddstable){
+    var payload = /** @type {!Object<string,*>} */ (e.payload);
+    if(!payload || !payload["oddstable"]){
         return;
     }
-    /** @type {OddsTable} */
-    var oddstable = payload.oddstable;
-    var templates = Game.Locator.locate(Templates);
-    var newTable = templates.Generate("oddstable", {"oddstable": oddstable});
+    /** @type {!OddsTable} */
+    var oddstable = /** @type {!OddsTable} */ (payload["oddstable"]);
+    var templates = /** @type {!Templates} */ (Game.Locator.locate(Templates));
+    var newTable = /** @type {!DocumentFragment} */ (templates.Generate("oddstable", {"oddstable": oddstable}));
     Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
         if(this.dom){
             var table = this.dom.children[1];
