@@ -6,15 +6,22 @@
  * @param {IScene} scene A scene.
  */
 var FPSLayer = function(scene){
+    /** @type {IScene} */
     this.scene = scene;
+    /** @type {Element} */
     this.dom = null;
+    /** @type {!Array<!Array<*>>} */
     this.events = [
         [Events.Game.OnUpdate, this.OnUpdate.bind(this), null],
         [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
         [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
     ];
-    this.events.forEach(function(event){
-        Game.Publisher.Subscribe(event[0], event[1], event[2]);
+    this.events.forEach(function(/** !Array<*> */ event){
+        Game.Publisher.Subscribe(
+            /** @type {string} */ (event[0]),
+            /** @type {function(ExEvent)} */ (event[1]),
+            /** @type {Object} */ (event[2])
+        );
     });
 };
 
@@ -55,7 +62,11 @@ FPSLayer.prototype.OnExit = function(e){
             this.dom.parentNode.removeChild(this.dom);
         }
     }.bind(this)));
-    this.events.forEach(function(event){
-        Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
+    this.events.forEach(function(/** !Array<*> */ event){
+        Game.Publisher.UnSubscribe(
+            /** @type {string} */ (event[0]),
+            /** @type {function(ExEvent)} */ (event[1]),
+            /** @type {Object} */ (event[2])
+        );
     });
 };

@@ -10,8 +10,7 @@ var LaneRenderer = function(){};
  * @return {!DocumentFragment} lane fragment.
  */
 LaneRenderer.prototype.Render = function(lane){
-    /** @type {Lane} */
-    var color = lane.runner.model["color"];
+    var color = /** @type {string} */ (lane.runner.model["color"]);
     var fragment = document.createDocumentFragment();
 
     var trackText = this.ToArray(lane).reverse().join("");

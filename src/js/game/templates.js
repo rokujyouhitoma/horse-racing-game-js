@@ -89,7 +89,7 @@ Templates.prototype.Generate = function(name, namespace){
  * @return {DocumentFragment} .
  */
 Templates.GenerateFragment = function(template, namespace) {
-    var tmp = document.createElement("template");
+    var tmp = /** @type {!HTMLTemplateElement} */ (document.createElement("template"));
     tmp.innerHTML = template.generate(namespace);
-    return tmp.content;
+    return /** @type {!DocumentFragment} */ (tmp.content);
 };

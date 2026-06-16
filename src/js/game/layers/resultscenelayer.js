@@ -6,15 +6,23 @@
  * @param {IScene} scene A scene.
  */
 var ResultSceneLayer = function(scene){
+    /** @type {IScene} */
     this.scene = scene;
+    /** @type {Element} */
     this.dom = null;
+    /** @type {!Array<!Array<*>>} */
     this.events = [
         [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
         [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
     ];
-    this.events.forEach(function(event){
-        Game.Publisher.Subscribe(event[0], event[1], event[2]);
+    this.events.forEach(function(/** !Array<*> */ event){
+        Game.Publisher.Subscribe(
+            /** @type {string} */ (event[0]),
+            /** @type {function(ExEvent)} */ (event[1]),
+            /** @type {Object} */ (event[2])
+        );
     });
+    /** @type {function(Event)} */
     this.onClickListener = this.OnClick.bind(this);
 };
 
@@ -35,14 +43,15 @@ ResultSceneLayer.prototype.Render = function(){
         section.appendChild(p);
     }
     if(content && content["placings"]){
+        var placings = /** @type {!Array<!HorseFigure>} */ (content["placings"]);
         var p = document.createElement("p");
-        p.innerText = content["placings"].map(function(horse){
+        p.innerText = placings.map(function(/** !HorseFigure */ horse){
             return horse.lane.number;
         }).join("-");
         section.appendChild(p);
-        content["placings"].forEach(function(horse, index){
+        placings.forEach(function(/** !HorseFigure */ horse, index){
             var p = document.createElement("p");
-            p.innerText = (index+1) + ": " + horse.model["type"];
+            p.innerText = (index+1) + ": " + (/** @type {!Object<string,*>} */ (horse.model))["type"];
             section.appendChild(p);
         });
     }
@@ -76,8 +85,12 @@ ResultSceneLayer.prototype.OnExit = function(e){
             this.dom.parentNode.removeChild(this.dom);
         }
     }.bind(this)));
-    this.events.forEach(function(event){
-        Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
+    this.events.forEach(function(/** !Array<*> */ event){
+        Game.Publisher.UnSubscribe(
+            /** @type {string} */ (event[0]),
+            /** @type {function(ExEvent)} */ (event[1]),
+            /** @type {Object} */ (event[2])
+        );
     });
 };
 

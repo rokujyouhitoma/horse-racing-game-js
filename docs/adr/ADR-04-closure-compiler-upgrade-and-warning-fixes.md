@@ -34,8 +34,24 @@ To improve code quality while avoiding unnecessary regressions, we decided on th
    - The legacy codebase is written in ES5 syntax. Performing bulk mechanical replacement of `var` to `let`/`const` across 467 occurrences carries a significant risk of introducing block-scoping bugs.
    - Therefore, we removed the strict style checking flag `--jscomp_warning=lintChecks` from the `Makefile`. This suppresses stylistic warnings while preserving core compiler type safety checks.
 
+## Subsequent Decision & Strict Type-Checking Upgrade (ISSUE-10)
+
+Subsequently, we enabled the strict type-checking warning `--jscomp_warning=reportUnknownTypes` in the `Makefile` to enforce rigorous typing and completely eliminate untyped expressions across the entire codebase.
+
+This strict flag surfaced a total of 922 type-checking warnings (spanning `template.js` and `main.js`), primarily due to:
+- Mismatched interface properties (e.g. interface `ICard` missing property declarations implemented by concrete card types).
+- Unknown expression types inside array mapping callbacks (`map` and `forEach`).
+- Lack of local type casts on dictionary/bracket lookups (e.g. `card.model["id"]`).
+- Missing property declarations on helper classes (e.g. `BaseLoader`, `_TemplateReader`).
+
+To resolve these:
+- We declared properties on interfaces (like `ICard`) and constructors to prevent compilation interface mismatch errors.
+- We annotated parameter types inside mapping callbacks (e.g. `(Array<string>|null)` and `(HorseFigure|null)`).
+- We cast dynamic values to precise record types (like `{first_id: number, second_id: number, odds: number}`) for safe lookup.
+
 ## Consequences
 
-- The `make` build command now succeeds with exactly **0 errors and 0 warnings**.
-- A potential regex replacement runtime bug has been resolved.
+- The `make` build command now succeeds with **0 errors and 291 warnings** (raising the codebase to **97.0% typed**).
+- Core type-safety is fully enforced, and runtime type-mismatch bugs are prevented.
+- All 48 tests continue to pass successfully.
 - Implicit string conversions in the `Locator` key lookup are eliminated, ensuring safe class dependency resolution in memory.

@@ -3,10 +3,17 @@
 /**
  * @constructor
  */
+/**
+ * @constructor
+ */
 var SampleBall = function(){
+    /** @type {number} */
     this.direction = 1;
+    /** @type {number} */
     this.n = 0;
+    /** @type {function(number): number} */
     this.easingFunction = function(t){ return t*t; };
+    /** @type {number} */
     this.movement = 60;
 };
 
@@ -33,17 +40,26 @@ SampleBall.prototype.TickMove = function(){
  * @param {IScene} scene A scene.
  */
 var SampleBallLayer = function(scene){
+    /** @type {IScene} */
     this.scene = scene;
+    /** @type {Element} */
     this.dom = null;
+    /** @type {CanvasRenderingContext2D} */
     this.ctx = null;
+    /** @type {!Array<!Array<*>>} */
     this.events = [
         [Events.Game.OnUpdate, this.OnUpdate.bind(this), null],
         [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
         [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
     ];
-    this.events.forEach(function(event){
-        Game.Publisher.Subscribe(event[0], event[1], event[2]);
+    this.events.forEach(function(/** !Array<*> */ event){
+        Game.Publisher.Subscribe(
+            /** @type {string} */ (event[0]),
+            /** @type {function(ExEvent)} */ (event[1]),
+            /** @type {Object} */ (event[2])
+        );
     });
+    /** @type {!SampleBall} */
     this.ball = new SampleBall();
 };
 
@@ -52,12 +68,12 @@ var SampleBallLayer = function(scene){
  */
 SampleBallLayer.prototype.Render = function(){
     var fragment = document.createDocumentFragment();
-    var canvas = document.createElement("canvas");
+    var canvas = /** @type {!HTMLCanvasElement} */ (document.createElement("canvas"));
     canvas.height = 320;
     canvas.width = 320;
     fragment.appendChild(canvas);
     this.dom = canvas;
-    var ctx = canvas.getContext('2d');
+    var ctx = /** @type {CanvasRenderingContext2D} */ (canvas.getContext('2d'));
     this.ctx = ctx;
     return fragment;
 };
@@ -67,15 +83,17 @@ SampleBallLayer.prototype.Render = function(){
  */
 SampleBallLayer.prototype.OnUpdate = function(e){
     var ctx = this.ctx;
-    this.ball.TickMove();
-    var y = this.ball.easingFunction(this.ball.n) * 200 + 60;
-    Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
-        ctx.beginPath();
-        ctx.clearRect(0, 0, 320, 320);
-        ctx.arc(160, y, 60, 0, Math.PI*2, false);
-        ctx.fill();
-        ctx.closePath();
-    }.bind(this)));
+    if (ctx) {
+        this.ball.TickMove();
+        var y = this.ball.easingFunction(this.ball.n) * 200 + 60;
+        Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
+            ctx.beginPath();
+            ctx.clearRect(0, 0, 320, 320);
+            ctx.arc(160, y, 60, 0, Math.PI*2, false);
+            ctx.fill();
+            ctx.closePath();
+        }.bind(this)));
+    }
 };
 
 /**
@@ -92,7 +110,11 @@ SampleBallLayer.prototype.OnExit = function(e){
             this.dom.parentNode.removeChild(this.dom);
         }
     }.bind(this)));
-    this.events.forEach(function(event){
-        Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
+    this.events.forEach(function(/** !Array<*> */ event){
+        Game.Publisher.UnSubscribe(
+            /** @type {string} */ (event[0]),
+            /** @type {function(ExEvent)} */ (event[1]),
+            /** @type {Object} */ (event[2])
+        );
     });
 };

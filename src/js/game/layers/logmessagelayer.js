@@ -6,15 +6,22 @@
  * @param {IScene} scene A scene.
  */
 var LogMessageLayer = function(scene){
+    /** @type {Element} */
     this.dom = null;
+    /** @type {!Array<!Element>} */
     this.messages = [];
+    /** @type {!Array<!Array<*>>} */
     this.events = [
         [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
         [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
         [Events.GameDirector.OnLogMessage, this.OnLogMessage.bind(this), null],
     ];
-    this.events.forEach(function(event){
-        Game.Publisher.Subscribe(event[0], event[1], event[2]);
+    this.events.forEach(function(/** !Array<*> */ event){
+        Game.Publisher.Subscribe(
+            /** @type {string} */ (event[0]),
+            /** @type {function(ExEvent)} */ (event[1]),
+            /** @type {Object} */ (event[2])
+        );
     });
 };
 
@@ -27,7 +34,7 @@ LogMessageLayer.prototype.Render = function(){
         title: "History",
     });
     this.dom = fragment.children[0];
-    this.messages = Array.prototype.slice.call(fragment.children[0].children, 1, 6);
+    this.messages = /** @type {!Array<!Element>} */ (Array.prototype.slice.call(fragment.children[0].children, 1, 6));
     return fragment;
 };
 
@@ -45,8 +52,12 @@ LogMessageLayer.prototype.OnExit = function(e){
             this.dom.parentNode.removeChild(this.dom);
         }
     }.bind(this)));
-    this.events.forEach(function(event){
-        Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
+    this.events.forEach(function(/** !Array<*> */ event){
+        Game.Publisher.UnSubscribe(
+            /** @type {string} */ (event[0]),
+            /** @type {function(ExEvent)} */ (event[1]),
+            /** @type {Object} */ (event[2])
+        );
     });
 };
 

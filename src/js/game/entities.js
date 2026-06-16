@@ -7,6 +7,7 @@
  */
 var HorseFigure = function(model){
     GameObject.call(this);
+    /** @type {Model} */
     this.model = model;
     /** @type {Lane} */
     this.lane = null;
@@ -20,6 +21,7 @@ inherits(HorseFigure, GameObject);
  */
 var MonsterCoin = function(model){
     GameObject.call(this);
+    /** @type {Model} */
     this.model = model;
 };
 inherits(MonsterCoin, GameObject);
@@ -31,6 +33,7 @@ inherits(MonsterCoin, GameObject);
  */
 var MonsterFigure = function(model){
     GameObject.call(this);
+    /** @type {Model} */
     this.model = model;
 };
 inherits(MonsterFigure, GameObject);
@@ -40,14 +43,17 @@ inherits(MonsterFigure, GameObject);
  * @param {Model} model The model.
  */
 var Race = function(model){
+    /** @type {Model} */
     this.model = model;
-    var master = Game.Locator.locate(MasterData);
-    var racetrack = new Racetrack(master.Get("HorseFigure").map(function(row){
+    var master = /** @type {!MasterData} */ (Game.Locator.locate(MasterData));
+    var m = /** @type {!Object<string,*>} */ (model);
+    var racetrack = new Racetrack(master.Get("HorseFigure").map(function(/** !Array<string> */ row){
         return new HorseFigure(Game.Model("HorseFigure").Set(row));
-    }), model["len"]);
-    var oddsTable = new OddsTable(master.Get("Odds").map(function(row){
+    }), /** @type {number} */ (m["len"]));
+    var oddsTable = new OddsTable(master.Get("Odds").map(function(/** !Array<string> */ row){
         return new Odds(Game.Model("Odds").Set(row));
     }));
+    /** @type {!GameBoard} */
     this.gameBoard = new GameBoard(this, racetrack, oddsTable);
 };
 
@@ -60,19 +66,22 @@ Race.prototype.Apply = function(card){
 };
 
 /**
- * @return {Object} The ranks object. key=-1 means last, key=0 means goals.
+ * @return {!Object<number, !Array<!Lane>>} The ranks object. key=-1 means last, key=0 means goals.
  */
 Race.prototype.Ranks = function(){
     var lanes = this.gameBoard.racetrack.lanes;
-    var len = this.model["len"];
-    var sorted = lanes.slice().sort(function(a, b){
+    var sorted = lanes.slice().sort(function(/** !Lane */ a, /** !Lane */ b){
         return a.position - b.position;
     }).reverse();
+    /** @type {number|undefined} */
     var position;
+    /** @type {number} */
     var rank = 0;
+    /** @type {!Array<!Lane>} */
     var goals = [];
+    /** @type {!Object<number, !Array<!Lane>>} */
     var ranks = {};
-    sorted.forEach(function(lane){
+    sorted.forEach(function(/** !Lane */ lane){
         if(lane.IsGolePosition()){
             goals.push(lane);
         } else {
@@ -99,7 +108,9 @@ Race.prototype.Ranks = function(){
  * @param {Model} model The model.
  */
 var PlayCard = function(model){
+    /** @type {Model} */
     this.model = model;
+    /** @type {ICard} */
     this.card = this.GetCard();
 };
 
@@ -116,18 +127,20 @@ PlayCard.CardType = {
  * @return {ICard} card.
  */
 PlayCard.prototype.GetCard = function(){
-    var detail_id = this.model["detail_id"];
+    var m = /** @type {!Object<string,*>} */ (this.model);
+    var detail_id = /** @type {number} */ (m["detail_id"]);
     var name = this.GetCardName();
-    var repositoryDirector = Game.Locator.locate(RepositoryDirector);
-    var repository = repositoryDirector.Get(name);
-    return repository.Find(detail_id);
+    var repositoryDirector = /** @type {!RepositoryDirector} */ (Game.Locator.locate(RepositoryDirector));
+    var repository = /** @type {!Repository} */ (repositoryDirector.Get(name));
+    return /** @type {ICard} */ (repository.Find(detail_id));
 };
 
 /**
  * @return {string} card type.
  */
 PlayCard.prototype.GetCardName = function(){
-    var card_type = this.model["card_type"];
+    var m = /** @type {!Object<string,*>} */ (this.model);
+    var card_type = m["card_type"];
     switch(card_type){
     case PlayCard.CardType.StepCard:
         return "StepCard";
@@ -160,6 +173,7 @@ PlayCard.prototype.LogMessage = function(){
  * @param {Model} model The model.
  */
 var StepCard = function(model){
+    /** @type {Model} */
     this.model = model;
 };
 
@@ -168,11 +182,12 @@ var StepCard = function(model){
  * @return {ICardEffect} The card effect object.
  */
 StepCard.prototype.Play = function(race){
-    var target_id = this.model["target_id"];
-    var step = this.model["step"];
-    var lanes = race.gameBoard.racetrack.lanes.filter(function(lane){
-        return lane.runner.model["id"] === target_id;
-    }).filter(function(lane){
+    var m = /** @type {!Object<string,*>} */ (this.model);
+    var target_id = m["target_id"];
+    var step = /** @type {number} */ (m["step"]);
+    var lanes = race.gameBoard.racetrack.lanes.filter(function(/** !Lane */ lane){
+        return (/** @type {!Object<string,*>} */ (lane.runner.model))["id"] === target_id;
+    }).filter(function(/** !Lane */ lane){
         return !lane.IsGolePosition();
     });
     var lane = lanes[0];
@@ -186,9 +201,12 @@ StepCard.prototype.Play = function(race){
  * @return {string} log message.
  */
 StepCard.prototype.LogMessage = function(){
-    var target_id = this.model["target_id"];
-    var step = this.model["step"];
-    var raceDirector = Game.SceneDirector.CurrentScene().directors["RaceDirector"];
+    var m = /** @type {!Object<string,*>} */ (this.model);
+    var target_id = m["target_id"];
+    var step = m["step"];
+    var currentScene = /** @type {!GameScene} */ (Game.SceneDirector.CurrentScene());
+    var directors = /** @type {!Object<string,*>} */ (currentScene.directors);
+    var raceDirector = /** @type {RaceDirector} */ (directors["RaceDirector"]);
     if(!raceDirector){
         return "";
     }
@@ -197,13 +215,13 @@ StepCard.prototype.LogMessage = function(){
         return "";
     }
     var racetrack = race.gameBoard.racetrack;
-    var figures = racetrack.lanes.filter(function(lane){
-        return lane.runner.model["id"] === target_id;
-    }).map(function(lane){
+    var figures = racetrack.lanes.filter(function(/** !Lane */ lane){
+        return (/** @type {!Object<string,*>} */ (lane.runner.model))["id"] === target_id;
+    }).map(function(/** !Lane */ lane){
         return lane.runner;
     });
-    var target = figures.map(function(figure){
-        return figure.model["type"];
+    var target = figures.map(function(/** !HorseFigure */ figure){
+        return (/** @type {!Object<string,*>} */ (figure.model))["type"];
     }).join(",");
     return ["[Step ", target, " +", step, "]"].join("");
 };
@@ -214,6 +232,7 @@ StepCard.prototype.LogMessage = function(){
  * @param {Model} model The model.
  */
 var RankCard = function(model){
+    /** @type {Model} */
     this.model = model;
 };
 
@@ -222,8 +241,9 @@ var RankCard = function(model){
  * @return {ICardEffect} The card effect object.
  */
 RankCard.prototype.Play = function(race){
-    var target_rank = this.model["target_rank"];
-    var step = this.model["step"];
+    var m = /** @type {!Object<string,*>} */ (this.model);
+    var target_rank = /** @type {number} */ (m["target_rank"]);
+    var step = /** @type {number} */ (m["step"]);
     var ranks = race.Ranks();
     if(!(target_rank in ranks)){
         return new NoneCardEffect();
@@ -241,8 +261,9 @@ RankCard.prototype.Play = function(race){
  * @return {string} log message.
  */
 RankCard.prototype.LogMessage = function(){
-    var target_rank = this.model["target_rank"];
-    var step = this.model["step"];
+    var m = /** @type {!Object<string,*>} */ (this.model);
+    var target_rank = m["target_rank"];
+    var step = m["step"];
     return [
         "[Rank ", target_rank, " +", step, "]"
     ].join("");
@@ -254,8 +275,11 @@ RankCard.prototype.LogMessage = function(){
  * @param {Model} model The model.
  */
 var DashCard = function(model){
+    /** @type {Model} */
     this.model = model;
-    var dashType = model["dash_type"];
+    var m = /** @type {!Object<string,*>} */ (model);
+    var dashType = /** @type {DashCard.DashType} */ (m["dash_type"]);
+    /** @type {ICard} */
     this.behavior = this.GetBehavior(dashType);
 };
 
@@ -279,7 +303,8 @@ DashCard.prototype.Play = function(race){
  * @return {string} log message.
  */
 DashCard.prototype.LogMessage = function(){
-    var target_rank = this.model["target_rank"];
+    var m = /** @type {!Object<string,*>} */ (this.model);
+    var target_rank = m["target_rank"];
     return [
         "[Dash ", target_rank, "]"
     ].join("");
@@ -305,6 +330,8 @@ DashCard.prototype.GetBehavior = function(dashType){
  * @param {Model} model The model.
  */
 var Odds = function(model){
+    /** @type {Model} */
     this.model = model;
+    /** @type {Model} */
     this["model"] = model; //for template.
 };

@@ -6,8 +6,15 @@
  * @param {IScene} scene A scene.
  */
 var DebugMenuLayer = function(scene){
+    /** @type {IScene} */
     this.scene = scene;
+    /** @type {Element} */
     this.dom = null;
+    /** @type {!Array<!Element>} */
+    this.checkboxs = [];
+    /** @type {!Array<!Element>} */
+    this.buttons = [];
+    /** @type {!Array<!Array<*>>} */
     this.events = [
         [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
         [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
@@ -23,9 +30,14 @@ var DebugMenuLayer = function(scene){
         [Events.Debug.OnCheckRelationship, this.OnCheckRelationship.bind(this), null],
         [Events.Debug.OnAutoPlayCard, this.OnAutoPlayCard.bind(this), null],
     ];
-    this.events.forEach(function(event){
-        Game.Publisher.Subscribe(event[0], event[1], event[2]);
+    this.events.forEach(function(/** !Array<*> */ event){
+        Game.Publisher.Subscribe(
+            /** @type {string} */ (event[0]),
+            /** @type {function(ExEvent)} */ (event[1]),
+            /** @type {Object} */ (event[2])
+        );
     });
+    /** @type {boolean} */
     this.IsAutoPlayCard = false;
 };
 
@@ -41,32 +53,35 @@ DebugMenuLayer.prototype.Render = function(){
     section.appendChild(h1);
     fragment.appendChild(section);
     this.dom = section;
-    this.checkboxs = [
-        ["Auto PlayCard", "change", function(e){Game.Publisher.Publish(Events.Debug.OnAutoPlayCard, this, {"checked":e.target.checked});}],
-    ].map(function(value){
-        var checkbox = (new UICustomCheckbox(value[0])).DOM();
-        checkbox.addEventListener(value[1], value[2]);
-        this.dom.appendChild(checkbox);
-        return checkbox;
-    }, this);
-    this.dom.appendChild(document.createElement("br"));
-    this.buttons = [
-        ["Reset \uD83C\uDFAE", "click", function(){Game.Publisher.Publish(Events.Debug.OnResetGame, this);}],
-        ["Reset \uD83C\uDFC7", "click", function(){Game.Publisher.Publish(Events.Debug.OnResetRace, this);}],
-        ["Play PlayCard", "click", function(){Game.Publisher.Publish(Events.Debug.OnPlayCard, this);}],
-        ["Play Undo PlayCard", "click", function(){Game.Publisher.Publish(Events.Debug.OnUndoPlayCard, this);}],
-        ["Play RankCard", "click", function(){Game.Publisher.Publish(Events.Debug.OnPlayRankCard, this);}],
-        ["Play DashCard", "click", function(){Game.Publisher.Publish(Events.Debug.OnPlayDashCard, this);}],
-        ["Check Relationship", "click", function(){Game.Publisher.Publish(Events.Debug.OnCheckRelationship, this);}],
-    ].map(function(value){
-        var button = (new UIButton(value[0])).DOM();
-        button.addEventListener(value[1], value[2]);
-        this.dom.appendChild(button);
-        return button;
-    }, this);
-    var seed = document.createElement("p");
-    seed.innerText = "seed: " + PlayCardDirector.Xorshift.s;
-    this.dom.appendChild(seed);
+    if (this.dom) {
+        var domElement = /** @type {!Element} */ (this.dom);
+        this.checkboxs = [
+            ["Auto PlayCard", "change", function(e){Game.Publisher.Publish(Events.Debug.OnAutoPlayCard, this, {"checked":e.target.checked});}],
+        ].map(function(/** !Array<*> */ value){
+            var checkbox = (new UICustomCheckbox(/** @type {string} */ (value[0]))).DOM();
+            checkbox.addEventListener(/** @type {string} */ (value[1]), /** @type {function(Event)} */ (value[2]));
+            domElement.appendChild(checkbox);
+            return checkbox;
+        });
+        domElement.appendChild(document.createElement("br"));
+        this.buttons = [
+            ["Reset \uD83C\uDFAE", "click", function(){Game.Publisher.Publish(Events.Debug.OnResetGame, this);}],
+            ["Reset \uD83C\uDFC7", "click", function(){Game.Publisher.Publish(Events.Debug.OnResetRace, this);}],
+            ["Play PlayCard", "click", function(){Game.Publisher.Publish(Events.Debug.OnPlayCard, this);}],
+            ["Play Undo PlayCard", "click", function(){Game.Publisher.Publish(Events.Debug.OnUndoPlayCard, this);}],
+            ["Play RankCard", "click", function(){Game.Publisher.Publish(Events.Debug.OnPlayRankCard, this);}],
+            ["Play DashCard", "click", function(){Game.Publisher.Publish(Events.Debug.OnPlayDashCard, this);}],
+            ["Check Relationship", "click", function(){Game.Publisher.Publish(Events.Debug.OnCheckRelationship, this);}],
+        ].map(function(/** !Array<*> */ value){
+            var button = (new UIButton(/** @type {string} */ (value[0]))).DOM();
+            button.addEventListener(/** @type {string} */ (value[1]), /** @type {function(Event)} */ (value[2]));
+            domElement.appendChild(button);
+            return button;
+        });
+        var seed = document.createElement("p");
+        seed.innerText = "seed: " + PlayCardDirector.Xorshift.s;
+        domElement.appendChild(seed);
+    }
     return fragment;
 };
 
@@ -75,7 +90,10 @@ DebugMenuLayer.prototype.Render = function(){
  */
 DebugMenuLayer.prototype.TurnOffAutoPlayCard = function(){
     this.IsAutoPlayCard = false;
-    this.checkboxs[0].children[0].checked = false;
+    if (this.checkboxs && this.checkboxs[0]) {
+        var input = /** @type {!HTMLInputElement} */ (this.checkboxs[0].children[0]);
+        input.checked = false;
+    }
 };
 
 /**
@@ -92,8 +110,12 @@ DebugMenuLayer.prototype.OnExit = function(e){
             this.dom.parentNode.removeChild(this.dom);
         }
     }.bind(this)));
-    this.events.forEach(function(event){
-        Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
+    this.events.forEach(function(/** !Array<*> */ event){
+        Game.Publisher.UnSubscribe(
+            /** @type {string} */ (event[0]),
+            /** @type {function(ExEvent)} */ (event[1]),
+            /** @type {Object} */ (event[2])
+        );
     });
 };
 

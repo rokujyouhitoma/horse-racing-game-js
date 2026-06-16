@@ -8,6 +8,9 @@ var IScene = function(){
 /** @type {string} */
 IScene.prototype.name;
 
+/** @type {string} */
+IScene.prototype.state;
+
 /**
  * when scene is enter.
  */
@@ -71,6 +74,7 @@ Scene.prototype.OnResume = function(){};
  * @constructor
  */
 var SceneDirector = function(){
+    /** @type {!Array<!IScene>} */
     this.scenes = [];
 };
 
@@ -84,7 +88,7 @@ SceneDirector.prototype.CurrentScene = function(){
 };
 
 /**
- * @param {IScene} scene A scene.
+ * @param {!IScene} scene A scene.
  */
 SceneDirector.prototype.Push = function(scene){
     this.scenes.push(scene);
@@ -120,7 +124,7 @@ SceneDirector.prototype.ToDepth = function(toDepth){
 };
 
 /**
- * @param {IScene} scene A scene.
+ * @param {!IScene} scene A scene.
  */
 SceneDirector.prototype.Replace = function(scene){
     this.Pop();
@@ -129,7 +133,7 @@ SceneDirector.prototype.Replace = function(scene){
 
 /**
  * @private
- * @param {IScene} scene A scene.
+ * @param {!IScene} scene A scene.
  */
 SceneDirector.prototype.TriggerEnter = function(scene){
     switch(scene.state){
@@ -151,7 +155,7 @@ SceneDirector.prototype.TriggerEnter = function(scene){
 
 /**
  * @private
- * @param {IScene} scene A scene.
+ * @param {!IScene} scene A scene.
  */
 SceneDirector.prototype.TriggerExit = function(scene){
     switch(scene.state){
@@ -173,7 +177,7 @@ SceneDirector.prototype.TriggerExit = function(scene){
 
 /**
  * @private
- * @param {IScene} scene A scene.
+ * @param {!IScene} scene A scene.
  */
 SceneDirector.prototype.TriggerPause = function(scene){
     switch(scene.state){
@@ -195,7 +199,7 @@ SceneDirector.prototype.TriggerPause = function(scene){
 
 /**
  * @private
- * @param {IScene} scene A scene.
+ * @param {!IScene} scene A scene.
  */
 SceneDirector.prototype.TriggerResume = function(scene){
     switch(scene.state){

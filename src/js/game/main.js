@@ -88,6 +88,7 @@ CustomSceneDirector.prototype.Replace = function(scene){
  */
 var Game = function(){
     GameObject.call(this);
+    /** @type {!FPS} */
     this.fps = new FPS();
     this.objects = [
         this.fps,
@@ -145,20 +146,25 @@ Game.prototype.OnRender = function(e){
 };
 
 Game.LocatorContainer = new Map();
+/** @type {!Locator} */
 Game.Locator = new Locator(Game.LocatorContainer);
 
-Game.Publisher = Game.Locator.locate(Publisher);
+/** @type {!Publisher} */
+Game.Publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
 
-Game.SceneDirector = Game.Locator.locate(CustomSceneDirector);
+/** @type {!CustomSceneDirector} */
+Game.SceneDirector = /** @type {!CustomSceneDirector} */ (Game.Locator.locate(CustomSceneDirector));
 
+/** @type {!BasicExecuter} */
 Game.RenderCommandExecuter = new BasicExecuter();
 
 /**
  * @param {string} name The meta name.
- * @return {Model} . 
+ * @return {!Model} . 
  */
 Game.Model = function(name){
-    var meta = Game.Locator.locate(MasterData).GetMeta(name);
+    var masterData = /** @type {!MasterData} */ (Game.Locator.locate(MasterData));
+    var meta = masterData.GetMeta(name);
     return new Model(meta);
 };
 
@@ -168,13 +174,14 @@ Game.Model = function(name){
  * @return {ICard} .
  */
 Game.Entity = function(name, model){
-    return new ({
+    var ctor = /** @type {function(new:Object, Model)} */ ({
         "StepCard": StepCard,
         "RankCard": RankCard,
         "DashCard": DashCard,
         "PlayCard": PlayCard,
         "Odds": Odds,
-    }[name])(model);
+    }[name]);
+    return /** @type {!ICard} */ (new ctor(model));
 };
 
 /**
@@ -189,11 +196,13 @@ Game.Log = function(message){
  * @constructor
  */
 var GameDirector = function(){
+    /** @type {!Array<!GameObject>} */
     this.objects = [
-        Game.Locator.locate(HorseFigureDirector),
-        Game.Locator.locate(MonsterCoinDirector),
-        Game.Locator.locate(MonsterFigureDirector),
+        /** @type {!GameObject} */ (Game.Locator.locate(HorseFigureDirector)),
+        /** @type {!GameObject} */ (Game.Locator.locate(MonsterCoinDirector)),
+        /** @type {!GameObject} */ (Game.Locator.locate(MonsterFigureDirector)),
     ];
+    /** @type {!Array<!Array<(string|function(ExEvent)|Object)>>} */
     this.events = [
         [Events.GameDirector.OnResetGame, this.OnResetGame.bind(this), null],
         [Events.GameDirector.OnToRaceScene, this.OnToRaceScene.bind(this), null],
@@ -207,8 +216,12 @@ var GameDirector = function(){
  * @param {ExEvent} e The event object.
  */
 GameDirector.prototype.OnStart = function(e){
-    this.events.forEach(function(event){
-        Game.Publisher.Subscribe(event[0], event[1], event[2]);
+    this.events.forEach(function(/** !Array<(string|function(ExEvent)|Object)> */ event){
+        Game.Publisher.Subscribe(
+            /** @type {string} */ (event[0]),
+            /** @type {function(ExEvent)} */ (event[1]),
+            /** @type {Object} */ (event[2])
+        );
     });
     Game.SceneDirector.RoutingLocationHash();
 };
@@ -217,8 +230,12 @@ GameDirector.prototype.OnStart = function(e){
  * @param {ExEvent} e The event object.
  */
 GameDirector.prototype.OnDestroy = function(e){
-    this.events.forEach(function(event){
-        Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
+    this.events.forEach(function(/** !Array<(string|function(ExEvent)|Object)> */ event){
+        Game.Publisher.UnSubscribe(
+            /** @type {string} */ (event[0]),
+            /** @type {function(ExEvent)} */ (event[1]),
+            /** @type {Object} */ (event[2])
+        );
     });
 };
 
@@ -242,8 +259,6 @@ GameDirector.prototype.OnToRaceScene = function(e){
  * @param {ExEvent} e The event object.
  */
 GameDirector.prototype.OnLogMessage = function(e){
-    var message = e.payload["message"];
-//    console.log(message);
     //TODO: xxx
 };
 
@@ -255,11 +270,16 @@ var CommandExecuter = function(){
     this.commands_ = [];
     /** @type {number} */
     this.position_ = 0;
+    /** @type {!Array<!Array<(string|function(ExEvent)|Object)>>} */
     this.events = [
         [Events.Game.OnUpdate, this.OnUpdate.bind(this), null],
     ];
-    this.events.forEach(function(event){
-        Game.Publisher.Subscribe(event[0], event[1], event[2]);
+    this.events.forEach(function(/** !Array<(string|function(ExEvent)|Object)> */ event){
+        Game.Publisher.Subscribe(
+            /** @type {string} */ (event[0]),
+            /** @type {function(ExEvent)} */ (event[1]),
+            /** @type {Object} */ (event[2])
+        );
     });
 };
 
@@ -306,22 +326,23 @@ CommandExecuter.prototype.Generator = function*(){
 
 /**
  * @constructor
- * @param {Object} meta The meta. 
+ * @param {!MasterMeta} meta The meta. 
  */
 var Model = function(meta){
+    /** @type {!MasterMeta} */
     this.meta_ = meta;
 };
 
 /**
- * @param {string} value The value.
- * @return {Model} .
+ * @param {!Array<string>} value The value.
+ * @return {!Model} .
  */
 Model.prototype.Set = function(value){
     var names = this.meta_.names;
     var types = this.meta_.types;
     for(var i = 0; i < names.length; i++){
         var type = types[i];
-        this[names[i]] = Model.Cast(type, value[i]);
+        (/** @type {!Object<string, *>} */ (this))[names[i]] = Model.Cast(type, value[i]);
     }
     return this;
 };
@@ -541,15 +562,19 @@ StubLoader.prototype.Load = function(key){
 
 /**
  * @constructor
- * @param {Array<string>} names The columns name.
- * @param {Array<string>} types The columns type.
+ * @param {!Array<string>} names The columns name.
+ * @param {!Array<Model.Types>} types The columns type.
  * @param {Object=} opt_relationships The relationships definition.
  * @param {Object=} opt_validations The validations definition.
  */
 var MasterMeta = function(names, types, opt_relationships, opt_validations){
+    /** @type {!Array<string>} */
     this.names = names;
+    /** @type {!Array<Model.Types>} */
     this.types = types;
+    /** @type {Object|undefined} */
     this.relationships = opt_relationships;
+    /** @type {Object|undefined} */
     this.validations = opt_validations;
 };
 
@@ -559,7 +584,7 @@ var MasterMeta = function(names, types, opt_relationships, opt_validations){
 var MasterData = function(){
     /** @private */
     /** @const */ this.loader_ = new StubLoader();
-    /** @private */
+    /** @private @const {!Object<string, !Object<string, *>>} */
     this.meta_ = {
         "HorseFigure": {
             "validations": {
@@ -677,27 +702,27 @@ var MasterData = function(){
 
 /**
  * @param {string} key The Master name.
- * @return {Array<Array<string>>} The raw row data.
+ * @return {!Array<!Array<string>>} The raw row data.
  */
 MasterData.prototype.Get = function(key){
-    var rows = this.loader_.Load(key);
+    var rows = /** @type {!Array<!Array<string>>} */ (this.loader_.Load(key));
     return rows.slice(2);
 };
 
 /**
  * @param {string} key The MasterMeta name.
- * @return {MasterMeta} The master meta object.
+ * @return {!MasterMeta} The master meta object.
  */
 MasterData.prototype.GetMeta = function(key){
-    /** @type {Array<Array<string>>} */
-    var rows = this.loader_.Load(key);
-    /** @type {Array<Array<string>>} */
+    /** @type {!Array<!Array<string>>} */
+    var rows = /** @type {!Array<!Array<string>>} */ (this.loader_.Load(key));
+    /** @type {!Array<!Array<string>>} */
     var header = rows.slice(0, 2);
-    /** @type {Array<string>} */
-    var names = header[0];
-    /** @type {Array<string>} */
-    var types = header[1];
-    /** @type {MasterMeta} */
+    /** @type {!Array<string>} */
+    var names = /** @type {!Array<string>} */ (header[0]);
+    /** @type {!Array<Model.Types>} */
+    var types = /** @type {!Array<Model.Types>} */ (header[1]);
+    /** @type {!MasterMeta} */
     var meta = new MasterMeta(names, types);
     if(this.meta_[key] && this.meta_[key]["relationships"]){
         meta["relationships"] = this.meta_[key]["relationships"];
@@ -714,6 +739,7 @@ MasterData.prototype.GetMeta = function(key){
  */
 var HorseFigureDirector = function(){
     GameObject.call(this);
+    /** @type {!Object<string, !HorseFigure>} */
     this.figures = {};
 };
 inherits(HorseFigureDirector, GameObject);
@@ -723,10 +749,11 @@ inherits(HorseFigureDirector, GameObject);
  */
 HorseFigureDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this);
-    var figures = Game.Locator.locate(MasterData).Get("HorseFigure").map(function(row){
+    var masterData = /** @type {!MasterData} */ (Game.Locator.locate(MasterData));
+    var figures = /** @type {!Array<!HorseFigure>} */ (masterData.Get("HorseFigure").map(function(/** !Array<string> */ row){
         return new HorseFigure(Game.Model("HorseFigure").Set(row));
-    });
-    figures.forEach(function(figure){
+    }));
+    figures.forEach(function(/** !HorseFigure */ figure){
         this.figures[figure.model["id"]] = figure;
         figure.Start();
     }, this);
@@ -746,6 +773,7 @@ HorseFigureDirector.prototype.Destroy = function(){
  */
 var MonsterCoinDirector = function(){
     GameObject.call(this);
+    /** @type {!Object<string, !MonsterCoin>} */
     this.coins = {};
 };
 inherits(MonsterCoinDirector, GameObject);
@@ -755,10 +783,11 @@ inherits(MonsterCoinDirector, GameObject);
  */
 MonsterCoinDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this);
-    var coins = Game.Locator.locate(MasterData).Get("MonsterCoin").map(function(row){
+    var masterData = /** @type {!MasterData} */ (Game.Locator.locate(MasterData));
+    var coins = /** @type {!Array<!MonsterCoin>} */ (masterData.Get("MonsterCoin").map(function(/** !Array<string> */ row){
         return new MonsterCoin(Game.Model("MonsterCoin").Set(row));
-    });
-    coins.forEach(function(coin){
+    }));
+    coins.forEach(function(/** !MonsterCoin */ coin){
         this.coins[coin.model["id"]] = coin;
         coin.Start();
     }, this);
@@ -769,6 +798,7 @@ MonsterCoinDirector.prototype.Start = function(){
  */
 MonsterCoinDirector.prototype.Destroy = function(){
     GameObject.prototype.Destroy.call(this);
+    /** @type {!Object<string, !MonsterCoin>} */
     this.coins = {};
 };
 
@@ -778,6 +808,7 @@ MonsterCoinDirector.prototype.Destroy = function(){
  */
 var MonsterFigureDirector = function(){
     GameObject.call(this);
+    /** @type {!Object<string, !MonsterFigure>} */
     this.figures = {};
 };
 inherits(MonsterFigureDirector, GameObject);
@@ -787,10 +818,11 @@ inherits(MonsterFigureDirector, GameObject);
  */
 MonsterFigureDirector.prototype.Start = function(){
     GameObject.prototype.Start.call(this);
-    var figures = Game.Locator.locate(MasterData).Get("MonsterFigure").map(function(row){
+    var masterData = /** @type {!MasterData} */ (Game.Locator.locate(MasterData));
+    var figures = /** @type {!Array<!MonsterFigure>} */ (masterData.Get("MonsterFigure").map(function(/** !Array<string> */ row){
         return new MonsterFigure(Game.Model("MonsterFigure").Set(row));
-    });
-    figures.forEach(function(figure){
+    }));
+    figures.forEach(function(/** !MonsterFigure */ figure){
         this.figures[figure.model["id"]] = figure;
         figure.Start();
     }, this);
@@ -808,6 +840,9 @@ MonsterFigureDirector.prototype.Destroy = function(){
  * @interface
  */
 var ICard = function(){};
+
+/** @type {Model} */
+ICard.prototype.model;
 
 /**
  * @param {Race} racetrack The racetrack.
@@ -859,8 +894,11 @@ NoneCardEffect.prototype.UnApply = function(){};
  * @param {number} step The stap.
  */
 var StepCardEffect = function(race, lane, step){
+    /** @type {Race} */
     this.race_ = race;
+    /** @type {Lane} */
     this.lane_ = lane;
+    /** @type {number} */
     this.step_ = step;
 };
 
@@ -868,9 +906,12 @@ var StepCardEffect = function(race, lane, step){
  *  Apply.
  */
 StepCardEffect.prototype.Apply = function(){
-    var race = Game.SceneDirector.CurrentScene().directors["RaceDirector"].race;
-    if(race === this.race_){
-        this.lane_.position += this.step_;
+    var currentScene = /** @type {GameScene} */ (Game.SceneDirector.CurrentScene());
+    if (currentScene) {
+        var raceDirector = /** @type {RaceDirector} */ (currentScene.directors["RaceDirector"]);
+        if (raceDirector && raceDirector.race === this.race_) {
+            this.lane_.position += this.step_;
+        }
     }
 };
 
@@ -878,9 +919,12 @@ StepCardEffect.prototype.Apply = function(){
  * Un Apply.
  */
 StepCardEffect.prototype.UnApply = function(){
-    var race = Game.SceneDirector.CurrentScene().directors["RaceDirector"].race;
-    if(race === this.race_){
-        this.lane_.position -= this.step_;
+    var currentScene = /** @type {GameScene} */ (Game.SceneDirector.CurrentScene());
+    if (currentScene) {
+        var raceDirector = /** @type {RaceDirector} */ (currentScene.directors["RaceDirector"]);
+        if (raceDirector && raceDirector.race === this.race_) {
+            this.lane_.position -= this.step_;
+        }
     }
 };
 
@@ -888,7 +932,10 @@ StepCardEffect.prototype.UnApply = function(){
  * @constructor
  * @implements {ICard}
  */
-var DashCardTypeBoost = function(){};
+var DashCardTypeBoost = function(){
+    /** @type {Model} */
+    this.model = null;
+};
 
 /**
  * @param {Race} race The race object.
@@ -923,7 +970,10 @@ DashCardTypeBoost.prototype.LogMessage = function(){
  * @constructor
  * @implements {ICard}
  */
-var DashCardTypeCatchUp = function(){};
+var DashCardTypeCatchUp = function(){
+    /** @type {Model} */
+    this.model = null;
+};
 
 /**
  * @param {Race} race The race object.
@@ -978,13 +1028,14 @@ PlayCardCommand.prototype.Execute = function(){
     var cardEffect = race.Apply(card);
     cardEffect.Apply();
     this.cardEffect_ = cardEffect;
+    var stepVal = (/** @type {{step_: (number|undefined)}} */ (cardEffect)).step_ || 0;
     Game.Log([
         "card_id=",
-        card.model["id"],
+        (/** @type {{id: number}} */ (card.model)).id,
         " ",
         card.LogMessage(),
         " => +",
-        cardEffect.step_ || 0,
+        stepVal,
     ].join(""));
 };
 
@@ -1003,7 +1054,7 @@ PlayCardCommand.prototype.Undo = function(){
         card.LogMessage(),
         " ",
         "card_id=",
-        card.model["id"],
+        (/** @type {{id: number}} */ (card.model)).id,
     ].join(""));
 };
 
@@ -1011,14 +1062,19 @@ PlayCardCommand.prototype.Undo = function(){
  * @constructor
  * @param {number} index .
  * @param {number} number .
- * @param {HorseFigure} runner .
+ * @param {!HorseFigure} runner .
  * @param {number} len .
  */
 var Lane = function(index, number, runner, len){
+    /** @type {number} */
     this.index = index;
+    /** @type {number} */
     this.number = number;
+    /** @type {!HorseFigure} */
     this.runner = runner;
+    /** @type {number} */
     this.len = len;
+    /** @type {number} */
     this.position = Lane.GatePosition;
     runner.lane = this;
 };
@@ -1045,24 +1101,30 @@ Lane.prototype.IsGolePosition = function(){
  * @param {number} len The len.
  */
 var Racetrack = function(runners, len){
+    /** @type {Array<HorseFigure>} */
     this.runners = runners;
+    /** @type {number} */
     this.len = len;
+    /** @type {!Array<!Lane>} */
     this.lanes = [];
-    this.lanes = this.runners.map(function(runner, index, array){
+    this.lanes = this.runners.map(function(/** (HorseFigure|null) */ runner, /** number */ index){
         var number = index + 1;
-        return new Lane(index, number, runner, this.len);
+        return new Lane(index, number, /** @type {!HorseFigure} */ (runner), this.len);
     }.bind(this));
 };
 
 /**
  * @constructor
  * @param {Race} race The race.
- * @param {Racetrack} racetrack The race track.
+ * @param {!Racetrack} racetrack The race track.
  * @param {OddsTable} oddstable The odds table.
  */
 var GameBoard = function(race, racetrack, oddstable){
+    /** @type {Race} */
     this.race = race;
+    /** @type {!Racetrack} */
     this.racetrack = racetrack;
+    /** @type {OddsTable} */
     this.oddstable = oddstable;
 };
 
@@ -1098,13 +1160,14 @@ var OddsEntry = function(odds){
  * @constructor
  */
 var OddsTable = function(oddses){
+    /** @type {!Array<!Array<!OddsEntry>>} */
     var table = [];
     var length = oddses.length;
     for (var i = 0; i < length; i++){
         var odds = oddses[i];
-        var a = odds.model["first_id"];
-        var b = odds.model["second_id"];
-        var o = odds.model["odds"];
+        var m = /** @type {{first_id: number, second_id: number, odds: number}} */ (odds.model);
+        var a = m.first_id;
+        var b = m.second_id;
         if (!table[a]) {
             table[a] = [];
         }
@@ -1117,15 +1180,20 @@ var OddsTable = function(oddses){
  * @constructor
  * @param {IScene} scene A scene.
  */
+/**
+ * @constructor
+ * @param {IScene} scene A scene.
+ */
 var RepositoryDirector = function(scene){
+    /** @type {!Repository} */
     this.repository = new Repository();
     [
         ["StepCard", new Repository()],
         ["RankCard", new Repository()],
         ["DashCard", new Repository()],
         ["PlayCard", new Repository()],
-    ].forEach(function(value){
-        this.repository.Store(value[0], value[1]);
+    ].forEach(function(/** !Array<*> */ value){
+        this.repository.Store(/** @type {string} */ (value[0]), /** @type {!Repository} */ (value[1]));
     }, this);
     Game.Publisher.Subscribe(Events.Game.OnAwake, this.OnAwake.bind(this));
 };
@@ -1140,11 +1208,13 @@ RepositoryDirector.prototype.OnAwake = function(){
         "DashCard",
         "PlayCard",
     ];
-    names.forEach(function(modelName){
-        Game.Locator.locate(MasterData).Get(modelName).forEach(function(row){
+    names.forEach(function(/** string */ modelName){
+        var masterData = /** @type {!MasterData} */ (Game.Locator.locate(MasterData));
+        masterData.Get(modelName).forEach(function(/** !Array<string> */ row){
             var model = Game.Model(modelName).Set(row);
             var entity = Game.Entity(modelName, model);
-            this.repository.Find(modelName).Store(model["id"], entity);
+            var repo = /** @type {!Repository} */ (this.repository.Find(modelName));
+            repo.Store((/** @type {{id: number}} */ (model))["id"], entity);
         }, this);
     }, this);
 };
@@ -1163,9 +1233,12 @@ RepositoryDirector.prototype.Get = function(name){
  */
 var FPS = function(){
     GameObject.call(this);
-    var engine = Game.Locator.locate(Engine);
+    var engine = /** @type {!Engine} */ (Game.Locator.locate(Engine));
+    /** @type {number} */
     this.baseTime = engine.lastUpdate;
+    /** @type {number} */
     this.baseCount = 0;
+    /** @type {number} */
     this.currentFPS = 0;
 };
 inherits(FPS, GameObject);
@@ -1174,7 +1247,7 @@ inherits(FPS, GameObject);
  * Update.
  */
 FPS.prototype.Update = function(){
-    var engine = Game.Locator.locate(Engine);
+    var engine = /** @type {!Engine} */ (Game.Locator.locate(Engine));
     if(1000 <= engine.lastUpdate - this.baseTime){
         this.currentFPS = ((engine.count - this.baseCount) * 1000) / (engine.lastUpdate - this.baseTime);
         this.baseTime = engine.lastUpdate;
@@ -1193,6 +1266,7 @@ var PlayCardDirector = function(scene){
     /** @type {!Array<!PlayCard>} */
     this.playCards = [];
     this.position = 0;
+    /** @type {!Array<!Array<(string|function(ExEvent)|Object)>>} */
     this.events = [
         [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
         [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
@@ -1200,8 +1274,12 @@ var PlayCardDirector = function(scene){
         [Events.Race.OnPlayCard, this.OnPlayCard.bind(this), null],
         [Events.Race.OnUndoPlayCard, this.OnUndoPlayCard.bind(this), null],
     ];
-    this.events.forEach(function(event){
-        Game.Publisher.Subscribe(event[0], event[1], event[2]);
+    this.events.forEach(function(/** !Array<(string|function(ExEvent)|Object)> */ event){
+        Game.Publisher.Subscribe(
+            /** @type {string} */ (event[0]),
+            /** @type {function(ExEvent)} */ (event[1]),
+            /** @type {Object} */ (event[2])
+        );
     });
 };
 
@@ -1218,8 +1296,8 @@ PlayCardDirector.prototype.OnEnter = function(e){
  * @param {ExEvent} e The event object.
  */
 PlayCardDirector.prototype.OnReset = function(e){
-    var repositoryDirector = Game.Locator.locate(RepositoryDirector);
-    var repository = repositoryDirector.Get("PlayCard");
+    var repositoryDirector = /** @type {!RepositoryDirector} */ (Game.Locator.locate(RepositoryDirector));
+    var repository = /** @type {!Repository} */ (repositoryDirector.Get("PlayCard"));
     var playCards = /** @type {!Array<!PlayCard>} */ (repository.All());
     this.playCards = this.FisherYatesShuffle(playCards);
     this.position = 0;
@@ -1247,8 +1325,12 @@ PlayCardDirector.prototype.FisherYatesShuffle = function(array){
 PlayCardDirector.prototype.OnExit = function(e){
     this.playCards = [];
     this.position = 0;
-    this.events.forEach(function(event){
-        Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
+    this.events.forEach(function(/** !Array<(string|function(ExEvent)|Object)> */ event){
+        Game.Publisher.UnSubscribe(
+            /** @type {string} */ (event[0]),
+            /** @type {function(ExEvent)} */ (event[1]),
+            /** @type {Object} */ (event[2])
+        );
     });
 };
 
@@ -1264,7 +1346,11 @@ PlayCardDirector.prototype.OnPlayCard = function(e){
         Game.Log("404 Card Not found.");
         return;
     }
-    var raceDirector = Game.SceneDirector.CurrentScene().directors["RaceDirector"];
+    var currentScene = /** @type {GameScene} */ (Game.SceneDirector.CurrentScene());
+    if (!currentScene) {
+        return;
+    }
+    var raceDirector = /** @type {RaceDirector} */ (currentScene.directors["RaceDirector"]);
     if(!raceDirector){
         return;
     }
@@ -1304,6 +1390,7 @@ PlayCardDirector.prototype.Generator = function*(){
  * @param {IScene} scene A scene.
  */
 var RaceDirector = function(scene){
+    /** @type {!Array<!Array<(string|function(ExEvent)|Object)>>} */
     this.events = [
         [Events.Game.OnUpdate, this.OnUpdate.bind(this), null],
         [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
@@ -1312,11 +1399,21 @@ var RaceDirector = function(scene){
         [Events.Race.OnPlacingSecond, this.OnPlacingSecond.bind(this), null],
         [Events.Race.OnFinishedRace, this.OnFinishedRace.bind(this), null],
     ];
-    this.events.forEach(function(event){
-        Game.Publisher.Subscribe(event[0], event[1], event[2]);
+    this.events.forEach(function(/** !Array<(string|function(ExEvent)|Object)> */ event){
+        Game.Publisher.Subscribe(
+            /** @type {string} */ (event[0]),
+            /** @type {function(ExEvent)} */ (event[1]),
+            /** @type {Object} */ (event[2])
+        );
     });
-    var row = Game.Locator.locate(MasterData).Get("Race")[0];
+    /** @type {!Array<!HorseFigure>} */
+    this.goals_ = [];
+    /** @type {number} */
+    this.state = RaceDirector.State.None;
+    var masterData = /** @type {!MasterData} */ (Game.Locator.locate(MasterData));
+    var row = /** @type {!Array<string>} */ (masterData.Get("Race")[0]);
     var model = Game.Model("Race").Set(row);
+    /** @type {Race} */
     this.race = new Race(model);
 };
 
@@ -1338,9 +1435,9 @@ RaceDirector.prototype.OnUpdate = function(e){
         return;
     }
     var lanes = race.gameBoard.racetrack.lanes;
-    var runners = lanes.filter(function(lane){
+    var runners = lanes.filter(function(/** !Lane */ lane){
         return !this.goals_.includes(lane.runner) && lane.IsGolePosition();
-    }.bind(this)).map(function(lane){
+    }.bind(this)).map(function(/** !Lane */ lane){
         return lane.runner;
     });
     if(0 < runners.length){
@@ -1371,8 +1468,12 @@ RaceDirector.prototype.OnEnter = function(e){
  * @param {ExEvent} e The event object.
  */
 RaceDirector.prototype.OnExit = function(e){
-    this.events.forEach(function(event){
-        Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
+    this.events.forEach(function(/** !Array<(string|function(ExEvent)|Object)> */ event){
+        Game.Publisher.UnSubscribe(
+            /** @type {string} */ (event[0]),
+            /** @type {function(ExEvent)} */ (event[1]),
+            /** @type {Object} */ (event[2])
+        );
     });
     this.goals_ = [];
     this.state = RaceDirector.State.None;
@@ -1402,10 +1503,10 @@ RaceDirector.prototype.UpdateState = function(){
  * @param {ExEvent} e The event object.
  */
 RaceDirector.prototype.OnPlacingFirst = function(e){
-    var placings = this.goals_.slice(0, 1).map(function(figure){
-        return figure.model["type"];
+    var placings = this.goals_.slice(0, 1).map(function(/** !HorseFigure */ figure){
+        return (/** @type {{type: string}} */ (figure.model)).type;
     });
-    var first = placings[0];
+    var first = /** @type {string} */ (placings[0]);
     Game.Log("The first: " + first);
 };
 
@@ -1413,14 +1514,14 @@ RaceDirector.prototype.OnPlacingFirst = function(e){
  * @param {ExEvent} e The event object.
  */
 RaceDirector.prototype.OnPlacingSecond = function(e){
-    /** @type {Array<HorseFigure>} */
+    /** @type {!Array<!HorseFigure>} */
     var placings = this.goals_.slice(0, 2);
-    /** @type {HorseFigure} */
+    /** @type {!HorseFigure} */
     var first = placings[0];
-    /** @type {HorseFigure} */
+    /** @type {!HorseFigure} */
     var second = placings[1];
-    Game.Log("The first: " + first.model["type"]);
-    Game.Log("The second: " + second.model["type"]);
+    Game.Log("The first: " + (/** @type {{type: string}} */ (first.model)).type);
+    Game.Log("The second: " + (/** @type {{type: string}} */ (second.model)).type);
     Game.Publisher.Publish(Events.Race.OnFinishedRace, this, {
         "race": this.race,
         "placings": placings,
@@ -1432,24 +1533,27 @@ RaceDirector.prototype.OnPlacingSecond = function(e){
  */
 RaceDirector.prototype.OnFinishedRace = function(e){
     var payload = e.payload;
-    var race = payload["race"];
-    var placings = payload["placings"];
-    var order = placings.map(function(horse){
+    var race = /** @type {Race} */ (payload["race"]);
+    var placings = /** @type {!Array<!HorseFigure>} */ (payload["placings"]);
+    var order = placings.map(function(/** !HorseFigure */ horse){
         return horse.lane.number;
-    }).sort(function(a, b){
+    }).sort(function(/** number */ a, /** number */ b){
         return a - b;
     });
-    var oddses = Game.Locator.locate(MasterData).Get("Odds").map(function(row){
+    var masterData = /** @type {!MasterData} */ (Game.Locator.locate(MasterData));
+    var oddses = /** @type {!Array<!Odds>} */ (masterData.Get("Odds").map(function(/** !Array<string> */ row){
         var model = Game.Model("Odds").Set(row);
-        return Game.Entity("Odds", model);
-    }).filter(function(odds){
-        return odds.model["first_id"] == order[0] && odds.model["second_id"] == order[1];
+        return /** @type {!Odds} */ (Game.Entity("Odds", model));
+    })).filter(function(/** !Odds */ odds){
+        var m = /** @type {{first_id: number, second_id: number}} */ (odds.model);
+        return m.first_id == order[0] && m.second_id == order[1];
     });
     var odds = oddses[0];
+    var mOdds = /** @type {{odds: number}} */ (odds.model);
     Game.SceneDirector.Push(new GameScene("Result", {
         "race": race,
         "placings": placings,
-        "odds": odds.model["odds"],
+        "odds": mOdds.odds,
     }));
 };
 
@@ -1473,29 +1577,32 @@ ILayer.prototype.Render = function(){};
 var GameScene = function(name, opt_content){
     Scene.call(this);
     this.name = name;
+    /** @type {Object<string,*>|undefined} */
     this.content = opt_content;
+    /** @type {!Object<string, function(!GameScene): !Object>} */
     var directors = {
-        "Title": function(scene){
+        "Title": function(/** !GameScene */ scene){
             return {};
         },
-        "Race": function(scene){
+        "Race": function(/** !GameScene */ scene){
             return {
                 "RaceDirector": new RaceDirector(scene),
                 "PlayCardDirector": new PlayCardDirector(scene),
             };
         },
-        "Result": function(scene){
+        "Result": function(/** !GameScene */ scene){
             return {
             };
         },
     };
+    /** @type {!Object<string, function(!GameScene): !RenderLayers>} */
     var renderers = {
-        "Title": function(scene){
+        "Title": function(/** !GameScene */ scene){
             return new RenderLayers(scene, [
                 new TitleSceneLayer(scene),
             ]);
         },
-        "Race": function(scene){
+        "Race": function(/** !GameScene */ scene){
             return new RenderLayers(scene, [
                 new MenuLayer(scene),
 //                new DebugButtonLayer(scene),
@@ -1507,13 +1614,15 @@ var GameScene = function(name, opt_content){
                 new SampleBallLayer(scene),
             ]);
         },
-        "Result": function(scene){
+        "Result": function(/** !GameScene */ scene){
             return new RenderLayers(scene, [
                 new ResultSceneLayer(scene),
             ]);
         },
     };
+    /** @type {!Object} */
     this.directors = directors[name](this);
+    /** @type {!RenderLayers} */
     this.layers = renderers[name](this);
 };
 inherits(GameScene, Scene);
@@ -1573,10 +1682,10 @@ Game.Bootstrap = function(){
 // main
 window.addEventListener("load", function(){
     Game.Bootstrap();
-    var engine = Game.Locator.locate(Engine);
+    var engine = /** @type {!Engine} */ (Game.Locator.locate(Engine));
     engine.FPS = 60;
     engine.objects = [
-        Game.Locator.locate(Game),
+        /** @type {!GameObject} */ (Game.Locator.locate(Game)),
     ];
     engine.Loop();
     console.log(engine);

@@ -21,19 +21,19 @@ Publisher.prototype.GetOrCreateTarget = function(key){
 /**
  * @param {string} type The event type.
  * @param {function(ExEvent)} listener The event listener function.
- * @param {Object} publisher The publisher object.
-*/
-Publisher.prototype.Subscribe = function(type, listener, publisher){
-    this.GetOrCreateTarget(type).addEventListener(type, listener, publisher);
+ * @param {Object=} opt_publisher The publisher object.
+ */
+Publisher.prototype.Subscribe = function(type, listener, opt_publisher){
+    this.GetOrCreateTarget(type).addEventListener(type, listener, opt_publisher);
 };
 
 /**
  * @param {string} type The event type.
  * @param {function(ExEvent)} listener The event listener function.
- * @param {Object} publisher The publisher object.
+ * @param {Object=} opt_publisher The publisher object.
  */
-Publisher.prototype.UnSubscribe = function(type, listener, publisher){
-    this.GetOrCreateTarget(type).removeEventListener(type, listener, publisher);
+Publisher.prototype.UnSubscribe = function(type, listener, opt_publisher){
+    this.GetOrCreateTarget(type).removeEventListener(type, listener, opt_publisher);
 };
 
 /**

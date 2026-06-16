@@ -40,3 +40,4 @@ stateDiagram-v2
 | **[ISSUE-08]** | Low | 新規 (New) | テスト実行環境の近代化 | [ISSUE-08-modernizing_test_framework.md](issue/ISSUE-08-modernizing_test_framework.md) |
 | **[ISSUE-09]** | Low | 新規 (New) | 起動時データ検証処理の本番実行パスからの分離 | [ISSUE-09-decoupling_bootstrap_validation.md](issue/ISSUE-09-decoupling_bootstrap_validation.md) |
 | **[ISSUE-10]** | Low | 解決済 (Resolved) | reportUnknownTypes の警告解消と型定義の厳格化 | [ISSUE-10-strict_type_definitions.md](issue/ISSUE-10-strict_type_definitions.md) |
+| **[ISSUE-11]** | Low | 解決済 (Resolved) | 未使用ローカル変数の警告解消 (JSC_UNUSED_LOCAL_ASSIGNMENT) | [ISSUE-11-unused_local_variables.md](issue/ISSUE-11-unused_local_variables.md) |

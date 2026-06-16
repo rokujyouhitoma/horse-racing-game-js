@@ -23,10 +23,10 @@ var ExEvent = function(type, target, opt_payload){
  * @param {Object} object The object.
  * @param {string} type The type.
  * @param {function(ExEvent)} listener The event listener function.
- * @param {Object} publisher The publisher object.
+ * @param {Object|undefined} opt_publisher The publisher object.
  * @param {Function} wrapper The wrapper.
  */
-var ExEventInfo = function(object, type, listener, publisher, wrapper){
+var ExEventInfo = function(object, type, listener, opt_publisher, wrapper){
     /** @public */
     this.object = object;
     /** @public */
@@ -34,7 +34,7 @@ var ExEventInfo = function(object, type, listener, publisher, wrapper){
     /** @public */
     this.listener = listener;
     /** @public */
-    this.publisher = publisher;
+    this.publisher = opt_publisher;
     /** @public */
     this.wrapper = wrapper;
 };
@@ -46,35 +46,36 @@ var ExEventInfo = function(object, type, listener, publisher, wrapper){
  * @constructor
  */
 var ExEventTarget = function(){
-    /** @private @const {Object<string, Object>} */
+    /** @private @const {Object<string, !Array<!ExEventInfo>>} */
     this.eventListeners_ = {};
 };
 
 /**
  * @param {string} type The event type.
  * @param {function(ExEvent)} listener The event listener function.
- * @param {Object} publisher The publisher object.
-*/
-ExEventTarget.prototype.addEventListener = function(type, listener, publisher){
+ * @param {Object=} opt_publisher The publisher object.
+ */
+ExEventTarget.prototype.addEventListener = function(type, listener, opt_publisher){
     if(!(type in this.eventListeners_)){
         this.eventListeners_[type] = [];
     }
-    var wrapper = function(e) {
-        if (typeof listener.handleEvent != 'undefined') {
-            listener.handleEvent(e);
+    var wrapper = function(/** !ExEvent */ e) {
+        var listenerObj = /** @type {{handleEvent: (Function|undefined)}} */ (listener);
+        if (typeof listenerObj.handleEvent != 'undefined') {
+            listenerObj.handleEvent(e);
         } else {
-            listener.call(this, e);
+            /** @type {Function} */ (listener).call(this, e);
         }
     }.bind(this);
-    this.eventListeners_[type].push(new ExEventInfo(this, type, listener, publisher, wrapper));
+    this.eventListeners_[type].push(new ExEventInfo(this, type, listener, opt_publisher, wrapper));
 };
 
 /**
  * @param {string} type The event type.
  * @param {function(ExEvent)} listener The event listener function.
- * @param {Object} publisher The publisher object.
+ * @param {Object=} opt_publisher The publisher object.
  */
-ExEventTarget.prototype.removeEventListener = function(type, listener, publisher){
+ExEventTarget.prototype.removeEventListener = function(type, listener, opt_publisher){
     if(!(type in this.eventListeners_)){
         return;
     }
@@ -83,8 +84,8 @@ ExEventTarget.prototype.removeEventListener = function(type, listener, publisher
         if (eventListener.object == this &&
             eventListener.type == type &&
             eventListener.listener == listener &&
-            (!publisher ||
-             eventListener.publisher == publisher)){
+            (!opt_publisher ||
+             eventListener.publisher == opt_publisher)){
             return false;
         } else {
             return true;

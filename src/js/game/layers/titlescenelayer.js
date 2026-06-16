@@ -6,15 +6,23 @@
  * @param {IScene} scene A scene.
  */
 var TitleSceneLayer = function(scene){
+    /** @type {IScene} */
     this.scene = scene;
+    /** @type {Element} */
     this.dom = null;
+    /** @type {!Array<!Array<*>>} */
     this.events = [
         [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
         [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
     ];
-    this.events.forEach(function(event){
-        Game.Publisher.Subscribe(event[0], event[1], event[2]);
+    this.events.forEach(function(/** !Array<*> */ event){
+        Game.Publisher.Subscribe(
+            /** @type {string} */ (event[0]),
+            /** @type {function(ExEvent)} */ (event[1]),
+            /** @type {Object} */ (event[2])
+        );
     });
+    /** @type {function(Event)} */
     this.onClickListener = this.OnClick.bind(this);
 };
 
@@ -35,7 +43,10 @@ TitleSceneLayer.prototype.Render = function(){
  * @param {ExEvent} e The event object.
  */
 TitleSceneLayer.prototype.OnEnter = function(e){
-    this.dom.children[1].addEventListener("click", this.onClickListener);
+    if (this.dom) {
+        var child = /** @type {!Element} */ (this.dom.children[1]);
+        child.addEventListener("click", this.onClickListener);
+    }
 };
 
 /**
@@ -43,15 +54,20 @@ TitleSceneLayer.prototype.OnEnter = function(e){
  */
 TitleSceneLayer.prototype.OnExit = function(e){
     if(this.dom && this.dom.children && this.dom.children[1]){
-        this.dom.children[1].removeEventListener("click", this.onClickListener);
+        var child = /** @type {!Element} */ (this.dom.children[1]);
+        child.removeEventListener("click", this.onClickListener);
     }
     Game.RenderCommandExecuter.Push(new FunctionCommand(function(){
         if(this.dom && this.dom.parentNode){
             this.dom.parentNode.removeChild(this.dom);
         }
     }.bind(this)));
-    this.events.forEach(function(event){
-        Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
+    this.events.forEach(function(/** !Array<*> */ event){
+        Game.Publisher.UnSubscribe(
+            /** @type {string} */ (event[0]),
+            /** @type {function(ExEvent)} */ (event[1]),
+            /** @type {Object} */ (event[2])
+        );
     });
 };
 

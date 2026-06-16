@@ -6,14 +6,20 @@
  * @param {IScene} scene A scene.
  */
 var RacetrackLayer = function(scene){
+    /** @type {Element} */
     this.dom = null;
+    /** @type {!Array<!Array<*>>} */
     this.events = [
         [Events.Race.OnChanged, this.OnUpdate.bind(this), null],
         [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
         [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
     ];
-    this.events.forEach(function(event){
-        Game.Publisher.Subscribe(event[0], event[1], event[2]);
+    this.events.forEach(function(/** !Array<*> */ event){
+        Game.Publisher.Subscribe(
+            /** @type {string} */ (event[0]),
+            /** @type {function(ExEvent)} */ (event[1]),
+            /** @type {Object} */ (event[2])
+        );
     });
 };
 
@@ -39,11 +45,13 @@ RacetrackLayer.prototype.OnUpdate = function(e){
     }
     /** @type {Racetrack} */
     var racetrack = payload.racetrack;
-    var container = this.dom.children[1];
-    while(container.firstChild){
-        container.removeChild(container.firstChild);
+    if (this.dom) {
+        var container = /** @type {!Element} */ (this.dom.children[1]);
+        while(container.firstChild){
+            container.removeChild(container.firstChild);
+        }
+        container.appendChild(this.DOM(racetrack));
     }
-    container.appendChild(this.DOM(racetrack));
 };
 
 /**
@@ -60,8 +68,12 @@ RacetrackLayer.prototype.OnExit = function(e){
             this.dom.parentNode.removeChild(this.dom);
         }
     }.bind(this)));
-    this.events.forEach(function(event){
-        Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
+    this.events.forEach(function(/** !Array<*> */ event){
+        Game.Publisher.UnSubscribe(
+            /** @type {string} */ (event[0]),
+            /** @type {function(ExEvent)} */ (event[1]),
+            /** @type {Object} */ (event[2])
+        );
     });
 };
 

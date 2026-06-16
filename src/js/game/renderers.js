@@ -8,12 +8,17 @@
 var RenderLayers = function(scene, layers){
     this.scene = scene;
     this.layers = layers;
+    /** @type {!Array<!Array<(string|function(!ExEvent)|Object)>>} */
     this.events = [
         [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
         [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
     ];
-    this.events.forEach(function(event){
-        Game.Publisher.Subscribe(event[0], event[1], event[2]);
+    this.events.forEach(function(/** !Array<(string|function(ExEvent)|Object)> */ event){
+        Game.Publisher.Subscribe(
+            /** @type {string} */ (event[0]),
+            /** @type {function(ExEvent)} */ (event[1]),
+            /** @type {Object} */ (event[2])
+        );
     });
     var fragment = document.createDocumentFragment();
     var section = document.createElement("section");
@@ -47,7 +52,11 @@ RenderLayers.prototype.OnExit = function(e){
     if(this.dom && this.dom.parentNode){
         this.dom.parentNode.removeChild(this.dom);    
     }
-    this.events.forEach(function(event){
-        Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
+    this.events.forEach(function(/** !Array<(string|function(ExEvent)|Object)> */ event){
+        Game.Publisher.UnSubscribe(
+            /** @type {string} */ (event[0]),
+            /** @type {function(ExEvent)} */ (event[1]),
+            /** @type {Object} */ (event[2])
+        );
     });
 };

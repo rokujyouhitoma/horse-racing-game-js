@@ -35,6 +35,7 @@ IGameObject.prototype.Destroy = function(){};
  * @implements {IGameObject}
  */
 var GameObject = function(){
+    /** @type {!Array<!IGameObject>} */
     this.objects = [];
 };
 
@@ -88,9 +89,13 @@ GameObject.prototype.Destroy = function(){
  * @param {Array<GameObject>} objects GameObjects.
  */
 var Engine = function(objects){
+    /** @type {Array<GameObject>} */
     this.objects = objects;
+    /** @type {number} */
     this.count = 0;
+    /** @type {number} */
     this.FPS = 60;
+    /** @type {number} */
     this.lastUpdate = Date.now();
 };
 
@@ -98,17 +103,21 @@ var Engine = function(objects){
  * The main loop.
  */
 Engine.prototype.Loop = function(){
+    var self = this;
+    /** @type {number} */
     var lag = 0;
-    var MPU = 1000 / this.FPS;
+    /** @type {number} */
+    var MPU = 1000 / self.FPS;
+    /** @type {number} */
     var LIMIT_LAG = 1000 * MPU;
     var loop = function(){
-        if(0 <= this.count){
+        if(0 <= self.count){
             setTimeout(loop, MPU);
-            this.count++;
+            self.count++;
         }
         var now = Date.now();
-        var elapsed = now - this.lastUpdate;
-        this.lastUpdate = now;
+        var elapsed = now - self.lastUpdate;
+        self.lastUpdate = now;
         lag += elapsed;
         // TODO: [ISSUE-06] タブ切り替え等のスリープ復帰時に更新処理がスキップされる不整合リスクの解消
         if(LIMIT_LAG < lag){
@@ -116,13 +125,13 @@ Engine.prototype.Loop = function(){
             return;
         }
         while(MPU <= lag){
-            this.Update();
-            this.LastUpdate();
+            self.Update();
+            self.LastUpdate();
             lag -= MPU;
         }
-        this.Render(lag / MPU);
-    }.bind(this);
-    this.Start();
+        self.Render(lag / MPU);
+    };
+    self.Start();
     loop();
 };
 

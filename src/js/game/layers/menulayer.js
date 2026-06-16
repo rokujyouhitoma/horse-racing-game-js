@@ -6,13 +6,19 @@
  * @param {IScene} scene A scene.
  */
 var MenuLayer = function(scene){
+    /** @type {Element} */
     this.dom = null;
+    /** @type {!Array<!Array<*>>} */
     this.events = [
         [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
         [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
     ];
-    this.events.forEach(function(event){
-        Game.Publisher.Subscribe(event[0], event[1], event[2]);
+    this.events.forEach(function(/** !Array<*> */ event){
+        Game.Publisher.Subscribe(
+            /** @type {string} */ (event[0]),
+            /** @type {function(ExEvent)} */ (event[1]),
+            /** @type {Object} */ (event[2])
+        );
     });
 };
 
@@ -28,16 +34,19 @@ MenuLayer.prototype.Render = function(){
     section.appendChild(h1);
     this.dom = section;
     fragment.appendChild(section);
-    var buttons = [
-        ["Play PlayCard Random", function(){Game.Publisher.Publish(Events.Race.OnPlayCard, this);}],
-        ["Reset \uD83C\uDFAE", function(){Game.Publisher.Publish(Events.GameDirector.OnResetGame, this);}],
-    ].map(function(value){
-        var button = (new UIButton(value[0])).DOM();
-        button.addEventListener("click", value[1]);
-        return button;
-    }).forEach(function(dom){
-        this.dom.appendChild(dom);
-    }, this);
+    if (this.dom) {
+        var domElement = /** @type {!Element} */ (this.dom);
+        [
+            ["Play PlayCard Random", function(){Game.Publisher.Publish(Events.Race.OnPlayCard, this);}],
+            ["Reset \uD83C\uDFAE", function(){Game.Publisher.Publish(Events.GameDirector.OnResetGame, this);}],
+        ].map(function(/** !Array<*> */ value){
+            var button = (new UIButton(/** @type {string} */ (value[0]))).DOM();
+            button.addEventListener("click", /** @type {function(Event)} */ (value[1]));
+            return button;
+        }).forEach(function(/** !Element */ dom){
+            domElement.appendChild(dom);
+        });
+    }
     return fragment;
 };
 
@@ -55,7 +64,11 @@ MenuLayer.prototype.OnExit = function(e){
             this.dom.parentNode.removeChild(this.dom);
         }
     }.bind(this)));
-    this.events.forEach(function(event){
-        Game.Publisher.UnSubscribe(event[0], event[1], event[2]);
+    this.events.forEach(function(/** !Array<*> */ event){
+        Game.Publisher.UnSubscribe(
+            /** @type {string} */ (event[0]),
+            /** @type {function(ExEvent)} */ (event[1]),
+            /** @type {Object} */ (event[2])
+        );
     });
 };
