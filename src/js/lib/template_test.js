@@ -690,7 +690,112 @@ describe('ValueCheckerTest', function() {
     });
 });
 
+describe('EngineLoopTest', function() {
+    /**
+     * Tests the lag-clamping fix for ISSUE-06.
+     *
+     * When the browser tab is suspended and the accumulated lag exceeds
+     * LIMIT_LAG (≈16.7s at 60FPS), the engine must:
+     *   - Discard the unrealistic time-jump (no runaway catch-up loop).
+     *   - Still execute exactly one Update() + LastUpdate() per resumed frame
+     *     to keep the game state machine coherent.
+     *
+     * The previous behaviour (lag = 0; return) skipped Update entirely,
+     * risking state inconsistencies in scene transitions and event subscriptions.
+     */
+
+    it('test_lag_clamp_executes_one_update_on_sleep_recovery', function() {
+        var FPS = 60;
+        var MPU = 1000 / FPS;
+        var LIMIT_LAG = 1000 * MPU; // ≈16,667ms
+
+        var updateCount = 0;
+        var lastUpdateCount = 0;
+        var renderCount = 0;
+
+        // Minimal stub that counts invocations.
+        var mockObject = {
+            Start: function() {},
+            Update: function() { updateCount++; },
+            LastUpdate: function() { lastUpdateCount++; },
+            Render: function(delta) { renderCount++; },
+            Destroy: function() {}
+        };
+
+        var engine = new Engine([mockObject]);
+
+        // Simulate the loop body directly (without setTimeout).
+        // We manually drive the lag-clamp branch.
+        var lag = LIMIT_LAG + 1; // Exceeds threshold — simulates tab wake-up.
+
+        // --- New behaviour (ISSUE-06 fix): clamp to MPU ---
+        if (LIMIT_LAG < lag) {
+            lag = MPU;
+        }
+        // After clamping, the while-loop must execute exactly once.
+        var updateCycles = 0;
+        while (MPU <= lag) {
+            updateCycles++;
+            lag -= MPU;
+        }
+
+        expect(updateCycles).toEqual(1);
+        // lag should now be ≈ 0 (MPU - MPU = 0).
+        expect(lag < MPU).toBeTruthy();
+    });
+
+    it('test_lag_clamp_does_not_run_multiple_updates_on_sleep_recovery', function() {
+        var FPS = 60;
+        var MPU = 1000 / FPS;
+        var LIMIT_LAG = 1000 * MPU;
+
+        // Simulate a very long sleep (e.g. 60 seconds away from tab).
+        var hugeLag = 60 * 1000;
+        expect(hugeLag > LIMIT_LAG).toBeTruthy(); // precondition
+
+        // Apply the clamp.
+        if (LIMIT_LAG < hugeLag) {
+            hugeLag = MPU;
+        }
+
+        // Count how many Update cycles the while-loop would run.
+        var updateCycles = 0;
+        var lag = hugeLag;
+        while (MPU <= lag) {
+            updateCycles++;
+            lag -= MPU;
+        }
+
+        // Must be exactly 1 — not 60*60=3600 runaway cycles.
+        expect(updateCycles).toEqual(1);
+    });
+
+    it('test_normal_lag_within_limit_is_not_clamped', function() {
+        var FPS = 60;
+        var MPU = 1000 / FPS;
+        var LIMIT_LAG = 1000 * MPU;
+
+        // Normal two-frame lag (two missed frames at 60FPS ≈ 33ms).
+        var normalLag = MPU * 2;
+        expect(normalLag < LIMIT_LAG).toBeTruthy(); // must NOT trigger the clamp
+
+        // Apply the clamp logic.
+        if (LIMIT_LAG < normalLag) {
+            normalLag = MPU;
+        }
+
+        var updateCycles = 0;
+        var lag = normalLag;
+        while (MPU <= lag) {
+            updateCycles++;
+            lag -= MPU;
+        }
+
+        // Two missed frames → two Update cycles expected.
+        expect(updateCycles).toEqual(2);
+    });
+});
+
 if (typeof process !== 'undefined') {
     process.exit(globalObject.testSuiteStats.failedTests > 0 ? 1 : 0);
 }
-

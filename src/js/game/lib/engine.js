@@ -101,6 +101,9 @@ var Engine = function(objects){
 
 /**
  * The main loop.
+ *
+ * Uses a fixed-timestep update loop with variable-rate rendering.
+ * Reference: "Fix Your Timestep!" by Glenn Fiedler.
  */
 Engine.prototype.Loop = function(){
     var self = this;
@@ -108,7 +111,22 @@ Engine.prototype.Loop = function(){
     var lag = 0;
     /** @type {number} */
     var MPU = 1000 / self.FPS;
-    /** @type {number} */
+    /**
+     * Maximum accumulated lag before clamping.
+     * LIMIT_LAG = 1000 * MPU ≈ 16,667ms (about 16.7 seconds at 60FPS).
+     * When the browser tab is backgrounded or the JS thread is suspended for
+     * longer than this threshold, the accumulated lag would cause the while-loop
+     * to run hundreds of Update() calls at once upon resumption, causing a
+     * "spiral of death" or an inconsistent state jump.
+     *
+     * Fix (ISSUE-06): Instead of discarding all accumulated lag (lag = 0; return),
+     * we clamp lag to exactly one MPU. This guarantees that:
+     *   1. The unrealistic time-jump is discarded (no runaway catch-up loop).
+     *   2. Exactly one Update() + LastUpdate() cycle is still executed per frame,
+     *      preserving state machine consistency (e.g. scene transitions, card
+     *      commands, and render-layer event subscriptions remain coherent).
+     * @type {number}
+     */
     var LIMIT_LAG = 1000 * MPU;
     var loop = function(){
         if(0 <= self.count){
@@ -119,10 +137,11 @@ Engine.prototype.Loop = function(){
         var elapsed = now - self.lastUpdate;
         self.lastUpdate = now;
         lag += elapsed;
-        // TODO: [ISSUE-06] タブ切り替え等のスリープ復帰時に更新処理がスキップされる不整合リスクの解消
         if(LIMIT_LAG < lag){
-            lag = 0;
-            return;
+            // Clamp to one step instead of skipping entirely (ISSUE-06).
+            // Discards the unrealistic time-jump while still running one
+            // Update cycle to keep game state coherent.
+            lag = MPU;
         }
         while(MPU <= lag){
             self.Update();
