@@ -31,6 +31,7 @@
 | **[MNG-03]** | 問題管理定義書 | [MNG-03-problem_management.md](MNG-03-problem_management.md) | 不具合の対応フローと、検出された課題・タスクの追跡管理。 | 新たなバグの検知、課題解決時。 |
 | **[MNG-04]** | ソフトウェアテスト計画書 | [MNG-04-test_plan.md](MNG-04-test_plan.md) | 品質保証戦略の定義。単体・統合・パフォーマンス・ゲームバランス・プレイフィールテストのカテゴリと基準の管理。 | テスト方針の変更、新機能追加によるテストケース追加時。 |
 | **[MNG-05]** | 実行計画書フォーマット定義 | [MNG-05-execplan_format.md](MNG-05-execplan_format.md) | 大規模機能追加・改修の安全な実施のための実行計画書フォーマットとプロセスの定義。 | 実行計画書フォーマットの変更、ExecPlan新規追加時。 |
+| **[MNG-06]** | Gitコミット規約・運用ガイドライン | [MNG-06-git_commit_guidelines.md](MNG-06-git_commit_guidelines.md) | Gitコミットコメントのフォーマット、記述項目、およびローカルIssueとの連携仕様の定義。 | コミット規約の変更、Issue連携ルールの改定時。 |
 
 ### 2.2 ゲームデザイン文書 (GDD)
 
