@@ -9,6 +9,30 @@
 
 var globalObject = (typeof window !== 'undefined') ? window : global;
 
+if (typeof DOMParser === 'undefined') {
+    globalObject.DOMParser = function() {};
+    globalObject.DOMParser.prototype.parseFromString = function(html, type) {
+        var body = document.createElement("body");
+        var regex = /<([a-zA-Z0-9\-]+)([^>]*)>(.*?)<\/\1>|([^<>]+)/g;
+        var match;
+        while ((match = regex.exec(html)) !== null) {
+            if (match[1]) {
+                var tagName = match[1];
+                var content = match[3];
+                var element = document.createElement(tagName);
+                element.textContent = content;
+                body.appendChild(element);
+            } else if (match[4]) {
+                var text = match[4].trim();
+                if (text) {
+                    body.appendChild(document.createTextNode(text));
+                }
+            }
+        }
+        return { body: body };
+    };
+}
+
 if (!globalObject.testSuiteStats) {
     globalObject.testSuiteStats = {
         totalTests: 0,
@@ -844,6 +868,18 @@ describe('ServiceLocatorTest', function() {
         expect(Game.Locator.locate(CustomSceneDirector)).toEqual(mockSceneDirector);
         
         Game.LocatorContainer.clear();
+    });
+});
+
+describe('TemplatesGenerateTest', function() {
+    it('test_generate_fragment_with_domparser', function() {
+        var template = new Template("<div class='test'>{{value}}</div>");
+        var fragment = Templates.GenerateFragment(template, { value: "hello" });
+        
+        expect(fragment instanceof DocumentFragment).toBeTruthy();
+        expect(fragment.childNodes.length).toEqual(1);
+        expect(fragment.childNodes[0].tagName.toLowerCase()).toEqual("div");
+        expect(fragment.childNodes[0].textContent).toEqual("hello");
     });
 });
 

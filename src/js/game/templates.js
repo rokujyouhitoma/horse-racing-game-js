@@ -89,7 +89,17 @@ Templates.prototype.Generate = function(name, namespace){
  * @return {DocumentFragment} .
  */
 Templates.GenerateFragment = function(template, namespace) {
-    var tmp = /** @type {!HTMLTemplateElement} */ (document.createElement("template"));
-    tmp.innerHTML = template.generate(namespace);
-    return /** @type {!DocumentFragment} */ (tmp.content);
+    var htmlString = template.generate(namespace);
+    var parser = new DOMParser();
+    var doc = parser.parseFromString(htmlString, "text/html");
+    var body = doc.body;
+    var fragment = document.createDocumentFragment();
+    if (body) {
+        while (body.firstChild) {
+            var child = body.firstChild;
+            body.removeChild(child);
+            fragment.appendChild(child);
+        }
+    }
+    return /** @type {!DocumentFragment} */ (fragment);
 };
