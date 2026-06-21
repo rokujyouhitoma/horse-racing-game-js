@@ -94,7 +94,7 @@ Refs: ISSUE-03"
 1. **Issueファイル自体の更新**:
    * 該当する `docs/issue/ISSUE-XX-description.md` を開き、ステータスを `解決済 (Resolved)` に書き換え、対応内容と日付、関連ファイルを明記します。
 2. **課題管理台帳の更新**:
-   * [docs/MNG-03-problem_management.md](../MNG-03-problem_management.md) の台帳レコードを更新し、ステータスを `解決済 (Resolved)` に変更します。
+   * [docs/MNG-03-problem_management.md](MNG-03-problem_management.md) の台帳レコードを更新し、ステータスを `解決済 (Resolved)` に変更します。
 
 ---
 
