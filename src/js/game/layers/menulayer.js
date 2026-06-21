@@ -13,8 +13,9 @@ var MenuLayer = function(scene){
         [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
         [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
     ];
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
     this.events.forEach(function(/** !Array<*> */ event){
-        Game.Publisher.Subscribe(
+        publisher.Subscribe(
             /** @type {string} */ (event[0]),
             /** @type {function(ExEvent)} */ (event[1]),
             /** @type {Object} */ (event[2])
@@ -28,6 +29,7 @@ var MenuLayer = function(scene){
 MenuLayer.prototype.Render = function(){
     var fragment = document.createDocumentFragment();
     var section = document.createElement("section");
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
     section.className = "menu";
     var h1 = document.createElement("h1");
     h1.innerText = "Menu";
@@ -38,8 +40,8 @@ MenuLayer.prototype.Render = function(){
         var domElement = /** @type {!Element} */ (this.dom);
         var self = this;
         [
-            ["Play PlayCard Random", function(){Game.Publisher.Publish(Events.Race.OnPlayCard, self);}],
-            ["Reset \uD83C\uDFAE", function(){Game.Publisher.Publish(Events.GameDirector.OnResetGame, self);}],
+            ["Play PlayCard Random", function(){publisher.Publish(Events.Race.OnPlayCard, self);}],
+            ["Reset \uD83C\uDFAE", function(){publisher.Publish(Events.GameDirector.OnResetGame, self);}],
         ].map(function(/** !Array<*> */ value){
             var button = (new UIButton(/** @type {string} */ (value[0]))).DOM();
             button.addEventListener("click", /** @type {function(Event)} */ (value[1]));
@@ -65,8 +67,9 @@ MenuLayer.prototype.OnExit = function(e){
             this.dom.parentNode.removeChild(this.dom);
         }
     }.bind(this)));
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
     this.events.forEach(function(/** !Array<*> */ event){
-        Game.Publisher.UnSubscribe(
+        publisher.UnSubscribe(
             /** @type {string} */ (event[0]),
             /** @type {function(ExEvent)} */ (event[1]),
             /** @type {Object} */ (event[2])

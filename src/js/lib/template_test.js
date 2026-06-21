@@ -796,6 +796,57 @@ describe('EngineLoopTest', function() {
     });
 });
 
+describe('ServiceLocatorTest', function() {
+    it('test_publisher_mocking', function() {
+        Game.LocatorContainer.clear();
+        
+        var originalPublisher = Game.Locator.locate(Publisher);
+        expect(originalPublisher instanceof Publisher).toBeTruthy();
+        
+        var mockPublisherCalled = false;
+        var mockPublisher = {
+            Publish: function(event, sender, opt_payload) {
+                mockPublisherCalled = true;
+            },
+            Subscribe: function(event, callback, opt_context) {},
+            UnSubscribe: function(event, callback, opt_context) {}
+        };
+        
+        Game.LocatorContainer.set(Publisher, mockPublisher);
+        
+        var resolvedPublisher = Game.Locator.locate(Publisher);
+        expect(resolvedPublisher).toEqual(mockPublisher);
+        
+        // Trigger a log or event that utilizes the publisher resolved from locator
+        Game.Log("Test log message");
+        expect(mockPublisherCalled).toBeTruthy();
+        
+        // Clean up
+        Game.LocatorContainer.clear();
+    });
+    
+    it('test_scenedirector_mocking', function() {
+        Game.LocatorContainer.clear();
+        
+        var mockSceneDirector = {
+            CurrentScene: function() {
+                return { directors: {} };
+            }
+        };
+        
+        Game.LocatorContainer.set(CustomSceneDirector, mockSceneDirector);
+        
+        var stepCard = new StepCard(new Model(new MasterMeta("StepCard", ["1", "1", "1", "1", "1", "1"])));
+        
+        // LogMessage uses Game.Locator.locate(CustomSceneDirector)
+        stepCard.LogMessage();
+        
+        expect(Game.Locator.locate(CustomSceneDirector)).toEqual(mockSceneDirector);
+        
+        Game.LocatorContainer.clear();
+    });
+});
+
 if (typeof process !== 'undefined') {
     process.exit(globalObject.testSuiteStats.failedTests > 0 ? 1 : 0);
 }

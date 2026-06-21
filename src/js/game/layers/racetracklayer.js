@@ -14,8 +14,9 @@ var RacetrackLayer = function(scene){
         [Events.GameScene.OnEnter, this.OnEnter.bind(this), scene],
         [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
     ];
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
     this.events.forEach(function(/** !Array<*> */ event){
-        Game.Publisher.Subscribe(
+        publisher.Subscribe(
             /** @type {string} */ (event[0]),
             /** @type {function(ExEvent)} */ (event[1]),
             /** @type {Object} */ (event[2])
@@ -68,8 +69,9 @@ RacetrackLayer.prototype.OnExit = function(e){
             this.dom.parentNode.removeChild(this.dom);
         }
     }.bind(this)));
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
     this.events.forEach(function(/** !Array<*> */ event){
-        Game.Publisher.UnSubscribe(
+        publisher.UnSubscribe(
             /** @type {string} */ (event[0]),
             /** @type {function(ExEvent)} */ (event[1]),
             /** @type {Object} */ (event[2])

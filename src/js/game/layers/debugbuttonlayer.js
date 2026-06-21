@@ -16,8 +16,9 @@ var DebugButtonLayer = function(scene){
         [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
         [Events.Debug.OnShowDebugMenu, this.OnShowDebugMenu.bind(this), null],
     ];
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
     this.events.forEach(function(/** !Array<*> */ event){
-        Game.Publisher.Subscribe(
+        publisher.Subscribe(
             /** @type {string} */ (event[0]),
             /** @type {function(ExEvent)} */ (event[1]),
             /** @type {Object} */ (event[2])
@@ -31,6 +32,7 @@ var DebugButtonLayer = function(scene){
 DebugButtonLayer.prototype.Render = function(){
     var fragment = document.createDocumentFragment();
     var section = document.createElement("section");
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
     section.className = "debugbutton";
     this.dom = section;
     fragment.appendChild(section);
@@ -38,7 +40,7 @@ DebugButtonLayer.prototype.Render = function(){
         var domElement = /** @type {!Element} */ (this.dom);
         var self = this;
         [
-            ["Debug", function(){Game.Publisher.Publish(Events.Debug.OnShowDebugMenu, self);}],
+            ["Debug", function(){publisher.Publish(Events.Debug.OnShowDebugMenu, self);}],
         ].map(function(/** !Array<*> */ value){
             var button = (new UIButton(/** @type {string} */ (value[0]))).DOM();
             button.addEventListener("click", /** @type {function(Event)} */ (value[1]));
@@ -64,8 +66,9 @@ DebugButtonLayer.prototype.OnExit = function(e){
             this.dom.parentNode.removeChild(this.dom);
         }
     }.bind(this)));
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
     this.events.forEach(function(/** !Array<*> */ event){
-        Game.Publisher.UnSubscribe(
+        publisher.UnSubscribe(
             /** @type {string} */ (event[0]),
             /** @type {function(ExEvent)} */ (event[1]),
             /** @type {Object} */ (event[2])
@@ -77,5 +80,6 @@ DebugButtonLayer.prototype.OnExit = function(e){
  * @param {ExEvent} e The event object.
  */
 DebugButtonLayer.prototype.OnShowDebugMenu = function(e){
-//    Game.SceneDirector.Push(new GameScene("Debug"));
+//    var sceneDirector = /** @type {!CustomSceneDirector} */ (Game.Locator.locate(CustomSceneDirector));
+//    sceneDirector.Push(new GameScene("Debug"));
 };

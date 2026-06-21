@@ -42,6 +42,6 @@ stateDiagram-v2
 | **[ISSUE-10]** | Low | 解決済 (Resolved) | reportUnknownTypes の警告解消と型定義の厳格化 | [ISSUE-10-strict_type_definitions.md](issue/ISSUE-10-strict_type_definitions.md) |
 | **[ISSUE-11]** | Low | 解決済 (Resolved) | 未使用ローカル変数の警告解消 (JSC_UNUSED_LOCAL_ASSIGNMENT) | [ISSUE-11-unused_local_variables.md](issue/ISSUE-11-unused_local_variables.md) |
 | **[ISSUE-12]** | Low | 解決済 (Resolved) | モンスター名（出走馬名）の命名不整合 | [ISSUE-12-monster_names_inconsistency.md](issue/ISSUE-12-monster_names_inconsistency.md) |
-| **[ISSUE-13]** | Low | 分析中 (Analyzing) | Service Locator 徹底による結合度低減 | [ISSUE-13-service_locator_enforcement.md](issue/ISSUE-13-service_locator_enforcement.md) |
+| **[ISSUE-13]** | Low | 解決済 (Resolved) | Service Locator 徹底による結合度低減 | [ISSUE-13-service_locator_enforcement.md](issue/ISSUE-13-service_locator_enforcement.md) |
 | **[ISSUE-14]** | Low | 解決済 (Resolved) | Makefile 内の重複ソースファイルの解消 | [ISSUE-14-makefile_duplicate_sources.md](issue/ISSUE-14-makefile_duplicate_sources.md) |
 | **[ISSUE-15]** | Low | 新規 (New) | テンプレートエンジン内 innerHTML 使用の代替・安全化 | [ISSUE-15-template_innerhtml_usage.md](issue/ISSUE-15-template_innerhtml_usage.md) |

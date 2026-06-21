@@ -30,8 +30,9 @@ var DebugMenuLayer = function(scene){
         [Events.Debug.OnCheckRelationship, this.OnCheckRelationship.bind(this), null],
         [Events.Debug.OnAutoPlayCard, this.OnAutoPlayCard.bind(this), null],
     ];
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
     this.events.forEach(function(/** !Array<*> */ event){
-        Game.Publisher.Subscribe(
+        publisher.Subscribe(
             /** @type {string} */ (event[0]),
             /** @type {function(ExEvent)} */ (event[1]),
             /** @type {Object} */ (event[2])
@@ -47,6 +48,7 @@ var DebugMenuLayer = function(scene){
 DebugMenuLayer.prototype.Render = function(){
     var fragment = document.createDocumentFragment();
     var section = document.createElement("section");
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
     section.className = "debugmenu";
     var h1 = document.createElement("h1");
     h1.innerText = "Debug Menu";
@@ -57,7 +59,7 @@ DebugMenuLayer.prototype.Render = function(){
         var domElement = /** @type {!Element} */ (this.dom);
         var self = this;
         this.checkboxs = [
-            ["Auto PlayCard", "change", /** @type {function(Event)} */ (function(/** Event */ e){var t = /** @type {!HTMLInputElement} */ (/** @type {!Event} */ (e).target); Game.Publisher.Publish(Events.Debug.OnAutoPlayCard, self, {"checked": t.checked});})],
+            ["Auto PlayCard", "change", /** @type {function(Event)} */ (function(/** Event */ e){var t = /** @type {!HTMLInputElement} */ (/** @type {!Event} */ (e).target); publisher.Publish(Events.Debug.OnAutoPlayCard, self, {"checked": t.checked});})],
         ].map(function(/** !Array<*> */ value){
             var checkbox = (new UICustomCheckbox(/** @type {string} */ (value[0]))).DOM();
             checkbox.addEventListener(/** @type {string} */ (value[1]), /** @type {function(Event)} */ (value[2]));
@@ -66,13 +68,13 @@ DebugMenuLayer.prototype.Render = function(){
         });
         domElement.appendChild(document.createElement("br"));
         this.buttons = [
-            ["Reset \uD83C\uDFAE", "click", /** @type {function(Event)} */ (function(){Game.Publisher.Publish(Events.Debug.OnResetGame, self);})],
-            ["Reset \uD83C\uDFC7", "click", /** @type {function(Event)} */ (function(){Game.Publisher.Publish(Events.Debug.OnResetRace, self);})],
-            ["Play PlayCard", "click", /** @type {function(Event)} */ (function(){Game.Publisher.Publish(Events.Debug.OnPlayCard, self);})],
-            ["Play Undo PlayCard", "click", /** @type {function(Event)} */ (function(){Game.Publisher.Publish(Events.Debug.OnUndoPlayCard, self);})],
-            ["Play RankCard", "click", /** @type {function(Event)} */ (function(){Game.Publisher.Publish(Events.Debug.OnPlayRankCard, self);})],
-            ["Play DashCard", "click", /** @type {function(Event)} */ (function(){Game.Publisher.Publish(Events.Debug.OnPlayDashCard, self);})],
-            ["Check Relationship", "click", /** @type {function(Event)} */ (function(){Game.Publisher.Publish(Events.Debug.OnCheckRelationship, self);})],
+            ["Reset \uD83C\uDFAE", "click", /** @type {function(Event)} */ (function(){publisher.Publish(Events.Debug.OnResetGame, self);})],
+            ["Reset \uD83C\uDFC7", "click", /** @type {function(Event)} */ (function(){publisher.Publish(Events.Debug.OnResetRace, self);})],
+            ["Play PlayCard", "click", /** @type {function(Event)} */ (function(){publisher.Publish(Events.Debug.OnPlayCard, self);})],
+            ["Play Undo PlayCard", "click", /** @type {function(Event)} */ (function(){publisher.Publish(Events.Debug.OnUndoPlayCard, self);})],
+            ["Play RankCard", "click", /** @type {function(Event)} */ (function(){publisher.Publish(Events.Debug.OnPlayRankCard, self);})],
+            ["Play DashCard", "click", /** @type {function(Event)} */ (function(){publisher.Publish(Events.Debug.OnPlayDashCard, self);})],
+            ["Check Relationship", "click", /** @type {function(Event)} */ (function(){publisher.Publish(Events.Debug.OnCheckRelationship, self);})],
         ].map(function(/** !Array<*> */ value){
             var button = (new UIButton(/** @type {string} */ (value[0]))).DOM();
             button.addEventListener(/** @type {string} */ (value[1]), /** @type {function(Event)} */ (value[2]));
@@ -111,8 +113,9 @@ DebugMenuLayer.prototype.OnExit = function(e){
             this.dom.parentNode.removeChild(this.dom);
         }
     }.bind(this)));
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
     this.events.forEach(function(/** !Array<*> */ event){
-        Game.Publisher.UnSubscribe(
+        publisher.UnSubscribe(
             /** @type {string} */ (event[0]),
             /** @type {function(ExEvent)} */ (event[1]),
             /** @type {Object} */ (event[2])
@@ -138,35 +141,40 @@ DebugMenuLayer.prototype.OnPlacingSecond = function(e){
  * @param {ExEvent} e The event object.
  */
 DebugMenuLayer.prototype.OnResetGame = function(e){
-    Game.Publisher.Publish(Events.GameDirector.OnResetGame, this);
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
+    publisher.Publish(Events.GameDirector.OnResetGame, this);
 };
 
 /**
  * @param {ExEvent} e The event object.
  */
 DebugMenuLayer.prototype.OnResetRace = function(e){
-    Game.Publisher.Publish(Events.GameDirector.OnToRaceScene, this);
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
+    publisher.Publish(Events.GameDirector.OnToRaceScene, this);
 };
 
 /**
  * @param {ExEvent} e The event object.
  */
 DebugMenuLayer.prototype.OnPlayCard = function(e){
-    Game.Publisher.Publish(Events.Race.OnPlayCard, this);
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
+    publisher.Publish(Events.Race.OnPlayCard, this);
 };
 
 /**
  * @param {ExEvent} e The event object.
  */
 DebugMenuLayer.prototype.OnUndoPlayCard = function(e){
-    Game.Publisher.Publish(Events.Race.OnUndoPlayCard, this);
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
+    publisher.Publish(Events.Race.OnUndoPlayCard, this);
 };
 
 /**
  * @param {ExEvent} e The event object.
  */
 DebugMenuLayer.prototype.OnPlayRankCard = function(e){
-    var currentScene = /** @type {!GameScene} */ (Game.SceneDirector.CurrentScene());
+    var sceneDirector = /** @type {!CustomSceneDirector} */ (Game.Locator.locate(CustomSceneDirector));
+    var currentScene = /** @type {!GameScene} */ (sceneDirector.CurrentScene());
     var directors = /** @type {!Object<string,*>} */ (currentScene.directors);
     var raceDirector = /** @type {!RaceDirector} */ (directors["RaceDirector"]);
     var race = /** @type {!Race} */ (raceDirector.race);
@@ -184,7 +192,8 @@ DebugMenuLayer.prototype.OnPlayRankCard = function(e){
  * @param {ExEvent} e The event object.
  */
 DebugMenuLayer.prototype.OnPlayDashCard = function(e){
-    var currentScene = /** @type {!GameScene} */ (Game.SceneDirector.CurrentScene());
+    var sceneDirector = /** @type {!CustomSceneDirector} */ (Game.Locator.locate(CustomSceneDirector));
+    var currentScene = /** @type {!GameScene} */ (sceneDirector.CurrentScene());
     var directors = /** @type {!Object<string,*>} */ (currentScene.directors);
     var raceDirector = /** @type {!RaceDirector} */ (directors["RaceDirector"]);
     var race = /** @type {!Race} */ (raceDirector.race);
@@ -204,7 +213,8 @@ DebugMenuLayer.prototype.OnPlayDashCard = function(e){
 DebugMenuLayer.prototype.OnMove = function(e){
     var payload = /** @type {!Object<string,*>} */ (e.payload);
     var index = /** @type {number} */ (payload["index"]);
-    var currentScene = /** @type {!GameScene} */ (Game.SceneDirector.CurrentScene());
+    var sceneDirector = /** @type {!CustomSceneDirector} */ (Game.Locator.locate(CustomSceneDirector));
+    var currentScene = /** @type {!GameScene} */ (sceneDirector.CurrentScene());
     var directors = /** @type {!Object<string,*>} */ (currentScene.directors);
     var raceDirector = /** @type {!RaceDirector} */ (directors["RaceDirector"]);
     var race = /** @type {!Race} */ (raceDirector.race);
@@ -239,9 +249,10 @@ DebugMenuLayer.prototype.OnAutoPlayCard = function(e){
     this.IsAutoPlayCard = /** @type {boolean} */ (payload["checked"]);
     /** @type {number} */
     var interval = 100;
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
     var listener = function(){
         if(this.IsAutoPlayCard){
-            Game.Publisher.Publish(Events.Race.OnPlayCard, this);
+            publisher.Publish(Events.Race.OnPlayCard, this);
             setTimeout(listener, interval);
         }
 //        console.info("AutoPlay is: " + this.IsAutoPlayCard);

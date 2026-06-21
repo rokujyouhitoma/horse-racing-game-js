@@ -16,8 +16,9 @@ var LogMessageLayer = function(scene){
         [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
         [Events.GameDirector.OnLogMessage, this.OnLogMessage.bind(this), null],
     ];
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
     this.events.forEach(function(/** !Array<*> */ event){
-        Game.Publisher.Subscribe(
+        publisher.Subscribe(
             /** @type {string} */ (event[0]),
             /** @type {function(ExEvent)} */ (event[1]),
             /** @type {Object} */ (event[2])
@@ -52,8 +53,9 @@ LogMessageLayer.prototype.OnExit = function(e){
             this.dom.parentNode.removeChild(this.dom);
         }
     }.bind(this)));
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
     this.events.forEach(function(/** !Array<*> */ event){
-        Game.Publisher.UnSubscribe(
+        publisher.UnSubscribe(
             /** @type {string} */ (event[0]),
             /** @type {function(ExEvent)} */ (event[1]),
             /** @type {Object} */ (event[2])

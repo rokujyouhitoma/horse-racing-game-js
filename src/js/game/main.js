@@ -20,7 +20,8 @@ var CustomSceneDirector = function(){
  * Routing default.
  */
 CustomSceneDirector.prototype.RoutingDefault = function(){
-    Game.Publisher.Publish(Events.GameDirector.OnResetGame, this);
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
+    publisher.Publish(Events.GameDirector.OnResetGame, this);
 };
 
 /**
@@ -40,7 +41,8 @@ CustomSceneDirector.prototype.RoutingLocationHash = function(){
         var name = hash.charAt(1).toUpperCase() + hash.substring(2);
         this.router.Route(name);
     } else {
-        Game.Publisher.Publish(Events.GameDirector.OnResetGame, this);
+        var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
+        publisher.Publish(Events.GameDirector.OnResetGame, this);
     }
 };
 
@@ -93,8 +95,9 @@ var Game = function(){
     this.objects = [
         this.fps,
     ];
-    Game.Publisher.Subscribe(Events.Game.OnRender, this.OnRender.bind(this));
-    Game.Publisher.Publish(Events.Game.OnAwake, this);
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
+    publisher.Subscribe(Events.Game.OnRender, this.OnRender.bind(this));
+    publisher.Publish(Events.Game.OnAwake, this);
 };
 inherits(Game, GameObject);
 
@@ -103,7 +106,8 @@ inherits(Game, GameObject);
  */
 Game.prototype.Start = function(){
     GameObject.prototype.Start.call(this);
-    Game.Publisher.Publish(Events.Game.OnStart, this);
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
+    publisher.Publish(Events.Game.OnStart, this);
 };
 
 /**
@@ -111,7 +115,8 @@ Game.prototype.Start = function(){
  */
 Game.prototype.Update = function(){
     GameObject.prototype.Update.call(this);
-    Game.Publisher.Publish(Events.Game.OnUpdate, this);
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
+    publisher.Publish(Events.Game.OnUpdate, this);
 };
 
 /**
@@ -126,7 +131,8 @@ Game.prototype.LastUpdate = function(){
  */
 Game.prototype.Render = function(delta){
     GameObject.prototype.Render.call(this, delta);
-    Game.Publisher.Publish(Events.Game.OnRender, this, {delta: delta});
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
+    publisher.Publish(Events.Game.OnRender, this, {delta: delta});
 };
 
 /**
@@ -134,7 +140,8 @@ Game.prototype.Render = function(delta){
  */
 Game.prototype.Destroy = function(){
     GameObject.prototype.Destroy.call(this);
-    Game.Publisher.Publish(Events.Game.OnDestroy, this);
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
+    publisher.Publish(Events.Game.OnDestroy, this);
 };
 
 /**
@@ -149,23 +156,7 @@ Game.LocatorContainer = new Map();
 /** @type {!Locator} */
 Game.Locator = new Locator(Game.LocatorContainer);
 
-/** @type {!Publisher} */
-Game.Publisher;
-Object.defineProperty(Game, "Publisher", {
-    get: function(){
-        return /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
-    },
-    configurable: true
-});
 
-/** @type {!CustomSceneDirector} */
-Game.SceneDirector;
-Object.defineProperty(Game, "SceneDirector", {
-    get: function(){
-        return /** @type {!CustomSceneDirector} */ (Game.Locator.locate(CustomSceneDirector));
-    },
-    configurable: true
-});
 
 /** @type {!BasicExecuter} */
 Game.RenderCommandExecuter = new BasicExecuter();
@@ -200,7 +191,8 @@ Game.Entity = function(name, model){
  * @param {string} message The message.
  */
 Game.Log = function(message){
-    Game.Publisher.Publish(Events.GameDirector.OnLogMessage, Game, {message: message});
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
+    publisher.Publish(Events.GameDirector.OnLogMessage, Game, {message: message});
 //    console.log(message);
 };
 
@@ -220,30 +212,35 @@ var GameDirector = function(){
         [Events.GameDirector.OnToRaceScene, this.OnToRaceScene.bind(this), null],
         [Events.GameDirector.OnLogMessage, this.OnLogMessage.bind(this), null],
     ];
-    Game.Publisher.Subscribe(Events.Game.OnStart, this.OnStart.bind(this));
-    Game.Publisher.Subscribe(Events.Game.OnDestroy, this.OnDestroy.bind(this));
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
+    publisher.Subscribe(Events.Game.OnStart, this.OnStart.bind(this));
+    publisher.Subscribe(Events.Game.OnDestroy, this.OnDestroy.bind(this));
 };
+inherits(GameDirector, GameObject);
 
 /**
  * @param {ExEvent} e The event object.
  */
 GameDirector.prototype.OnStart = function(e){
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
     this.events.forEach(function(/** !Array<(string|function(ExEvent)|Object)> */ event){
-        Game.Publisher.Subscribe(
+        publisher.Subscribe(
             /** @type {string} */ (event[0]),
             /** @type {function(ExEvent)} */ (event[1]),
             /** @type {Object} */ (event[2])
         );
     });
-    Game.SceneDirector.RoutingLocationHash();
+    var sceneDirector = /** @type {!CustomSceneDirector} */ (Game.Locator.locate(CustomSceneDirector));
+    sceneDirector.RoutingLocationHash();
 };
 
 /**
  * @param {ExEvent} e The event object.
  */
 GameDirector.prototype.OnDestroy = function(e){
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
     this.events.forEach(function(/** !Array<(string|function(ExEvent)|Object)> */ event){
-        Game.Publisher.UnSubscribe(
+        publisher.UnSubscribe(
             /** @type {string} */ (event[0]),
             /** @type {function(ExEvent)} */ (event[1]),
             /** @type {Object} */ (event[2])
@@ -255,16 +252,18 @@ GameDirector.prototype.OnDestroy = function(e){
  * @param {ExEvent} e The event object.
  */
 GameDirector.prototype.OnResetGame = function(e){
-    Game.SceneDirector.ToDepth(0);
-    Game.SceneDirector.Push(new GameScene("Title"));
+    var sceneDirector = /** @type {!CustomSceneDirector} */ (Game.Locator.locate(CustomSceneDirector));
+    sceneDirector.ToDepth(0);
+    sceneDirector.Push(new GameScene("Title"));
 };
 
 /**
  * @param {ExEvent} e The event object.
  */
 GameDirector.prototype.OnToRaceScene = function(e){
-    Game.SceneDirector.ToDepth(0);
-    Game.SceneDirector.Replace(new GameScene("Race"));
+    var sceneDirector = /** @type {!CustomSceneDirector} */ (Game.Locator.locate(CustomSceneDirector));
+    sceneDirector.ToDepth(0);
+    sceneDirector.Replace(new GameScene("Race"));
 };
 
 /**
@@ -286,8 +285,9 @@ var CommandExecuter = function(){
     this.events = [
         [Events.Game.OnUpdate, this.OnUpdate.bind(this), null],
     ];
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
     this.events.forEach(function(/** !Array<(string|function(ExEvent)|Object)> */ event){
-        Game.Publisher.Subscribe(
+        publisher.Subscribe(
             /** @type {string} */ (event[0]),
             /** @type {function(ExEvent)} */ (event[1]),
             /** @type {Object} */ (event[2])
@@ -918,7 +918,8 @@ var StepCardEffect = function(race, lane, step){
  *  Apply.
  */
 StepCardEffect.prototype.Apply = function(){
-    var currentScene = /** @type {GameScene} */ (Game.SceneDirector.CurrentScene());
+    var sceneDirector = /** @type {!CustomSceneDirector} */ (Game.Locator.locate(CustomSceneDirector));
+    var currentScene = /** @type {GameScene} */ (sceneDirector.CurrentScene());
     if (currentScene) {
         var raceDirector = /** @type {RaceDirector} */ (currentScene.directors["RaceDirector"]);
         if (raceDirector && raceDirector.race === this.race_) {
@@ -931,7 +932,8 @@ StepCardEffect.prototype.Apply = function(){
  * Un Apply.
  */
 StepCardEffect.prototype.UnApply = function(){
-    var currentScene = /** @type {GameScene} */ (Game.SceneDirector.CurrentScene());
+    var sceneDirector = /** @type {!CustomSceneDirector} */ (Game.Locator.locate(CustomSceneDirector));
+    var currentScene = /** @type {GameScene} */ (sceneDirector.CurrentScene());
     if (currentScene) {
         var raceDirector = /** @type {RaceDirector} */ (currentScene.directors["RaceDirector"]);
         if (raceDirector && raceDirector.race === this.race_) {
@@ -1207,7 +1209,8 @@ var RepositoryDirector = function(scene){
     ].forEach(function(/** !Array<*> */ value){
         this.repository.Store(/** @type {string} */ (value[0]), /** @type {!Repository} */ (value[1]));
     }, this);
-    Game.Publisher.Subscribe(Events.Game.OnAwake, this.OnAwake.bind(this));
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
+    publisher.Subscribe(Events.Game.OnAwake, this.OnAwake.bind(this));
 };
 
 /**
@@ -1286,8 +1289,9 @@ var PlayCardDirector = function(scene){
         [Events.Race.OnPlayCard, this.OnPlayCard.bind(this), null],
         [Events.Race.OnUndoPlayCard, this.OnUndoPlayCard.bind(this), null],
     ];
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
     this.events.forEach(function(/** !Array<(string|function(ExEvent)|Object)> */ event){
-        Game.Publisher.Subscribe(
+        publisher.Subscribe(
             /** @type {string} */ (event[0]),
             /** @type {function(ExEvent)} */ (event[1]),
             /** @type {Object} */ (event[2])
@@ -1301,7 +1305,8 @@ PlayCardDirector.Xorshift = new Xorshift();
  * @param {ExEvent} e The event object.
  */
 PlayCardDirector.prototype.OnEnter = function(e){
-    Game.Publisher.Publish(Events.PlayCardDirector.OnReset, this);
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
+    publisher.Publish(Events.PlayCardDirector.OnReset, this);
 };
 
 /**
@@ -1337,8 +1342,9 @@ PlayCardDirector.prototype.FisherYatesShuffle = function(array){
 PlayCardDirector.prototype.OnExit = function(e){
     this.playCards = [];
     this.position = 0;
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
     this.events.forEach(function(/** !Array<(string|function(ExEvent)|Object)> */ event){
-        Game.Publisher.UnSubscribe(
+        publisher.UnSubscribe(
             /** @type {string} */ (event[0]),
             /** @type {function(ExEvent)} */ (event[1]),
             /** @type {Object} */ (event[2])
@@ -1358,7 +1364,8 @@ PlayCardDirector.prototype.OnPlayCard = function(e){
         Game.Log("404 Card Not found.");
         return;
     }
-    var currentScene = /** @type {GameScene} */ (Game.SceneDirector.CurrentScene());
+    var sceneDirector = /** @type {!CustomSceneDirector} */ (Game.Locator.locate(CustomSceneDirector));
+    var currentScene = /** @type {GameScene} */ (sceneDirector.CurrentScene());
     if (!currentScene) {
         return;
     }
@@ -1411,8 +1418,9 @@ var RaceDirector = function(scene){
         [Events.Race.OnPlacingSecond, this.OnPlacingSecond.bind(this), null],
         [Events.Race.OnFinishedRace, this.OnFinishedRace.bind(this), null],
     ];
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
     this.events.forEach(function(/** !Array<(string|function(ExEvent)|Object)> */ event){
-        Game.Publisher.Subscribe(
+        publisher.Subscribe(
             /** @type {string} */ (event[0]),
             /** @type {function(ExEvent)} */ (event[1]),
             /** @type {Object} */ (event[2])
@@ -1456,7 +1464,8 @@ RaceDirector.prototype.OnUpdate = function(e){
         this.goals_.push(runners[0]);
         this.UpdateState();
     }
-    Game.Publisher.Publish(Events.Race.OnChanged, this, {
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
+    publisher.Publish(Events.Race.OnChanged, this, {
         race: race,
         racetrack: race.gameBoard.racetrack,
         oddstable: race.gameBoard.oddstable
@@ -1469,7 +1478,8 @@ RaceDirector.prototype.OnUpdate = function(e){
 RaceDirector.prototype.OnEnter = function(e){
     this.goals_ = [];
     this.state = RaceDirector.State.None;
-    Game.Publisher.Publish(Events.Race.OnChanged, this, {
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
+    publisher.Publish(Events.Race.OnChanged, this, {
         race: this.race,
         racetrack: this.race.gameBoard.racetrack,
         oddstable: this.race.gameBoard.oddstable
@@ -1480,8 +1490,9 @@ RaceDirector.prototype.OnEnter = function(e){
  * @param {ExEvent} e The event object.
  */
 RaceDirector.prototype.OnExit = function(e){
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
     this.events.forEach(function(/** !Array<(string|function(ExEvent)|Object)> */ event){
-        Game.Publisher.UnSubscribe(
+        publisher.UnSubscribe(
             /** @type {string} */ (event[0]),
             /** @type {function(ExEvent)} */ (event[1]),
             /** @type {Object} */ (event[2])
@@ -1497,14 +1508,15 @@ RaceDirector.prototype.OnExit = function(e){
  */
 RaceDirector.prototype.UpdateState = function(){
     var state = this.state;
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
     switch(state){
     case RaceDirector.State.None:
         this.state = state | RaceDirector.State.First;
-        Game.Publisher.Publish(Events.Race.OnPlacingFirst, this);
+        publisher.Publish(Events.Race.OnPlacingFirst, this);
         break;
     case RaceDirector.State.First:
         this.state = state | RaceDirector.State.Second;
-        Game.Publisher.Publish(Events.Race.OnPlacingSecond, this);
+        publisher.Publish(Events.Race.OnPlacingSecond, this);
         break;
     case RaceDirector.State.Second:
         break;
@@ -1534,7 +1546,8 @@ RaceDirector.prototype.OnPlacingSecond = function(e){
     var second = placings[1];
     Game.Log("The first: " + (/** @type {{type: string}} */ (first.model)).type);
     Game.Log("The second: " + (/** @type {{type: string}} */ (second.model)).type);
-    Game.Publisher.Publish(Events.Race.OnFinishedRace, this, {
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
+    publisher.Publish(Events.Race.OnFinishedRace, this, {
         "race": this.race,
         "placings": placings,
     });
@@ -1562,7 +1575,8 @@ RaceDirector.prototype.OnFinishedRace = function(e){
     });
     var odds = oddses[0];
     var mOdds = /** @type {{odds: number}} */ (odds.model);
-    Game.SceneDirector.Push(new GameScene("Result", {
+    var sceneDirector = /** @type {!CustomSceneDirector} */ (Game.Locator.locate(CustomSceneDirector));
+    sceneDirector.Push(new GameScene("Result", {
         "race": race,
         "placings": placings,
         "odds": mOdds.odds,
@@ -1643,28 +1657,32 @@ inherits(GameScene, Scene);
  * Enter.
  */
 GameScene.prototype.OnEnter = function(){
-    Game.Publisher.Publish(Events.GameScene.OnEnter, this);
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
+    publisher.Publish(Events.GameScene.OnEnter, this);
 };
 
 /**
  * Exit.
  */
 GameScene.prototype.OnExit = function(){
-    Game.Publisher.Publish(Events.GameScene.OnExit, this);
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
+    publisher.Publish(Events.GameScene.OnExit, this);
 };
 
 /**
  * Pause.
  */
 GameScene.prototype.OnPause = function(){
-    Game.Publisher.Publish(Events.GameScene.OnPause, this);
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
+    publisher.Publish(Events.GameScene.OnPause, this);
 };
 
 /**
  * Resume.
  */
 GameScene.prototype.OnResume = function(){
-    Game.Publisher.Publish(Events.GameScene.OnResume, this);
+    var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
+    publisher.Publish(Events.GameScene.OnResume, this);
 };
 
 // TODO: [ISSUE-09] 起動時データ検証処理の本番実行パスからの分離
