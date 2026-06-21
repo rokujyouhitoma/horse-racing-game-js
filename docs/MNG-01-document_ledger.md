@@ -52,6 +52,7 @@
 | :--- | :--- | :--- | :--- | :--- |
 | **[DSN-01]** | 基本設計書 | [DSN-01-high_level_design.md](DSN-01-high_level_design.md) | システム全体構成、Pub/Sub境界、論理アーキテクチャの定義。 | 基本アーキテクチャの変更時。 |
 | **[DSN-02]** | 詳細設計書 | [DSN-02-low_level_design.md](DSN-02-low_level_design.md) | クラス構造、ループの仕組み、パース規則、Undo仕様などの物理設計。 | データ構造、クラス構成の変更時。 |
+| **[DSN-03]** | ゲームプログラミングパターンとコーディング制約定義書 | [DSN-03-game_programming_patterns_and_coding_constraints.md](DSN-03-game_programming_patterns_and_coding_constraints.md) | Game Programming Patternsに基づく設計パターン定義と、それに付随するコーディング上の制約定義。 | 設計パターンの追加・変更、コーディング規約の改定時。 |
 
 ### 2.5 ユーザー文書 (USR)
 
