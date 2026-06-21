@@ -1,6 +1,6 @@
 # [ISSUE-13] Service Locator の徹底によるグローバル結合度低減 (Severity: Low)
 
-* **ステータス**: 新規 (New)
+* **ステータス**: 分析中 (Analyzing)
 * **内容**: 
   [DSN-03-game_programming_patterns_and_coding_constraints.md](../DSN-03-game_programming_patterns_and_coding_constraints.md) において、グローバルシングルトンを廃し **Service Locator** (`Game.Locator`) にアクセスを集約する設計制約が定義されました。
   しかし現在、`src/` 配下の複数のファイル（`entities.js`, `debugmenulayer.js` など）で、グローバル名前空間上のオブジェクト `Game.Publisher` や `Game.SceneDirector` を直接参照する実装が多数存在しています。

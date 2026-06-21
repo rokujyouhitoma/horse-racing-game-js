@@ -150,10 +150,22 @@ Game.LocatorContainer = new Map();
 Game.Locator = new Locator(Game.LocatorContainer);
 
 /** @type {!Publisher} */
-Game.Publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
+Game.Publisher;
+Object.defineProperty(Game, "Publisher", {
+    get: function(){
+        return /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
+    },
+    configurable: true
+});
 
 /** @type {!CustomSceneDirector} */
-Game.SceneDirector = /** @type {!CustomSceneDirector} */ (Game.Locator.locate(CustomSceneDirector));
+Game.SceneDirector;
+Object.defineProperty(Game, "SceneDirector", {
+    get: function(){
+        return /** @type {!CustomSceneDirector} */ (Game.Locator.locate(CustomSceneDirector));
+    },
+    configurable: true
+});
 
 /** @type {!BasicExecuter} */
 Game.RenderCommandExecuter = new BasicExecuter();
