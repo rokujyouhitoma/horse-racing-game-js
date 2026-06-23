@@ -45,3 +45,5 @@ stateDiagram-v2
 | **[ISSUE-13]** | Low | 解決済 (Resolved) | Service Locator 徹底による結合度低減 | [ISSUE-13-service_locator_enforcement.md](issue/ISSUE-13-service_locator_enforcement.md) |
 | **[ISSUE-14]** | Low | 解決済 (Resolved) | Makefile 内の重複ソースファイルの解消 | [ISSUE-14-makefile_duplicate_sources.md](issue/ISSUE-14-makefile_duplicate_sources.md) |
 | **[ISSUE-15]** | Low | 解決済 (Resolved) | テンプレートエンジン内 innerHTML 使用の代替・安全化 | [ISSUE-15-template_innerhtml_usage.md](issue/ISSUE-15-template_innerhtml_usage.md) |
+| **[ISSUE-16]** | High | 解決済 (Resolved) | 初期化処理の順序不整合による directors 取得失敗エラー (Cannot read properties of null) | [ISSUE-16-initialization_order_directors_error.md](issue/ISSUE-16-initialization_order_directors_error.md) |
+
