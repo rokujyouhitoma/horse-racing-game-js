@@ -21,6 +21,7 @@ A digital implementation of a horse racing card game. Players use play cards (St
 - **Seeded RNG** — Xorshift-based random number generator for reproducible randomness
 - **Template Engine** — JavaScript port of Python's Tornado template engine for HTML rendering
 - **Undo Support** — Undo the last played card during a race
+- **Debug Toggle (Hamburger Menu)** — A top-right "≡" button that hides/shows the in-game Debug Menu for scene and race control
 - **Pub/Sub Architecture** — Decoupled renderer/model communication via `Events.Race.OnChanged`
 
 ## Project Structure

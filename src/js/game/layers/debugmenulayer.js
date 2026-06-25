@@ -20,6 +20,7 @@ var DebugMenuLayer = function(scene){
         [Events.GameScene.OnExit, this.OnExit.bind(this), scene],
         [Events.Race.OnPlacingFirst, this.OnPlacingFirst.bind(this), null],
         [Events.Race.OnPlacingSecond, this.OnPlacingSecond.bind(this), null],
+        [Events.Debug.OnShowDebugMenu, this.OnShowDebugMenu.bind(this), null],
         [Events.Debug.OnResetGame, this.OnResetGame.bind(this), null],
         [Events.Debug.OnResetRace, this.OnResetRace.bind(this), null],
         [Events.Debug.OnPlayCard, this.OnPlayCard.bind(this), null],
@@ -50,6 +51,7 @@ DebugMenuLayer.prototype.Render = function(){
     var section = document.createElement("section");
     var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
     section.className = "debugmenu";
+    section.style.display = "none";
     var h1 = document.createElement("h1");
     h1.innerText = "Debug Menu";
     section.appendChild(h1);
@@ -259,5 +261,18 @@ DebugMenuLayer.prototype.OnAutoPlayCard = function(e){
     }.bind(this);
     if(this.IsAutoPlayCard){
         setTimeout(listener, interval);
+    }
+};
+
+/**
+ * @param {ExEvent} e The event object.
+ */
+DebugMenuLayer.prototype.OnShowDebugMenu = function(e){
+    if (this.dom) {
+        if (this.dom.style.display === "none") {
+            this.dom.style.display = "block";
+        } else {
+            this.dom.style.display = "none";
+        }
     }
 };

@@ -18,6 +18,7 @@ section.scene {
     width: 700px;
     min-width: 700px;
     margin: 0 auto;
+    position: relative;
 }
 
 section.menu {
@@ -54,6 +55,78 @@ section.race section.oddstablelayer table {
 }
 
 section.debug {
+}
+
+section.debugmenu {
+    display: none;
+    margin-top: 20px;
+    padding: 15px;
+    border: 2px dashed #ff9999;
+    border-radius: 8px;
+    background-color: #fff8f8;
+    text-align: left;
+}
+
+section.debugmenu h1 {
+    font-size: 18px;
+    color: #cc0000;
+    margin-bottom: 10px;
+}
+
+/* Hamburger Menu styles */
+section.hamburger-menu {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    z-index: 100;
+}
+
+button.hamburger-button {
+    font-size: 24px;
+    background: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    outline: none;
+    padding: 2px 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+button.hamburger-button:hover {
+    background: #e0e0e0;
+}
+
+div.hamburger-dropdown {
+    position: absolute;
+    right: 0;
+    top: 36px;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    display: none;
+    flex-direction: column;
+    min-width: 120px;
+    z-index: 101;
+}
+
+div.hamburger-dropdown.show {
+    display: flex;
+}
+
+button.hamburger-item {
+    padding: 8px 16px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    font-size: 14px;
+    outline: none;
+}
+
+button.hamburger-item:hover {
+    background-color: #f0f0f0;
 }
 
 section.scene.result {

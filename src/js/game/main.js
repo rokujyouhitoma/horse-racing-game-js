@@ -1466,9 +1466,9 @@ RaceDirector.prototype.OnUpdate = function(e){
     }
     var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
     publisher.Publish(Events.Race.OnChanged, this, {
-        race: race,
-        racetrack: race.gameBoard.racetrack,
-        oddstable: race.gameBoard.oddstable
+        "race": race,
+        "racetrack": race.gameBoard.racetrack,
+        "oddstable": race.gameBoard.oddstable
     });
 };
 
@@ -1480,9 +1480,9 @@ RaceDirector.prototype.OnEnter = function(e){
     this.state = RaceDirector.State.None;
     var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
     publisher.Publish(Events.Race.OnChanged, this, {
-        race: this.race,
-        racetrack: this.race.gameBoard.racetrack,
-        oddstable: this.race.gameBoard.oddstable
+        "race": this.race,
+        "racetrack": this.race.gameBoard.racetrack,
+        "oddstable": this.race.gameBoard.oddstable
     });
 };
 
@@ -1631,7 +1631,7 @@ var GameScene = function(name, opt_content){
         "Race": function(/** !GameScene */ scene){
             return new RenderLayers(scene, [
                 new MenuLayer(scene),
-//                new DebugButtonLayer(scene),
+                new HamburgerMenuLayer(scene),
                 new RacetrackLayer(scene),
                 new OddsTableLayer(scene),
                 new LogMessageLayer(scene),

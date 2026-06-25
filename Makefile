@@ -28,7 +28,7 @@ SOURCES = $(LIB_SOURCES) \
 	src/js/game/layers/logmessagelayer.js \
 	src/js/game/layers/debugmenulayer.js \
 	src/js/game/layers/fpslayer.js \
-	src/js/game/layers/debugbuttonlayer.js \
+	src/js/game/layers/hamburgermenulayer.js \
 	src/js/game/layers/sampleballlayer.js \
 	src/js/game/renderers.js \
 	src/js/game/renderers/guiparts.js \
@@ -56,7 +56,7 @@ main-min.js: $(SOURCES)
 #	--formatting=PRINT_INPUT_DELIMITER \
 #	--compilation_level=WHITESPACE_ONLY \
 
-main-min.css:
+main-min.css: $(STYLESHEETS)
 	$(JAVA) -jar $(CLOSURE_STYLESHEETS) \
 	$(STYLESHEETS) \
 	--output-file $@ \
@@ -83,8 +83,19 @@ test:
 	src/js/game/lib/command.js \
 	src/js/game/events.js \
 	src/js/game/templates.js \
-	src/js/game/renderers/lanerenderer.js \
+	src/js/game/layers/titlescenelayer.js \
+	src/js/game/layers/resultscenelayer.js \
+	src/js/game/layers/menulayer.js \
 	src/js/game/layers/racetracklayer.js \
+	src/js/game/layers/oddstablelayer.js \
+	src/js/game/layers/logmessagelayer.js \
+	src/js/game/layers/debugmenulayer.js \
+	src/js/game/layers/fpslayer.js \
+	src/js/game/layers/hamburgermenulayer.js \
+	src/js/game/layers/sampleballlayer.js \
+	src/js/game/renderers.js \
+	src/js/game/renderers/guiparts.js \
+	src/js/game/renderers/lanerenderer.js \
 	src/js/game/entities.js \
 	src/js/game/checker.js \
 	src/js/game/main.js \

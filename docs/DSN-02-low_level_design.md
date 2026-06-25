@@ -84,6 +84,20 @@ classDiagram
   Pythonの「Tornado Web Server」のテンプレートエンジンをJavaScriptに移植。HTML文字列内の `{% if %}`, `{% elif %}`, `{% for %}`, `{% while %}`, `{% try %}/{% except %}/{% else %}/{% finally %}`, `{{ variable }}` などの各種構文を解釈し、高速にDOMフラグメントを生成します。また、テンプレートファイル内でのエラー発生時に例外のスタックトレースを行番号付きでマッピングする機能や、相対パスインクルード解決のための `posixpath` 自作モジュールを内包しています（詳細は [ADR-03](adr/ADR-03-tornado-template-engine-js-port.md) 参照）。
 * **描画パイプライン (`RenderLayers`)**:
   各シーン（`GameScene`）は、複数のレイヤー（`ILayer` インターフェースを実装したクラス）で構成されます。
+  * **Title シーン**:
+    * `TitleSceneLayer`: 開始画面の描画。
+  * **Race シーン**:
+    * `MenuLayer`: ゲーム操作ボタンの描画。
+    * `HamburgerMenuLayer` (NEW): 右上に設置された開閉メニュー「≡」。デバッグメニューの切り替えを担当。
+    * `RacetrackLayer`: レーストラックのレンダリング。
+    * `OddsTableLayer`: オッズ配当表のレンダリング。
+    * `LogMessageLayer`: 実況テキストログのレンダリング。
+    * `DebugMenuLayer`: 開発用デバッグ制御パネル。初期表示は非表示 (`display: none`)。
+    * `FPSLayer`: ループFPSの計測と描画。
+    * `SampleBallLayer`: アニメーションキャンバス。
+  * **Result シーン**:
+    * `ResultSceneLayer`: 結果判定・配当表示。
+  
   1. **シーンマウント**: シーンが開始すると、指定された複数のレイヤーインスタンスが生成される。
   2. **描画コマンド構築**: レイヤーの `Render()` は `DocumentFragment` を返し、`Game.RenderCommandExecuter` に描画コマンドとしてエンキューされる。
   3. **画面描画**: `OnRender` イベント時に `RenderCommandExecuter.ExecuteAll()` が走り、最小限の回数でDOMを一括挿入（バッチ描画）します。

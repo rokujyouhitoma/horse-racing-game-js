@@ -31,6 +31,10 @@
 ## [Unreleased]
 
 ### [Added]
+- デバッグメニュー「Debug Menu」のトグル開閉メニュー「≡」をRace画面の右上に設置
+  - 新規UIレイヤー `HamburgerMenuLayer` を実装し、ドキュメント外クリックでの自動クローズに対応
+  - `DebugMenuLayer` の初期表示を非表示（`display: none`）に設定し、`Events.Debug.OnShowDebugMenu` イベント受信時に表示を切り替えるよう変更
+  - キャッシュクリアを強制するためのキャッシュバスティングクエリパラメータを `index.html` および `compiled.html` のCSS/JSリンクへ追加
 - ゲームデザインドキュメント (GDD-01) の新規作成
 - ソフトウェアテスト計画書 (MNG-04) の新規作成
 - 実行計画書フォーマット定義 (MNG-05) の新規作成
@@ -39,11 +43,13 @@
 - `EngineLoopTest` スイート追加（3件）: lag-clamp動作のリグレッションテスト
 
 ### [Fixed]
+- **[ISSUE-12]** Google Closure Compiler の `ADVANCED_OPTIMIZATIONS` によるプロパティ名圧縮（`racetrack`, `oddstable`）の不一致により、コンパイル後の環境でRacetrackおよびオッズテーブルの中身が表示されなくなるバグを修正
+  - `main.js` での `Events.Race.OnChanged` パブリッシュ時のオブジェクトキーを文字列キー（`"racetrack"`, `"oddstable"`)に変更
 - **[ISSUE-06]** タブ切り替え等のスリープ復帰時におけるエンジン状態更新の不整合を修正
   - `engine.js` `Engine.prototype.Loop` 内の `lag > LIMIT_LAG` 処理を変更
   - 旧: `lag = 0; return;`（Update全スキップ → 状態マシン不整合リスク）
   - 新: `lag = MPU;`（1フレーム分にクランプ → 非現実的な時間ジャンプを破棄しつつUpdate1回を保証）
-  - `LIMIT_LAG` の意図と設計根拠を詳細コメントとして追記（"Fix Your Timestep!" 参照）
+  - `LIMIT_LAG` の意図 and 設計根拠を詳細コメントとして追記（"Fix Your Timestep!" 参照）
 
 ---
 
