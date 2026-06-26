@@ -883,6 +883,170 @@ describe('TemplatesGenerateTest', function() {
     });
 });
 
+describe('RaceDirectorTest', function() {
+    it('test_on_finished_race_success', function() {
+        Game.LocatorContainer.clear();
+        
+        // Mock addEventListener on MockElement if missing
+        var dummyElement = document.createElement('div');
+        if (dummyElement.constructor && dummyElement.constructor.prototype && typeof dummyElement.addEventListener !== 'function') {
+            dummyElement.constructor.prototype.addEventListener = function() {};
+        }
+        
+        // Mock MasterData
+        var mockMasterData = {
+            Get: function(name) {
+                if (name === "Odds") {
+                    return [
+                        ["1", "1", "2", "5"],
+                        ["2", "1", "3", "7"]
+                    ];
+                }
+                return [];
+            },
+            GetMeta: function(name) {
+                if (name === "Odds") {
+                    return new MasterMeta([
+                        "id", "first_id", "second_id", "odds"
+                    ], [
+                        "int", "int", "int", "int"
+                    ]);
+                }
+                return null;
+            }
+        };
+        Game.LocatorContainer.set(MasterData, mockMasterData);
+
+        // Mock CustomSceneDirector
+        var resultScene = null;
+        var mockSceneDirector = {
+            Push: function(scene) {
+                resultScene = scene;
+            }
+        };
+        Game.LocatorContainer.set(CustomSceneDirector, mockSceneDirector);
+
+        // Mock Publisher
+        var mockPublisher = {
+            Publish: function(event, sender, opt_payload) {},
+            Subscribe: function(event, callback, opt_context) {},
+            UnSubscribe: function(event, callback, opt_context) {}
+        };
+        Game.LocatorContainer.set(Publisher, mockPublisher);
+
+        // Create mock HorseFigures for placings
+        var mockHorse1 = {
+            lane: { number: 1 },
+            model: { type: "Red" }
+        };
+        var mockHorse2 = {
+            lane: { number: 2 },
+            model: { type: "Blue" }
+        };
+        var placings = [mockHorse1, mockHorse2];
+
+        // Instantiate mock RaceDirector and call OnFinishedRace
+        var director = Object.create(RaceDirector.prototype);
+        director.OnFinishedRace({
+            payload: {
+                race: {},
+                placings: placings
+            }
+        });
+
+        expect(resultScene).toBeTruthy();
+        expect(resultScene.name).toEqual("Result");
+        expect(resultScene.content["odds"]).toEqual(5);
+        
+        Game.LocatorContainer.clear();
+    });
+});
+
+describe('PlayCardDirectorTest', function() {
+    it('test_reset_regenerates_seed', function() {
+        Game.LocatorContainer.clear();
+        
+        // Mock RepositoryDirector and Repository for PlayCard
+        var mockPlayCards = [
+            { model: { id: 1 } },
+            { model: { id: 2 } }
+        ];
+        var mockRepository = {
+            All: function() {
+                return mockPlayCards;
+            }
+        };
+        var mockRepositoryDirector = {
+            Get: function(name) {
+                if (name === "PlayCard") {
+                    return mockRepository;
+                }
+                return null;
+            }
+        };
+        Game.LocatorContainer.set(RepositoryDirector, mockRepositoryDirector);
+
+        // Store original seed
+        PlayCardDirector.keepSeed = false;
+        var initialSeed = PlayCardDirector.Xorshift.s;
+
+        // Instantiate mock PlayCardDirector and trigger OnReset
+        var director = Object.create(PlayCardDirector.prototype);
+        director.OnReset({});
+
+        // The seed should be regenerated, meaning it should be different from initialSeed
+        var seed1 = PlayCardDirector.Xorshift.s;
+        expect(seed1 !== initialSeed).toBeTruthy();
+
+        // Trigger OnReset again
+        director.OnReset({});
+        var seed2 = PlayCardDirector.Xorshift.s;
+        expect(seed2 !== seed1).toBeTruthy();
+
+        Game.LocatorContainer.clear();
+    });
+
+    it('test_reset_keeps_seed_when_flagged', function() {
+        Game.LocatorContainer.clear();
+        
+        var mockPlayCards = [
+            { model: { id: 1 } },
+            { model: { id: 2 } }
+        ];
+        var mockRepository = {
+            All: function() {
+                return mockPlayCards;
+            }
+        };
+        var mockRepositoryDirector = {
+            Get: function(name) {
+                if (name === "PlayCard") {
+                    return mockRepository;
+                }
+                return null;
+            }
+        };
+        Game.LocatorContainer.set(RepositoryDirector, mockRepositoryDirector);
+
+        // Set custom seed and set keepSeed to true
+        PlayCardDirector.Xorshift.seed(98765);
+        PlayCardDirector.keepSeed = true;
+
+        var director = Object.create(PlayCardDirector.prototype);
+        director.OnReset({});
+
+        // The seed should be kept (98765) and the flag reset to false
+        expect(PlayCardDirector.Xorshift.s).toEqual(98765);
+        expect(PlayCardDirector.keepSeed).toEqual(false);
+
+        // A subsequent reset without flag should regenerate the seed
+        director.OnReset({});
+        expect(PlayCardDirector.Xorshift.s !== 98765).toBeTruthy();
+
+        Game.LocatorContainer.clear();
+    });
+});
+
 if (typeof process !== 'undefined') {
     process.exit(globalObject.testSuiteStats.failedTests > 0 ? 1 : 0);
 }

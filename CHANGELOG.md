@@ -31,9 +31,10 @@
 ## [Unreleased]
 
 ### [Added]
+- デバッグメニューから任意のシード値（seed）を指定して、レースとカード山札を同一シードでリセット（再現実行）できる機能を追加
 - デバッグメニュー「Debug Menu」のトグル開閉メニュー「≡」をRace画面の右上に設置
   - 新規UIレイヤー `HamburgerMenuLayer` を実装し、ドキュメント外クリックでの自動クローズに対応
-  - `DebugMenuLayer` の初期表示を非表示（`display: none`）に設定し、`Events.Debug.OnShowDebugMenu` イベント受信時に表示を切り替えるよう変更
+  - `DebugMenuLayer` の初期表示を表示（`display: block`）に設定し、`Events.Debug.OnShowDebugMenu` イベント受信時に表示を切り替えるよう変更
   - キャッシュクリアを強制するためのキャッシュバスティングクエリパラメータを `index.html` および `compiled.html` のCSS/JSリンクへ追加
 - ゲームデザインドキュメント (GDD-01) の新規作成
 - ソフトウェアテスト計画書 (MNG-04) の新規作成
@@ -43,6 +44,8 @@
 - `EngineLoopTest` スイート追加（3件）: lag-clamp動作のリグレッションテスト
 
 ### [Fixed]
+- Closure Compilerの `ADVANCED_OPTIMIZATIONS` によるプロパティ名圧縮と動的CSVデータの不一致（`first_id`, `second_id`, `odds`, `type`, `id` 等のモデルプロパティ）により、コンパイル後の環境でレース終了時（OnFinishedRace）に TypeError (Cannot read properties of undefined (reading 'model')) が発生しクラッシュするバグを修正。モデルプロパティへのアクセスをブラケット記法（`m["first_id"]` 等）に修正。
+  - 上記OnFinishedRaceの動作保証およびクラッシュの再発防止のため、テストスイート `RaceDirectorTest` に `test_on_finished_race_success` テストケースを追加。
 - **[ISSUE-12]** Google Closure Compiler の `ADVANCED_OPTIMIZATIONS` によるプロパティ名圧縮（`racetrack`, `oddstable`）の不一致により、コンパイル後の環境でRacetrackおよびオッズテーブルの中身が表示されなくなるバグを修正
   - `main.js` での `Events.Race.OnChanged` パブリッシュ時のオブジェクトキーを文字列キー（`"racetrack"`, `"oddstable"`)に変更
 - **[ISSUE-06]** タブ切り替え等のスリープ復帰時におけるエンジン状態更新の不整合を修正

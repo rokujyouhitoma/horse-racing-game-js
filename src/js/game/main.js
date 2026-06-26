@@ -1045,7 +1045,7 @@ PlayCardCommand.prototype.Execute = function(){
     var stepVal = (/** @type {{step_: (number|undefined)}} */ (cardEffect)).step_ || 0;
     Game.Log([
         "card_id=",
-        (/** @type {{id: number}} */ (card.model)).id,
+        (/** @type {!Object<string,*>} */ (card.model))["id"],
         " ",
         card.LogMessage(),
         " => +",
@@ -1068,7 +1068,7 @@ PlayCardCommand.prototype.Undo = function(){
         card.LogMessage(),
         " ",
         "card_id=",
-        (/** @type {{id: number}} */ (card.model)).id,
+        (/** @type {!Object<string,*>} */ (card.model))["id"],
     ].join(""));
 };
 
@@ -1179,9 +1179,9 @@ var OddsTable = function(oddses){
     var length = oddses.length;
     for (var i = 0; i < length; i++){
         var odds = oddses[i];
-        var m = /** @type {{first_id: number, second_id: number, odds: number}} */ (odds.model);
-        var a = m.first_id;
-        var b = m.second_id;
+        var m = /** @type {!Object<string,*>} */ (odds.model);
+        var a = /** @type {number} */ (m["first_id"]);
+        var b = /** @type {number} */ (m["second_id"]);
         if (!table[a]) {
             table[a] = [];
         }
@@ -1301,6 +1301,9 @@ var PlayCardDirector = function(scene){
 
 PlayCardDirector.Xorshift = new Xorshift();
 
+/** @type {boolean} */
+PlayCardDirector.keepSeed = false;
+
 /**
  * @param {ExEvent} e The event object.
  */
@@ -1313,6 +1316,12 @@ PlayCardDirector.prototype.OnEnter = function(e){
  * @param {ExEvent} e The event object.
  */
 PlayCardDirector.prototype.OnReset = function(e){
+    if (PlayCardDirector.keepSeed) {
+        PlayCardDirector.keepSeed = false;
+    } else {
+        var newSeed = Math.floor(Math.random() * 2147483647);
+        PlayCardDirector.Xorshift.seed(newSeed);
+    }
     var repositoryDirector = /** @type {!RepositoryDirector} */ (Game.Locator.locate(RepositoryDirector));
     var repository = /** @type {!Repository} */ (repositoryDirector.Get("PlayCard"));
     var playCards = /** @type {!Array<!PlayCard>} */ (repository.All());
@@ -1528,7 +1537,7 @@ RaceDirector.prototype.UpdateState = function(){
  */
 RaceDirector.prototype.OnPlacingFirst = function(e){
     var placings = this.goals_.slice(0, 1).map(function(/** !HorseFigure */ figure){
-        return (/** @type {{type: string}} */ (figure.model)).type;
+        return (/** @type {!Object<string,*>} */ (figure.model))["type"];
     });
     var first = /** @type {string} */ (placings[0]);
     Game.Log("The first: " + first);
@@ -1544,8 +1553,8 @@ RaceDirector.prototype.OnPlacingSecond = function(e){
     var first = placings[0];
     /** @type {!HorseFigure} */
     var second = placings[1];
-    Game.Log("The first: " + (/** @type {{type: string}} */ (first.model)).type);
-    Game.Log("The second: " + (/** @type {{type: string}} */ (second.model)).type);
+    Game.Log("The first: " + (/** @type {!Object<string,*>} */ (first.model))["type"]);
+    Game.Log("The second: " + (/** @type {!Object<string,*>} */ (second.model))["type"]);
     var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
     publisher.Publish(Events.Race.OnFinishedRace, this, {
         "race": this.race,
@@ -1570,16 +1579,16 @@ RaceDirector.prototype.OnFinishedRace = function(e){
         var model = Game.Model("Odds").Set(row);
         return /** @type {!Odds} */ (Game.Entity("Odds", model));
     })).filter(function(/** !Odds */ odds){
-        var m = /** @type {{first_id: number, second_id: number}} */ (odds.model);
-        return m.first_id == order[0] && m.second_id == order[1];
+        var m = /** @type {!Object<string,*>} */ (odds.model);
+        return m["first_id"] == order[0] && m["second_id"] == order[1];
     });
     var odds = oddses[0];
-    var mOdds = /** @type {{odds: number}} */ (odds.model);
+    var mOdds = /** @type {!Object<string,*>} */ (odds.model);
     var sceneDirector = /** @type {!CustomSceneDirector} */ (Game.Locator.locate(CustomSceneDirector));
     sceneDirector.Push(new GameScene("Result", {
         "race": race,
         "placings": placings,
-        "odds": mOdds.odds,
+        "odds": mOdds["odds"],
     }));
 };
 

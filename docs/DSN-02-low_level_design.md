@@ -92,7 +92,7 @@ classDiagram
     * `RacetrackLayer`: レーストラックのレンダリング。
     * `OddsTableLayer`: オッズ配当表のレンダリング。
     * `LogMessageLayer`: 実況テキストログのレンダリング。
-    * `DebugMenuLayer`: 開発用デバッグ制御パネル。初期表示は非表示 (`display: none`)。
+    * `DebugMenuLayer`: 開発用デバッグ制御パネル。初期表示は表示 (`display: block`)。
     * `FPSLayer`: ループFPSの計測と描画。
     * `SampleBallLayer`: アニメーションキャンバス。
   * **Result シーン**:

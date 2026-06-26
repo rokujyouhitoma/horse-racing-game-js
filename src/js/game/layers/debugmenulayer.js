@@ -51,7 +51,7 @@ DebugMenuLayer.prototype.Render = function(){
     var section = document.createElement("section");
     var publisher = /** @type {!Publisher} */ (Game.Locator.locate(Publisher));
     section.className = "debugmenu";
-    section.style.display = "none";
+    section.style.display = "block";
     var h1 = document.createElement("h1");
     h1.innerText = "Debug Menu";
     section.appendChild(h1);
@@ -83,9 +83,29 @@ DebugMenuLayer.prototype.Render = function(){
             domElement.appendChild(button);
             return button;
         });
-        var seed = document.createElement("p");
-        seed.innerText = "seed: " + PlayCardDirector.Xorshift.s;
-        domElement.appendChild(seed);
+        var seedContainer = document.createElement("p");
+        seedContainer.innerText = "seed: ";
+        var seedInput = document.createElement("input");
+        seedInput.type = "number";
+        seedInput.value = PlayCardDirector.Xorshift.s.toString();
+        seedInput.style.width = "120px";
+        seedInput.style.marginLeft = "5px";
+        seedContainer.appendChild(seedInput);
+        
+        var setButton = document.createElement("button");
+        setButton.innerText = "Set & Reset \uD83C\uDFC7";
+        setButton.style.marginLeft = "5px";
+        setButton.addEventListener("click", function(){
+            var input = /** @type {!HTMLInputElement} */ (seedInput);
+            var val = parseInt(input.value, 10);
+            if (!isNaN(val)) {
+                PlayCardDirector.Xorshift.seed(val);
+                PlayCardDirector.keepSeed = true;
+                publisher.Publish(Events.Debug.OnResetRace, self);
+            }
+        });
+        seedContainer.appendChild(setButton);
+        domElement.appendChild(seedContainer);
     }
     return fragment;
 };
